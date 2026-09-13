@@ -1,0 +1,16 @@
+{
+  "slug": "bandwidth-overage",
+  "question": "流量用超了会怎样？会额外扣费吗？",
+  "answer": "会限速，不会额外扣费。搬瓦工的套餐按月给流量额度，用完之后不会停机，而是把端口速度降下来，到下一个计费周期自动恢复。所以不用担心超了被收一大笔钱，但如果业务依赖稳定带宽，超限期间基本等于不可用。日常可以在 KiwiVM 面板查看流量使用情况。如果长期接近上限，说明该换流量更高的套餐，而不是每月硬扛限速。",
+  "category": "usage",
+  "related": {
+    "plans": [],
+    "datacenters": [],
+    "lines": [],
+    "tutorials": ["kiwivm-panel"],
+    "glossary": ["bandwidth-vs-traffic"],
+    "deals": []
+  },
+  "order": 10,
+  "updatedAt": "2026-09-13"
+}

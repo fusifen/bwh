@@ -45,7 +45,7 @@
       "fix": "如果之前打过快照，可以在面板里回滚。没有快照则无法恢复——这是为什么重装前要先打快照"
     }
   ],
-  "relatedTutorials": ["kiwivm-panel", "snapshot-backup", "ssh-connect"],
+  "relatedTutorials": ["kiwivm-panel", "snapshot-backup", "ssh-connect", "domain-ssl-setup"],
   "relatedPlans": ["basic-vps-1gb", "cn2-gia-e-1gb"],
   "faqs": [],
   "seo": {

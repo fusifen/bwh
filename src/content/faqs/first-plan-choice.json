@@ -1,0 +1,16 @@
+{
+  "slug": "first-plan-choice",
+  "question": "第一次买搬瓦工，选哪个套餐？",
+  "answer": "分三种情况。只是学习和练手，选最便宜的入门款就够，配置低但功能完整，适合熟悉 Linux 和面板操作。要建站或者跑正式服务，建议直接上 CN2 GIA-E 系列，晚高峰稳定性差别明显，省下的折腾时间通常比省下的钱值。访客集中在亚洲、对延迟敏感，再考虑香港或日本机房，但价格会高一档。不必一开始就买最高配置——搬瓦工支持后续迁移机房和升级配置，先用低成本试清楚自己的真实需求更划算。",
+  "category": "general",
+  "related": {
+    "plans": ["basic-vps-1gb", "cn2-gia-e-1gb", "hongkong-2gb"],
+    "datacenters": [],
+    "lines": [],
+    "tutorials": [],
+    "glossary": ["vps"],
+    "deals": []
+  },
+  "order": 6,
+  "updatedAt": "2026-09-13"
+}

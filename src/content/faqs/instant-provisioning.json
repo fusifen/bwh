@@ -1,0 +1,16 @@
+{
+  "slug": "instant-provisioning",
+  "question": "付款后多久能开通？",
+  "answer": "通常几分钟内自动开通。付款完成后系统自动部署，机器信息（IP、root 密码）会发到注册邮箱，同时能在后台的 KiwiVM 面板里看到。少数情况会延迟：一是订单被风控拦下转人工审核，新账号、支付方式与注册信息不一致时较常见；二是所选机房刚好缺货。如果超过半小时还没开通，先检查邮箱的垃圾邮件目录，再登录后台看订单状态，不要重复下单。",
+  "category": "general",
+  "related": {
+    "plans": [],
+    "datacenters": [],
+    "lines": [],
+    "tutorials": ["kiwivm-panel"],
+    "glossary": [],
+    "deals": []
+  },
+  "order": 7,
+  "updatedAt": "2026-09-13"
+}

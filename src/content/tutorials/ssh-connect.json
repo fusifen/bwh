@@ -58,7 +58,7 @@
       "fix": "检查 /root 或用户 home 目录权限，确保没有 group 或 other 写权限"
     }
   ],
-  "relatedTutorials": ["reinstall-os", "kiwivm-panel"],
+  "relatedTutorials": ["reinstall-os", "kiwivm-panel", "network-troubleshooting"],
   "relatedPlans": ["basic-vps-1gb", "cn2-gia-e-1gb"],
   "faqs": [],
   "seo": {

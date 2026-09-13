@@ -44,7 +44,7 @@
       "fix": "香港、弗里蒙特等机房锁定不可迁移。如果必须换机房，只能走退款流程重新购买"
     }
   ],
-  "relatedTutorials": ["reinstall-os", "migrate-datacenter", "snapshot-backup"],
+  "relatedTutorials": ["reinstall-os", "migrate-datacenter", "snapshot-backup", "network-troubleshooting"],
   "relatedPlans": ["cn2-gia-e-1gb", "basic-vps-1gb"],
   "faqs": [],
   "seo": {

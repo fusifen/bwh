@@ -1,0 +1,16 @@
+{
+  "slug": "ip-unreachable",
+  "question": "服务器 IP 突然访问不了了，怎么排查？",
+  "answer": "按先分层、再定位的顺序查，不要一上来就重装系统。第一步确认机器本身是否在运行：登录 KiwiVM 面板看状态，如果面板显示运行中但 SSH 连不上，用面板的 VNC 控制台进去看系统是否正常启动。第二步换网络环境测试，比如用手机流量或其他宽带，如果只有一个网络访问不了而其他正常，问题通常在本地网络或中间链路，不在服务器。第三步用面板提供的测试工具确认机房侧是否可达。第四步检查服务器上的防火墙规则，确认没有把自己挡在外面。都排除了之后，才考虑 IP 本身的问题。",
+  "category": "network",
+  "related": {
+    "plans": [],
+    "datacenters": [],
+    "lines": [],
+    "tutorials": ["ssh-connect", "kiwivm-panel", "network-troubleshooting"],
+    "glossary": [],
+    "deals": []
+  },
+  "order": 12,
+  "updatedAt": "2026-09-13"
+}

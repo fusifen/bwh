@@ -1,0 +1,16 @@
+{
+  "slug": "plan-out-of-stock",
+  "question": "想要的套餐显示售罄怎么办？",
+  "answer": "热门套餐（尤其是限量版和低价档）经常售罄，这是常态，不是故障。三个选择：一是等补货，官方会不定时放出库存；二是选同一系列的其他机房版本，多数套餐有多个机房可选，价格差异不大；三是上一档配置，通常贵不了多少，但不用等。不建议为了等一个特定套餐把需求一直拖着——如果现在就需要机器，选个相近的先跑起来，后续还能迁移。",
+  "category": "general",
+  "related": {
+    "plans": ["limited-fremont-1gb", "basic-vps-1gb", "basic-vps-2gb"],
+    "datacenters": [],
+    "lines": [],
+    "tutorials": [],
+    "glossary": [],
+    "deals": []
+  },
+  "order": 8,
+  "updatedAt": "2026-09-13"
+}

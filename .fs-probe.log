@@ -1,0 +1,13 @@
+1ms probe loaded
+8569ms promises.rm START file:///D:/Bwh/stellar-shell/dist/server/.prerender//.vite/
+8740ms promises.rm END   file:///D:/Bwh/stellar-shell/dist/server/.prerender//.vite/
+9603ms promises.rm START file:///D:/Bwh/stellar-shell/dist/server//.vite/
+10167ms promises.rm END   file:///D:/Bwh/stellar-shell/dist/server//.vite/
+16486ms unlinkSync START C:\Users\feiwu\AppData\Roaming\xdg.config\.wrangler\registry\prerender
+16617ms unlinkSync END   C:\Users\feiwu\AppData\Roaming\xdg.config\.wrangler\registry\prerender
+16621ms promises.rm START C:\Users\feiwu\AppData\Local\Temp\miniflare-f64390a1dd807f2d7d368944650fc19e
+16622ms promises.rm START D:\Bwh\stellar-shell\.wrangler\tmp\email\miniflare-f64390a1dd807f2d7d368944650fc19e
+16624ms promises.rm END   D:\Bwh\stellar-shell\.wrangler\tmp\email\miniflare-f64390a1dd807f2d7d368944650fc19e
+16626ms promises.rm START file:///D:/Bwh/stellar-shell/dist/server/.prerender/
+16631ms promises.rm END   C:\Users\feiwu\AppData\Local\Temp\miniflare-f64390a1dd807f2d7d368944650fc19e
+20096ms promises.rm END   file:///D:/Bwh/stellar-shell/dist/server/.prerender/

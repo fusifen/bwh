@@ -1,0 +1,63 @@
+{
+  "slug": "ipv6-setup",
+  "title": "开启 IPv6 并验证真的能用",
+  "category": "network",
+  "difficulty": "medium",
+  "timeMinutes": 15,
+  "summary": "搬瓦工不少机房支持 IPv6，但默认不一定分配给你。开启本身只是面板上点一下，麻烦的是后续：很多「开了但用不了」的情况，其实是系统没正确拿到地址，或者拿到地址但没有可用出口。这篇的重点在验证，而不是开关。",
+  "prerequisites": [
+    "机器已开机并能 SSH 登录",
+    "确认所选机房支持 IPv6（不是所有机房都提供）",
+    "了解基础的网络命令"
+  ],
+  "steps": [
+    {
+      "title": "先确认机房是否支持",
+      "body": "IPv6 是**机房级别的能力**，不是所有机房都有。如果机房本身不提供，后面所有步骤都不用做。\n\n判断方法：在 KiwiVM 面板里看有没有 IPv6 相关的区块。没有这个区块，说明当前机房不支持 —— 这种情况可以考虑迁移到支持的机房，但迁移会重装系统，先确认值得再动。"
+    },
+    {
+      "title": "在面板分配 IPv6 地址",
+      "body": "在 KiwiVM 面板的 IPv6 区块里添加一个地址。通常面板会一次性给你一个地址（有时是一个段），记录下来。\n\n分配之后**不一定会立刻在系统里生效**。有的需要重启网络服务，有的需要重启机器。先做下一步确认，不要假设它已经生效了。"
+    },
+    {
+      "title": "在系统里确认地址是否真的拿到",
+      "body": "```bash\nip -6 addr show\n```\n\n在输出里找带 `inet6` 的行，确认地址和你面板上分配的一致。\n\n如果**看不到任何 inet6 地址**（除了 `::1` 这种本地回环），说明系统没有自动获取到。可以尝试：\n\n```bash\nsystemctl restart networking    # Debian / Ubuntu\n```\n\n还是不行就重启一次机器。这一步没通过，后面的测试都不用做。"
+    },
+    {
+      "title": "测试 IPv6 连通性",
+      "body": "先测本机能否出网：\n\n```bash\nping -6 2001:4860:4860::8888\n```\n\n能通说明 IPv6 出口可用。再用一个只看 IPv6 的方式确认对外身份：\n\n```bash\ncurl -6 https://ifconfig.co\n```\n\n返回的应该是你的 IPv6 地址。如果 `ping -6` 通但 `curl -6` 不通，问题多半在 DNS —— 系统可能还在用 IPv4 的解析器，需要配一个支持 IPv6 的 DNS 地址。"
+    },
+    {
+      "title": "让服务也监听 IPv6（可选）",
+      "body": "系统有 IPv6 不等于你的服务能用 IPv6 访问。Nginx 这类服务默认可能只绑定了 IPv4。\n\n检查监听情况：\n\n```bash\nss -tlnp | grep -E ':::80|:::443'\n```\n\n如果只看到 `0.0.0.0:80` 而没有 `[::]:80`，说明还没监听 IPv6。把配置里的 `listen 80;` 补成双栈：\n\n```nginx\nlisten 80;\nlisten [::]:80;\n```\n\n改完记得 `nginx -t` 校验再 reload。\n\n**如果只是自己偶尔用，这一步可以跳过** —— 大多数客户端会优先用 IPv4，服务不支持 IPv6 通常不影响正常访问。"
+    }
+  ],
+  "troubleshooting": [
+    {
+      "symptom": "面板里分配了 IPv6，但系统里看不到地址",
+      "cause": "系统没有自动获取，或网络服务未重启",
+      "fix": "先重启网络服务，仍无效则重启机器。部分系统的网络配置需要手动声明 IPv6 地址"
+    },
+    {
+      "symptom": "有 IPv6 地址，ping -6 通，但 curl -6 失败",
+      "cause": "DNS 解析仍走 IPv4，或没有可用的 IPv6 路由",
+      "fix": "检查 /etc/resolv.conf 里的 DNS 服务器是否支持 IPv6，必要时换成公共 IPv6 DNS（如 2001:4860:4860::8888）"
+    },
+    {
+      "symptom": "IPv6 配好后，某些服务反而变慢或超时",
+      "cause": "客户端优先尝试 IPv6，但 IPv6 链路质量不如 IPv4",
+      "fix": "这是双栈环境的典型现象。可以暂时停用 IPv6，或在应用层调整地址族优先级，不必强行保留"
+    }
+  ],
+  "relatedTutorials": ["ssh-connect", "kiwivm-panel", "network-troubleshooting"],
+  "relatedPlans": ["cn2-gia-e-1gb", "basic-vps-1gb"],
+  "faqs": [],
+  "seo": {
+    "title": "搬瓦工开启 IPv6 教程：分配、验证与排错",
+    "description": "搬瓦工 VPS 开启 IPv6 的完整流程。确认机房支持、面板分配地址、系统内验证是否生效、测试 IPv6 出口，以及「开了但用不了」的三种常见原因。",
+    "keywords": ["搬瓦工 IPv6", "VPS 开启 IPv6", "IPv6 不生效", "服务器 IPv6 配置"]
+  },
+  "order": 7,
+  "updatedAt": "2026-09-13",
+  "publishedAt": "2026-09-13"
+}

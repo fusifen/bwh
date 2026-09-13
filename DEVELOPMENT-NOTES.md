@@ -298,92 +298,82 @@ Cloudflare Pages/Workers 的 `_redirects` 规则**在 Functions 之前执行**�
 
 ## 十四、构建在沙箱 / Agent 环境里会「假死」
 
-**症状**：`astro build` 打印 `Rearranging server assets...` 或 `Collecting build info...` 之后
+**症状**：`astro build` 打印 `Rearranging server assets...` 之后
 再无输出，进程 CPU 归零，但 `dist/client` 里的页面其实**已经全部渲染完成**。
+卡住的时间从几分钟到永远不等，**重跑往往能通过**。
 
-**原因不在项目里。** 精确定位到的卡点：
-
-```text
-[safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED] {"count":600,"threshold":50,"scope":"turn",
- "targets":["D:\\Bwh\\stellar-shell\\dist\\server\\.prerender\\.vite\\"],"targetCount":1}
-```
-
-调用链：
+**精确卡点的调用链**（探针定位）：
 
 ```text
 node_modules/astro/dist/core/build/vite-plugin-ssr-assets.js:54   deleteViteFolder()
   → fs.promises.rm('<outDir>/.vite/', { recursive: true, force: true })
-  → 被拦截：WorkBuddy 注入的 node-safe-delete-shim.cjs（checkBulkDeleteGuard）
 ```
 
-`<outDir>/.vite/` 是 prerender 环境的 Vite 依赖预打包缓存，实测 **600 个文件** ——
-远超拦截阈值 50。非交互进程等不到确认，就永远停在那里（有时直接抛错）。
+删除目标是**两个** `.vite` 目录：
+- `dist/server/.prerender/.vite/`（prerender 环境的 Vite 依赖缓存）
+- `dist/server/.vite/`（ssr 环境的 Vite 依赖缓存）
 
-**为什么「有时成功有时卡住」**：拦截计数是 `"scope":"turn"` —— **按轮次累计**，
-不是按单次操作。同一个 turn 内前面累积的文件操作越多，越容易在后面触发。
+实测文件数合计 **600+**，探针显示删除本身耗时正常（171ms / 564ms / 3.5s），
+**不是删除慢**。
 
-### 拦截者是谁
+### 已排除的假设（都有反例）
 
-不是沙箱内核，是 **WorkBuddy 通过 `NODE_OPTIONS` 注入的 Node shim**：
+| 假设 | 证据 | 结论 |
+| :--- | :--- | :--- |
+| WorkBuddy safe-delete shim 拦截 | `NODE_OPTIONS=` 已让 shim 不加载（`fs.promises.rm` 变回原生实现），但构建仍会卡住 | ❌ 不是主因 |
+| 删除文件太多 / 太慢 | 探针实测两个 `.vite` 目录合计删除 < 4 秒 | ❌ 不是 |
+| dev server 干扰 | 对照实验：dev 在跑时 build 仍成功（43.45s） | ❌ 不是 |
+| npm 包装差异 | `node --import` 直接跑与 `npm run build` 都成功过 | ❌ 不是 |
+| 旧 dist 目录 | mv 走旧产物与保留旧产物都有成功和失败 | ❌ 不是 |
 
-```text
-NODE_OPTIONS=--require="F:/Program Files/WorkBuddyAI/resources/app.asar.unpacked/cli/vendor/shim/node-language-shim.cjs"
-```
+### 仍存的观察
 
-### 可靠解法：清空 `NODE_OPTIONS`
+- 表现为**间歇性**：同一套条件（同一个命令、同一个状态）有时 15 秒通过、有时挂几分钟
+- 连续两次卡住、接着连续两次成功，没有可解释的状态切换
+- **高度可疑但未验证**：Windows 实时文件扫描在扫描新创建/修改的文件时会锁定文件句柄，
+  导致 `fs.promises.rm` 的异步操作等待。这个假设符合「间歇性」和「与内容变化相关」两个特征，
+  但暂时无法直接验证
 
-```bash
-NODE_OPTIONS= npm run build
-```
+### 当前状态：没有可靠解法，但有实用判据
 
-shim 根本不会加载，构建完整通过（实测 12.81 秒，sitemap 正常生成）。
+在这个环境里，构建是**概率性的**。卡住就重跑，通常第二次能通过。
 
-这是**本地验证手段**。CI 与普通终端没有这个 shim，不需要也不应该带这个前缀，
-所以**不要写进 `package.json`**。
+**能做的**（按优先级）：
 
-### 无效的解法
+1. **卡住时重跑** —— 最实用
+2. **用 sitemap 判据确认构建是否真的完成**：
+   `dist/client/sitemap-index.xml` 存在 = 构建走完了最后一步。
+   sitemap 在 `astro:build:done` 写入，位于被卡步骤之后。如果被中断，
+   sitemap 不存在但 `robots.txt` 照样声明它（指向 404）。
+3. **探针定位** —— 持续卡住时：
+   ```js
+   import fs from 'node:fs';
+   const LOG = 'D:/Bwh/stellar-shell/.fs-probe.log';
+   const t0 = Date.now();
+   const log = (line) => fs.appendFileSync(LOG, `${Date.now()-t0}ms ${line}\n`);
+   for (const name of ['rmSync','rmdirSync','unlinkSync','renameSync']) {
+     const orig = fs[name];
+     fs[name] = function (...args) { log(`${name} START ${args[0]}`); return orig.apply(this, args); };
+   }
+   const p = fs.promises;
+   for (const name of ['rm','rmdir','unlink','rename']) {
+     const orig = p[name];
+     p[name] = async function (...args) { log(`promises.${name} START ${args[0]}`); return orig.apply(this, args); };
+   }
+   ```
+   ```bash
+   NODE_OPTIONS= node --import ./scripts/__fs-probe.mjs \
+     node_modules/astro/bin/astro.mjs build --config astro.config.cloudflare.mjs
+   ```
+   最后一条未结束的日志就是卡点。
 
-`CODEBUDDY_SAFE_DELETE_ENABLED=0` **无效** —— 工具运行时在 `injectSafeDeleteEnv` 里
-把它强制设回 `"1"`。而且以它开头的 `npm run <复合脚本>` 会跳过 shell 环境注入，
-导致后续命令 `command not found`（退出码 127）。
+4. **`NODE_OPTIONS=` 仍要加**（它解决的是 shim 那层，只是不能保证不卡）：
+   ```bash
+   NODE_OPTIONS= npm run build
+   ```
+   不要写进 `package.json` —— CI 和普通终端没有这个 shim。
 
-### 诊断方法：`--import` 探针
-
-卡住时用探针包装破坏性 fs 调用，最后一条日志就是卡点。**不要靠猜** —— 我先后误判过
-两次（node 适配器、Vite 重优化），都不是原因。
-
-```js
-// scripts/__fs-probe.mjs（临时，用完删）
-import fs from 'node:fs';
-const LOG = 'D:/Bwh/stellar-shell/.fs-probe.log';
-const log = (line) => fs.appendFileSync(LOG, `${Date.now()} ${line}\n`);
-for (const name of ['rmSync', 'rmdirSync', 'unlinkSync', 'renameSync']) {
-  const orig = fs[name];
-  fs[name] = function (...args) { log(`${name} ${args[0]}`); return orig.apply(this, args); };
-}
-const p = fs.promises;
-for (const name of ['rm', 'rmdir', 'unlink', 'rename']) {
-  const orig = p[name];
-  p[name] = async function (...args) { log(`promises.${name} ${args[0]}`); return orig.apply(this, args); };
-}
-```
-
-```bash
-node --import ./scripts/__fs-probe.mjs node_modules/astro/bin/astro.mjs \
-  build --config astro.config.cloudflare.mjs
-```
-
-日志停在 `promises.rm START .../dist/server/.prerender//.vite/`，一次就定位到了。
-
-### 连带症状：sitemap 不生成
-
-`@astrojs/sitemap` 在 `astro:build:done` 钩子里写文件 —— 位于被卡住的步骤**之后**。
-所以构建被中断时 `dist/client` 里**没有 sitemap**，而 `robots.txt` 里照样声明了
-`Sitemap:` 地址，指向一个 404。审计会报「没有找到 sitemap 文件」。
-
-**这条可以当作「构建是否真的跑完」的判据**：sitemap 存在 = 构建走完了最后一步。
-
-### 清理旧产物用重命名而不是删除
+### 清理旧产物用重命名
 
 ```bash
 mv dist "dist.bak-$(date +%s)"
@@ -407,7 +397,7 @@ test:keystatic       12 集合 + 5 单例，双 schema 一致
 test:affiliate       10 个套餐链接结构合法，/go/ 归因路径正确
 test:freshness       价格/优惠/实测均未超期
 test:links           17 处站内引用全部有效
-build                69 个页面，Cloudflare 产物
+build                72 个页面，Cloudflare 产物
 audit                元信息完整，sitemap 无泄漏
 ```
 

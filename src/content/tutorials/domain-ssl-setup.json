@@ -1,0 +1,76 @@
+{
+  "slug": "domain-ssl-setup",
+  "title": "域名解析与 HTTPS 证书配置全流程",
+  "category": "deploy",
+  "difficulty": "medium",
+  "timeMinutes": 30,
+  "summary": "建站的两块地基：域名指向你的服务器，以及让浏览器不再报「不安全」。这篇走完从解析到证书自动续期的完整链路。证书申请失败的原因高度集中，本文也把最常见的几种单独拆出来。",
+  "prerequisites": [
+    "已有一个域名，且能修改它的 DNS 记录",
+    "机器已开机，能 SSH 登录，知道公网 IP",
+    "机器上还没有占用 80 端口的服务（或知道怎么停掉）"
+  ],
+  "steps": [
+    {
+      "title": "先确认你要暴露的是哪个域名",
+      "body": "决定用根域名（`example.com`）还是子域名（`www.example.com` 或 `blog.example.com`）。\n\n建议**两个都加**，然后在 Web 服务器里把其中一个 301 到另一个。只配一个的话，另一个打不开会让访客以为站点挂了。\n\n证书申请时要把所有要用的域名一次性写上，后期补加虽然可行，但不如一次做对省事。"
+    },
+    {
+      "title": "添加 DNS 解析记录",
+      "body": "在你的域名服务商（或 Cloudflare 这类 DNS 托管商）后台添加一条 **A 记录**：\n\n- 主机记录：`@`（根域名）或 `www`（子域名）\n- 记录类型：`A`\n- 记录值：你的服务器公网 IP\n- TTL：默认即可（通常 300 秒或自动）\n\n**用 Cloudflare 的话有一个关键点**：申请证书期间，这条记录的小云朵图标要先设成**灰色（DNS only）**。橙色（Proxied）会让流量先经过 Cloudflare，导致证书校验拿不到你的源站，申请会失败。证书装好之后再决定是否打开代理。"
+    },
+    {
+      "title": "验证解析是否生效",
+      "body": "解析不是即时的，取决于 TTL 和缓存。等待一两分钟后验证：\n\n```bash\n# Linux / macOS\ndig +short 你的域名\n\n# Windows\nnslookup 你的域名\n```\n\n返回的 IP 和你的服务器一致，才能进行下一步。\n\n**如果返回的是 CDN 或其他 IP**，说明记录还是代理状态，回去改成 DNS only。**如果返回为空**，说明记录还没生效，再等一会儿。\n\n不要跳过这一步。证书申请失败最常见的原因就是域名根本没解析到这台机器。"
+    },
+    {
+      "title": "装 Web 服务器并确认能访问",
+      "body": "以 Nginx 为例（Debian / Ubuntu）：\n\n```bash\napt update\napt install nginx -y\nsystemctl enable --now nginx\n```\n\n然后在浏览器里用 `http://你的域名` 访问，看到 Nginx 默认页说明解析和 Web 服务器都通了。\n\n**先用 HTTP 走通再上证书**，可以避免「HTTP 和 HTTPS 都不通」时无从下手。\n\n如果防火墙开着，记得放行：\n\n```bash\nufw allow 80/tcp\nufw allow 443/tcp\n```"
+    },
+    {
+      "title": "申请证书",
+      "body": "用 certbot，它会自动改 Nginx 配置并加上跳转：\n\n```bash\napt install certbot python3-certbot-nginx -y\ncertbot --nginx -d example.com -d www.example.com\n```\n\n把域名换成你自己的。执行过程中会问几件事：\n\n- 输入邮箱（用于到期提醒）\n- 同意服务条款\n- **是否把所有 HTTP 请求跳转到 HTTPS** —— 一般选是\n\n完成后 certbot 会直接改好 Nginx 配置并 reload，不需要手动编辑。"
+    },
+    {
+      "title": "确认自动续期已就位",
+      "body": "Let's Encrypt 的证书有效期是 **90 天**，靠自动续期维持。certbot 安装时会注册一个 systemd timer，检查它是否在：\n\n```bash\nsystemctl list-timers | grep certbot\n```\n\n再用空跑模式验证续期流程本身没问题：\n\n```bash\ncertbot renew --dry-run\n```\n\n`--dry-run` 不会真的换证书，只走一遍流程。**这一步值得做** —— 自动续期失败通常要到证书过期那天才会发现，那时站点已经打不开了。"
+    },
+    {
+      "title": "最后验证一遍",
+      "body": "浏览器访问 `https://你的域名`，确认：\n\n- 地址栏有锁形图标，没有安全警告\n- 用 `http://` 访问会自动跳到 `https://`\n- 用 `www` 和不用 `www` 两个都能打开\n\n如果用了 Cloudflare 代理，现在可以把小云朵改回橙色。**注意改回之后，访客看到的是 Cloudflare 的证书**，你的源站证书依然需要保持有效，两者是独立的两层。"
+    }
+  ],
+  "troubleshooting": [
+    {
+      "symptom": "certbot 报域名验证失败",
+      "cause": "域名没有解析到这台机器，或者解析还被 CDN 代理着",
+      "fix": "用 dig 确认解析结果就是服务器 IP；Cloudflare 用户先把记录改成 DNS only（灰色云朵）再申请"
+    },
+    {
+      "symptom": "certbot 报 80 端口不可达",
+      "cause": "防火墙没放行 80 端口，或有其他服务占用了它",
+      "fix": "检查 ufw 规则；用 ss -tlnp | grep :80 确认端口占用情况。HTTP-01 验证必须能从公网访问 80 端口"
+    },
+    {
+      "symptom": "证书装好了，但浏览器仍提示不安全",
+      "cause": "页面里混用了 http:// 的资源（图片、脚本、样式）",
+      "fix": "打开浏览器控制台看被拦截的请求，把页面里的 http:// 资源地址改成 https:// 或相对路径"
+    },
+    {
+      "symptom": "到期前站点突然打不开，提示证书过期",
+      "cause": "自动续期没有生效",
+      "fix": "检查 systemctl list-timers 里有没有 certbot 任务；手动执行 certbot renew 看报错。续期同样需要 80 端口可用"
+    }
+  ],
+  "relatedTutorials": ["ssh-connect", "network-troubleshooting"],
+  "relatedPlans": ["cn2-gia-e-1gb", "ecommerce-1gb"],
+  "faqs": [],
+  "seo": {
+    "title": "搬瓦工建站：域名解析与 HTTPS 证书配置教程",
+    "description": "从域名解析到 HTTPS 证书自动续期的完整流程。包含 A 记录配置、解析验证、certbot 申请证书、以及证书申请失败最常见的四种原因与处理方法。",
+    "keywords": ["搬瓦工 建站", "域名解析", "certbot 证书", "Nginx HTTPS 配置"]
+  },
+  "order": 8,
+  "updatedAt": "2026-09-13",
+  "publishedAt": "2026-09-13"
+}

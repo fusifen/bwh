@@ -1,0 +1,16 @@
+{
+  "slug": "renewal-coupon",
+  "question": "续费时能用优惠码吗？",
+  "answer": "部分可以，但要看清楚适用范围。优惠码分两类：一类只对新购有效，一类对续费同样有效。续费时结账页面同样有优惠码输入框，填入有效的循环码即可生效。这一点值得在第一次下单前就确认：如果打算年付或长期使用，一个续费也能用的码，长期算下来比只对新购有效的码划算得多。判断方法是在续费时实际填一次看价格是否变化，而不是只看优惠码的标题。",
+  "category": "billing",
+  "related": {
+    "plans": [],
+    "datacenters": [],
+    "lines": [],
+    "tutorials": [],
+    "glossary": [],
+    "deals": ["first-purchase", "seasonal-sales"]
+  },
+  "order": 9,
+  "updatedAt": "2026-09-13"
+}

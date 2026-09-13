@@ -1,0 +1,16 @@
+{
+  "slug": "datacenter-migration",
+  "question": "能换机房吗？要额外付费吗？",
+  "answer": "可以换，多数情况下免费。搬瓦工支持在 KiwiVM 面板里自助迁移机房，同一套餐可选的机房之间切换通常不收费。有两点必须注意：迁移会重装系统，机器上的数据不会保留，迁之前一定要做好备份或快照；迁移过程中机器会短暂不可用，完成后 IP 会变，域名解析需要同步更新。如果目的是换个更近的机房降低延迟，建议先用机房页给出的测试 IP 确认实际表现，再决定要不要迁。",
+  "category": "usage",
+  "related": {
+    "plans": [],
+    "datacenters": ["dc6", "dc9", "tokyo"],
+    "lines": [],
+    "tutorials": ["migrate-datacenter", "snapshot-backup"],
+    "glossary": [],
+    "deals": []
+  },
+  "order": 11,
+  "updatedAt": "2026-09-13"
+}
