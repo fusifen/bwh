@@ -50,6 +50,16 @@ npm run build -- --site=https://your-domain.example
 npx wrangler deploy
 ```
 
+**上线前先空跑一次**（不上传，只校验配置与产物，几秒钟）：
+
+```bash
+npx wrangler deploy --dry-run
+```
+
+仓库根**没有** `wrangler.json`，这是刻意的 —— Wrangler 通过构建生成的
+`.wrangler/deploy/config.json` 找到 `dist/server/wrangler.json`，配置只有适配器一个来源。
+所以必须先构建、再部署，顺序不能反。
+
 产物结构：
 
 ```text
@@ -99,9 +109,11 @@ src/config/
   site.ts         站点级常量
   nav.ts          导航结构与搜索类型标签
 src/components/   34 个组件（layout / sections / cards / ui / seo）
-src/pages/        27 个页面与端点
-scripts/          11 个自检脚本 + 构建包装
+src/pages/        33 个页面与端点（30 个 .astro + 3 个数据端点）
+scripts/          11 个脚本（8 项检查 + 2 个工具 + 1 个构建包装）
 ```
+
+构建产出 69 个 HTML 页面（67 个可索引 + 2 个 noindex）。
 
 **两条收口规则**，改代码时请守住：
 

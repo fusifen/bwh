@@ -415,4 +415,34 @@ audit                元信息完整，sitemap 无泄漏
 
 `npm run verify`（不带 `:dev`）额外把占位 affId 与占位域名当作阻断项 —— 这是上线闸门。
 
+### 部署前空跑一次
+
+```bash
+npx wrangler deploy --dry-run
+```
+
+不连 Cloudflare、不上传，但会真正读取 `dist/server/wrangler.json`、打包 Worker、列举绑定。
+实测输出：
+
+```text
+✨ Read 155 files from the assets directory dist\client
+Total Upload: 1608.54 KiB / gzip: 366.24 KiB
+Binding            Resource
+env.ASSETS         Assets
+```
+
+唯一绑定是 `env.ASSETS`（静态资源），**没有 KV** —— 这就是 `session: false` 生效的证据。
+
+**这一步检查的是 `audit-build.mjs` 看不到的那一层**：产物结构对 ≠ 部署配置对。
+
+顺带确认了一个容易踩的疑问：仓库根**没有** `wrangler.json`，但 `wrangler deploy` 能用。
+原因是适配器在构建时写了 `.wrangler/deploy/config.json`：
+
+```json
+{ "configPath": "..\\..\\dist\\server\\wrangler.json", ... }
+```
+
+Wrangler 读它做重定向。`.wrangler/` 已在 `.gitignore` 里 —— 这没问题，因为 CI 上也是
+先 `npm run build`（重新生成它）再 `wrangler deploy`。**顺序不能反。**
+
 **设计原则**：每一条检查都必须能**区分「代码有问题」和「配置还没填」**。分不清的检查会被忽略，被忽略的检查等于不存在。
