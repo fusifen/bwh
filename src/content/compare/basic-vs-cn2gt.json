@@ -1,0 +1,63 @@
+{
+  "slug": "basic-vs-cn2gt",
+  "title": "搬瓦工入门对比：基础款 vs CN2 GT 差在哪",
+  "summary": "搬瓦工 $49.99/年 档是大多数人的入门选择，但同价位有基础款和 CN2 GT 两个方向。这篇不铺参数表，直接告诉你多花的钱买到了什么、值不值。",
+  "verdict": "如果你只是自己用、偶尔访问、不担心晚高峰，基础款够用；如果你有公开访客、希望晚上也稳定，CN2 GT 是更稳妥的起点。",
+  "left": {
+    "type": "plan",
+    "slug": "basic-vps-1gb",
+    "label": "基础款 1GB"
+  },
+  "right": {
+    "type": "plan",
+    "slug": "cn2-gt-1gb",
+    "label": "CN2 GT 1GB"
+  },
+  "dimensions": [
+    {
+      "label": "线路质量",
+      "left": "普通 163 骨干网，无优化",
+      "right": "CN2 GT 优化线路，电信直连",
+      "winner": "right",
+      "note": "CN2 GT 不是最高等级，但比 163 骨干网在拥塞时段有明显优势"
+    },
+    {
+      "label": "晚高峰表现",
+      "left": "延迟和丢包明显上升，偶发卡顿",
+      "right": "波动较小，连接基本稳定",
+      "winner": "right"
+    },
+    {
+      "label": "适用场景",
+      "left": "个人学习、低频访问、不对外服务",
+      "right": "建站、有公开访客、长期运行",
+      "winner": "tie",
+      "note": "没有绝对的好坏，只有匹不匹配"
+    },
+    {
+      "label": "价格",
+      "left": "更低",
+      "right": "略高（差价通常在 20-40%）",
+      "winner": "left"
+    },
+    {
+      "label": "升级路径",
+      "left": "支持迁移到 CN2 GT 或 CN2 GIA-E 机房",
+      "right": "支持迁移到 CN2 GIA-E 机房",
+      "winner": "tie",
+      "note": "搬瓦工支持套餐内迁移，选错了可以换，不需要重新买"
+    }
+  ],
+  "whenChooseLeft": "只是学习和练手，或者访问量极低、不担心晚高峰。基础款的功能完整性不差，价格低是最大优势。",
+  "whenChooseRight": "有公开访客、希望晚上也稳定、或者打算长期用。多付的钱买的是晚高峰的稳定性，不是绝对速度。",
+  "relatedPlans": ["basic-vps-1gb", "cn2-gt-1gb", "cn2-gia-e-1gb"],
+  "faqs": [],
+  "seo": {
+    "title": "搬瓦工入门对比：基础款 vs CN2 GT 哪个更值得买",
+    "description": "搬瓦工基础款与 CN2 GT 套餐的直接对比。线路质量、晚高峰表现、适用场景与价格差异，以及明确的选购建议。",
+    "keywords": ["搬瓦工 基础款", "搬瓦工 CN2 GT", "搬瓦工 入门", "搬瓦工 对比"]
+  },
+  "order": 4,
+  "updatedAt": "2026-09-13",
+  "publishedAt": "2026-09-13"
+}
