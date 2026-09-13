@@ -1,0 +1,60 @@
+{
+  "slug": "osaka-2gb",
+  "name": "大阪套餐（2GB）",
+  "series": "osaka",
+  "tier": "mainstream",
+  "status": "available",
+  "tagline": "亚洲节点的性价比选项，价格明显低于东京和香港",
+  "summary": "搬瓦工在亚洲价格最低的一档。线路等级不如香港的全程 CN2 GIA，也不如洛杉矶 CN2 GIA 机房在国内三网的优化程度，但价格优势明显。适合「需要亚洲节点、但预算有限」的场景，是香港的合理低价替代。",
+  "bestFor": ["需要亚洲节点、预算有限", "移动宽带用户", "面向日本或东亚用户的服务"],
+  "notFor": ["对线路等级有硬性要求", "需要迁移机房", "大流量用途"],
+  "specs": {
+    "cpu": "Intel Xeon",
+    "cores": 2,
+    "memoryMB": 2048,
+    "diskGB": 40,
+    "diskType": "SSD",
+    "trafficTB": 0.5,
+    "bandwidthMbps": 1500,
+    "ipv4": 1,
+    "ipv6": true,
+    "virtualization": "KVM"
+  },
+  "network": {
+    "line": "cmin2",
+    "datacenters": ["osaka"],
+    "migratable": false,
+    "migratableCount": 0
+  },
+  "pricing": {
+    "currency": "USD",
+    "cycles": [
+      { "cycle": "monthly", "price": 49.99 },
+      { "cycle": "annual", "price": 499.99, "note": "折算约 $41.67/月" }
+    ],
+    "paymentMethods": ["alipay", "paypal", "creditcard", "unionpay"],
+    "priceCheckedAt": "2026-09-13",
+    "refundDays": 30
+  },
+  "affiliate": {
+    "pid": "0",
+    "verified": false,
+    "note": "pid 需从搬瓦工后台 Affiliates 页面复制"
+  },
+  "scores": { "performance": 4, "value": 4, "stability": 4, "latencyCN": 3 },
+  "pros": ["价格明显低于东京和香港", "亚洲优化线路，延迟优于美国机房", "1.5Gbps 端口带宽较宽松"],
+  "cons": ["线路等级低于 CN2 GIA", "不支持迁移机房", "500GB 月流量偏少"],
+  "content": "## 它的定位\n\n大阪是搬瓦工在亚洲的性价比选项：比美国近，比香港便宜。\n\n如果你的需求是「亚洲节点」而不是「最低延迟」，大阪是一个合理的折中。如果你的需求是「最低延迟」，那只有香港能满足，而香港的价格是这里的近两倍。\n\n## 选之前确认两件事\n\n**一、你用的是哪家宽带。** 移动用户在大阪机房通常体验不错；电信用户的体验差异更大，建议先用测试 IP 自己测一遍。\n\n**二、流量够不够。** 500GB 月流量是亚洲机房的普遍水平，比美国机房少很多。按实际用量算一遍再决定。",
+  "useCases": ["cross-border", "website"],
+  "relatedPlans": ["tokyo-2gb", "hongkong-2gb", "cn2-gia-e-1gb"],
+  "relatedTutorials": ["kiwivm-panel"],
+  "faqs": [],
+  "seo": {
+    "title": "搬瓦工大阪套餐（2GB）：亚洲节点的性价比选择",
+    "description": "搬瓦工大阪机房套餐完整参数与价格。亚洲优化线路的实际表现、与东京和香港机房的价差与取舍，以及选购前需要确认的两个变量。",
+    "keywords": ["搬瓦工 大阪套餐", "搬瓦工 大阪", "搬瓦工 亚洲 VPS"]
+  },
+  "order": 9,
+  "updatedAt": "2026-09-13",
+  "publishedAt": "2026-09-13"
+}

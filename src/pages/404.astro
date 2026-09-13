@@ -1,0 +1,86 @@
+---
+/**
+ * 404 page.
+ *
+ * The job of a 404 on a content site is to convert a dead end into a route
+ * forward. It offers the four hubs that cover almost every intent, plus search.
+ * It is `noindex` by default (Astro serves it with a 404 status, and this page
+ * additionally sets the meta tag so a misconfigured host cannot index it).
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/ui/Icon.astro';
+import { getCompares, getGuides, getPlans, getTutorials } from '../lib/cms';
+
+const hubs = [
+  { href: '/plans', label: '套餐总览', body: '全部套餐的参数与价格对照表，含折算月价。', icon: 'server' },
+  { href: '/datacenters', label: '机房说明', body: '各机房的线路构成、适用场景与测试 IP。', icon: 'globe' },
+  { href: '/lines', label: '线路说明', body: 'CN2 GIA、CN2 GT 等线路的定义与实际差距。', icon: 'network' },
+  { href: '/learn', label: '教程库', body: '面板操作、系统重装、机房迁移与安全加固。', icon: 'book' },
+];
+
+const featured = [
+  ...getGuides().slice(0, 2).map((item) => ({ href: `/guides/${item.slug}`, label: item.title })),
+  ...getCompares().slice(0, 2).map((item) => ({ href: `/compare/${item.slug}`, label: item.title })),
+  ...getTutorials().slice(0, 2).map((item) => ({ href: `/learn/${item.slug}`, label: item.title })),
+];
+
+const planCount = getPlans().length;
+---
+
+<BaseLayout title="页面不存在" description="你访问的页面不存在或已被移动。" noindex>
+  <div class="container-page py-16 sm:py-24">
+    <div class="mx-auto max-w-3xl">
+      <p class="section-label">404</p>
+      <h1 class="mt-3 text-2xl font-medium sm:text-3xl">这个页面不存在</h1>
+      <p class="mt-3 text-[0.9375rem] leading-relaxed text-fg-muted">
+        链接可能写错了，或者页面被移动过。本站收录了 {planCount} 个套餐以及对应的机房、线路和教程，
+        下面这几个入口基本能覆盖所有需求。
+      </p>
+
+      <form action="/search" method="get" role="search" class="mt-6 flex max-w-lg gap-2">
+        <label for="q" class="sr-only">搜索关键词</label>
+        <input
+          id="q"
+          name="q"
+          type="search"
+          placeholder="搜索套餐、机房、线路或教程"
+          class="flex-1 rounded-lg border border-line bg-surface px-3 py-2.5 text-sm outline-none transition-colors focus:border-brand"
+        />
+        <button type="submit" class="btn btn-primary">搜索</button>
+      </form>
+
+      <div class="mt-10 grid gap-3 sm:grid-cols-2">
+        {
+          hubs.map((hub) => (
+            <a href={hub.href} class="card card-hover flex items-start gap-3 p-4">
+              <span class="mt-0.5 shrink-0 text-brand">
+                <Icon name={hub.icon} size={18} />
+              </span>
+              <span class="min-w-0">
+                <span class="block text-sm font-medium">{hub.label}</span>
+                <span class="mt-1 block text-sm text-fg-muted">{hub.body}</span>
+              </span>
+            </a>
+          ))
+        }
+      </div>
+
+      {
+        featured.length > 0 && (
+          <section class="mt-10">
+            <h2 class="section-label">常被访问的页面</h2>
+            <ul class="mt-3 flex flex-wrap gap-2">
+              {featured.map((item) => (
+                <li>
+                  <a href={item.href} class="chip hover:border-line-strong">
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+    </div>
+  </div>
+</BaseLayout>

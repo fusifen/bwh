@@ -1,0 +1,141 @@
+---
+/**
+ * Guide index.
+ *
+ * Guides are the pillar pages: one per intent, deliberately few, each ending in
+ * a recommendation of one or two plans rather than a catalogue. A guide that
+ * recommends everything is a guide that recommends nothing, and this site's
+ * entire value proposition is that it is willing to pick.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/ui/PageHero.astro';
+import Breadcrumbs from '../../components/layout/Breadcrumbs.astro';
+import LinkCard from '../../components/cards/LinkCard.astro';
+import AffiliateDisclosure from '../../components/sections/AffiliateDisclosure.astro';
+import EmptyState from '../../components/ui/EmptyState.astro';
+import { getGuides, plansBySlugs } from '../../lib/cms';
+import { GUIDE_INTENT_LABELS } from '../../lib/format';
+import { breadcrumbSchema, itemListSchema } from '../../lib/seo';
+
+const crumbs = [
+  { label: '首页', href: '/' },
+  { label: '选购指南', href: '/guides' },
+];
+
+const guides = getGuides();
+
+const schema = [
+  breadcrumbSchema(crumbs, '/guides'),
+  itemListSchema(
+    guides.map((guide) => ({ name: guide.title, url: `/guides/${guide.slug}` })),
+    '搬瓦工选购指南',
+  ),
+];
+---
+
+<BaseLayout
+  title="搬瓦工选购指南：按使用场景给出推荐"
+  description="按新手、建站、跨境业务、开发测试等场景给出的搬瓦工选购指南。每篇只推荐一到两个套餐，并说明推荐理由与不推荐的理由。"
+  keywords={['搬瓦工选购', '搬瓦工怎么选', '搬瓦工推荐', 'VPS 选购指南']}
+  schema={schema}
+>
+  <PageHero
+    eyebrow="选购指南"
+    title="按场景给出的选购指南"
+    lede="同一个套餐在不同用途下值不值，结论完全不同。这些指南按使用场景组织，每篇只推荐一到两个套餐，并说明为什么不推荐其他几个。"
+  >
+    <Breadcrumbs slot="breadcrumbs" crumbs={crumbs} />
+    <Fragment slot="chips">
+      <span class="chip chip-mono">{guides.length} 篇指南</span>
+      <span class="chip">每篇只推荐 1–2 个</span>
+      <span class="chip">含购买前检查清单</span>
+    </Fragment>
+  </PageHero>
+
+  <div class="container-page space-y-12 py-10">
+    <AffiliateDisclosure />
+
+    {
+      guides.length > 0 ? (
+        <div class="space-y-3">
+          {guides.map((guide) => {
+            const recommended = plansBySlugs(guide.recommendedPlans);
+            return (
+              <article class="card p-5">
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <p class="section-label">{GUIDE_INTENT_LABELS[guide.intent] ?? guide.intent}</p>
+                    <h2 class="mt-1 text-lg font-medium">
+                      <a href={`/guides/${guide.slug}`} class="transition-colors hover:text-brand">
+                        {guide.title}
+                      </a>
+                    </h2>
+                  </div>
+                  {recommended.length > 0 && (
+                    <ul class="flex flex-wrap gap-1.5">
+                      {recommended.map((plan) => (
+                        <li class="chip chip-brand">{plan.name}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
+                <p class="mt-3 max-w-3xl text-sm leading-relaxed text-fg-muted">{guide.summary}</p>
+
+                <p class="mt-3 rounded-md border border-line bg-surface-2 px-3.5 py-2.5 text-sm leading-relaxed">
+                  <span class="font-medium text-fg">结论：</span>
+                  {guide.verdict}
+                </p>
+
+                <div class="mt-4 flex flex-wrap gap-2.5">
+                  <a href={`/guides/${guide.slug}`} class="btn btn-secondary btn-sm">
+                    读这篇指南
+                  </a>
+                  {guide.checklist.length > 0 && (
+                    <span class="chip">{guide.checklist.length} 项检查清单</span>
+                  )}
+                  {guide.sections.length > 0 && (
+                    <span class="chip">{guide.sections.length} 个小节</span>
+                  )}
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      ) : (
+        <EmptyState
+          title="还没有指南内容"
+          body="在后台的「指南」集合里添加第一篇指南，页面会自动生成。"
+          actionLabel="了解内容结构"
+          actionHref="/about"
+        />
+      )
+    }
+
+    <section aria-labelledby="tools-heading" class="space-y-3">
+      <h2 id="tools-heading" class="text-lg font-medium">
+        不想读长文？
+      </h2>
+      <div class="grid gap-3 sm:grid-cols-3">
+        <LinkCard
+          href="/tools/chooser"
+          title="三步选择器"
+          summary="回答三个问题，直接给出两个建议和推荐理由。"
+          eyebrow="工具"
+        />
+        <LinkCard
+          href="/compare"
+          title="对比中心"
+          summary="套餐、机房与线路的横向对比，每篇都有明确结论。"
+          eyebrow="对比"
+        />
+        <LinkCard
+          href="/plans"
+          title="套餐总览"
+          summary="全部套餐的参数与价格对照表，含折算月价。"
+          eyebrow="套餐"
+        />
+      </div>
+    </section>
+  </div>
+</BaseLayout>

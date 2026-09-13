@@ -1,0 +1,109 @@
+---
+/**
+ * Affiliate disclosure.
+ *
+ * Required by both FTC guidance and Chinese advertising law, and — more
+ * usefully — it is the page that converts a suspicious reader into a reader who
+ * knows exactly what the site's incentives are. The mechanism table is rendered
+ * from `programFacts` rather than hardcoded, so a change in the programme's
+ * terms is a content edit.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/ui/PageHero.astro';
+import Breadcrumbs from '../components/layout/Breadcrumbs.astro';
+import Prose from '../components/ui/Prose.astro';
+import AffiliateDisclosure from '../components/sections/AffiliateDisclosure.astro';
+import { AFFILIATE, DISCLOSURE } from '../lib/cms';
+import { renderMarkdown } from '../lib/markdown';
+import { formatDate } from '../lib/format';
+import { breadcrumbSchema } from '../lib/seo';
+
+const crumbs = [
+  { label: '首页', href: '/' },
+  { label: '联盟披露', href: '/disclosure' },
+];
+
+const body = renderMarkdown(DISCLOSURE.body);
+const facts = AFFILIATE.programFacts;
+
+const mechanism: Array<[string, string]> = [
+  ['佣金比例', facts.commissionRate],
+  ['是否循环', facts.recurring ? '是。用户续费，本站继续获得分成' : '否，仅首次购买计入'],
+  ['退款窗口', `新账号 ${facts.refundDays} 天内可全额退款；退款后佣金会被扣回`],
+  ['结算方式', facts.payoutMethods.length > 0 ? facts.payoutMethods.join(' · ') : '未标注'],
+  ...(facts.payoutThreshold ? ([['结算门槛', facts.payoutThreshold]] as Array<[string, string]>) : []),
+  [
+    '归因窗口',
+    facts.cookieDays
+      ? `${facts.cookieDays} 天`
+      : '官方未公开，本站按较短窗口设计',
+  ],
+];
+
+const schema = [breadcrumbSchema(crumbs, '/disclosure')];
+---
+
+<BaseLayout
+  title="联盟披露"
+  description="本站通过搬瓦工的联盟推广计划获得佣金。你通过页面上的链接购买，支付的价格与直接访问官网完全一致。这里是完整的披露说明。"
+  keywords={['联盟披露', 'affiliate disclosure', '推广说明']}
+  schema={schema}
+  type="article"
+  updatedAt={DISCLOSURE.lastReviewedAt}
+>
+  <PageHero
+    eyebrow="合规"
+    title={DISCLOSURE.title}
+    lede={DISCLOSURE.summary}
+  >
+    <Breadcrumbs slot="breadcrumbs" crumbs={crumbs} />
+    <Fragment slot="chips">
+      <span class="chip">最后复核于 {formatDate(DISCLOSURE.lastReviewedAt)}</span>
+      <span class="chip chip-brand">佣金 {facts.commissionRate}</span>
+      {facts.recurring && <span class="chip">循环佣金</span>}
+    </Fragment>
+  </PageHero>
+
+  <div class="container-page space-y-10 py-10">
+    <AffiliateDisclosure />
+
+    <section aria-labelledby="mechanism-heading" class="space-y-3">
+      <h2 id="mechanism-heading" class="text-lg font-medium">
+        佣金机制
+      </h2>
+      <dl class="spec-grid rounded-lg border border-line bg-surface-2 p-4">
+        {
+          mechanism.map(([label, value]) => (
+            <Fragment>
+              <dt>{label}</dt>
+              <dd>{value}</dd>
+            </Fragment>
+          ))
+        }
+      </dl>
+      {
+        facts.notes && (
+          <p class="rounded-lg border border-line bg-surface px-4 py-3 text-sm leading-relaxed text-fg-muted">
+            <strong class="font-medium text-fg">补充说明：</strong>
+            {facts.notes}
+          </p>
+        )
+      }
+    </section>
+
+    <Prose html={body.html} />
+
+    <section class="rounded-xl border border-line bg-surface-2 p-5">
+      <h2 class="text-base font-medium">一句话总结</h2>
+      <p class="mt-2 text-sm leading-relaxed text-fg-muted">
+        本站靠联盟佣金维持，所以有立场。我们的立场是：只有你买到合适的套餐并长期用下去，我们才有收益。
+        用户退款会让佣金被扣回，所以我们更倾向于在你犹豫时说明「这个可能不适合你」，
+        而不是把每个访客都推向更贵的方案。
+      </p>
+      <div class="mt-4 flex flex-wrap gap-2.5">
+        <a href="/about" class="btn btn-secondary btn-sm">关于本站与测评方法</a>
+        <a href="/contact" class="btn btn-secondary btn-sm">联系我们</a>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

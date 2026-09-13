@@ -1,0 +1,422 @@
+---
+/**
+ * Plan detail — the page the site exists to rank.
+ *
+ * Structure, in order, and each step earns its place:
+ *
+ *   1. Verdict first. A reader (or an answer engine) that stops after the first
+ *      block should still know whether this plan is for them.
+ *   2. Disclosure immediately after, not in the footer.
+ *   3. Pros and cons, then the discouragement block — `notFor` is rendered as
+ *      its own section because a 30-day refund claws the commission back, so
+ *      steering a mismatched buyer away is worth money, not charity.
+ *   4. Specs and pricing as real tables, with the price-checked date attached.
+ *   5. Body copy, then the retention layer (tutorials) and the link graph
+ *      (datacenters, line, comparisons, glossary).
+ *
+ * The fixed cross-link budget is what keeps the glossary ↔ line ↔ plan ↔
+ * datacenter graph closed instead of a set of islands.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/ui/PageHero.astro';
+import Breadcrumbs from '../../components/layout/Breadcrumbs.astro';
+import Toc from '../../components/layout/Toc.astro';
+import StickyCta from '../../components/layout/StickyCta.astro';
+import CtaButton from '../../components/ui/CtaButton.astro';
+import Prose from '../../components/ui/Prose.astro';
+import Callout from '../../components/ui/Callout.astro';
+import PlanCard from '../../components/cards/PlanCard.astro';
+import LinkCard from '../../components/cards/LinkCard.astro';
+import TutorialCard from '../../components/cards/TutorialCard.astro';
+import VerdictBox from '../../components/sections/VerdictBox.astro';
+import ProsCons from '../../components/sections/ProsCons.astro';
+import SpecTable from '../../components/sections/SpecTable.astro';
+import PricingTable from '../../components/sections/PricingTable.astro';
+import ScoreBars from '../../components/sections/ScoreBars.astro';
+import FaqAccordion from '../../components/sections/FaqAccordion.astro';
+import AffiliateDisclosure from '../../components/sections/AffiliateDisclosure.astro';
+import UpdateStamp from '../../components/sections/UpdateStamp.astro';
+import CtaBand from '../../components/sections/CtaBand.astro';
+import EmptyState from '../../components/ui/EmptyState.astro';
+import Icon from '../../components/ui/Icon.astro';
+import {
+  affUrlFor,
+  getBenchmarksFor,
+  getDealsForPlan,
+  getFaqsFor,
+  getPlans,
+  getRelatedForPlan,
+  getTutorialsForPlan,
+} from '../../lib/cms';
+import { renderMarkdown } from '../../lib/markdown';
+import {
+  DEAL_KIND_LABELS,
+  formatBandwidth,
+  formatDisk,
+  formatMemory,
+  formatTraffic,
+  SERIES_LABELS,
+  STATUS_LABELS,
+  TIER_LABELS,
+} from '../../lib/format';
+import { breadcrumbSchema, faqSchema, planSchema } from '../../lib/seo';
+
+export function getStaticPaths() {
+  return getPlans().map((plan) => ({ params: { slug: plan.slug }, props: { plan } }));
+}
+
+const { plan } = Astro.props;
+
+const path = `/plans/${plan.slug}`;
+const crumbs = [
+  { label: '首页', href: '/' },
+  { label: '套餐', href: '/plans' },
+  { label: plan.name, href: path },
+];
+
+const related = getRelatedForPlan(plan);
+const body = renderMarkdown(plan.content);
+const line = related.lines[0];
+const tutorials = getTutorialsForPlan(plan.slug);
+const benchmarks = getBenchmarksFor('plan', plan.slug);
+const deals = getDealsForPlan(plan.slug);
+const faqs = [...plan.faqs, ...getFaqsFor('plans', plan.slug)].filter(
+  (faq, index, all) => all.findIndex((item) => item.question === faq.question) === index,
+);
+
+const unavailable = plan.status === 'out-of-stock' || plan.status === 'discontinued';
+const affiliateReady = affUrlFor(plan).includes('pid=');
+
+const schema = [
+  breadcrumbSchema(crumbs, path),
+  planSchema(plan, path),
+  faqSchema(faqs),
+];
+
+const keySpecs: Array<[string, string]> = [
+  ['内存', formatMemory(plan.specs.memoryMB)],
+  ['硬盘', `${formatDisk(plan.specs.diskGB)} ${plan.specs.diskType}`],
+  ['月流量', formatTraffic(plan.specs.trafficTB)],
+  ['端口', formatBandwidth(plan.specs.bandwidthMbps)],
+];
+---
+
+<BaseLayout
+  title={plan.seo?.title ?? `${plan.name}：参数、价格与适用场景`}
+  description={plan.seo?.description ?? plan.summary}
+  keywords={plan.seo?.keywords}
+  schema={schema}
+  type="article"
+  updatedAt={plan.updatedAt}
+  publishedAt={plan.publishedAt}
+  tightBottom
+>
+  <PageHero eyebrow={SERIES_LABELS[plan.series] ?? plan.series} title={plan.name} lede={plan.tagline}>
+    <Breadcrumbs slot="breadcrumbs" crumbs={crumbs} />
+
+    <Fragment slot="chips">
+      <span class="chip chip-mono">{TIER_LABELS[plan.tier] ?? plan.tier}</span>
+      {
+        unavailable ? (
+          <span class="chip chip-signal">{STATUS_LABELS[plan.status] ?? plan.status}</span>
+        ) : (
+          <span class="chip">{STATUS_LABELS[plan.status] ?? plan.status}</span>
+        )
+      }
+      {line && <a href={`/lines/${line.slug}`} class="chip hover:border-line-strong">线路：{line.abbr}</a>}
+      {
+        plan.network.migratable && (
+          <span class="chip">可迁移 {plan.network.migratableCount} 个机房</span>
+        )
+      }
+      <span class="chip">更新于 {plan.updatedAt}</span>
+    </Fragment>
+
+    <Fragment slot="actions">
+      <CtaButton plan={plan} size="lg" label="查看该套餐当前价格" place="plan-hero" />
+      <a href="#pricing-heading" class="btn btn-secondary btn-lg">先看价格</a>
+      {
+        plan.network.datacenters.length > 0 && (
+          <a href="#datacenters" class="btn btn-ghost btn-lg">可选机房</a>
+        )
+      }
+    </Fragment>
+
+    <div slot="aside" class="space-y-3">
+      <dl class="grid grid-cols-2 gap-x-4 gap-y-2 rounded-lg border border-line bg-surface p-4 text-sm lg:grid-cols-1">
+        {
+          keySpecs.map(([label, value]) => (
+            <div class="flex items-baseline justify-between gap-2">
+              <dt class="text-fg-subtle">{label}</dt>
+              <dd class="font-medium tabular">{value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+      <p class="text-xs text-fg-subtle">
+        完整参数见下方参数表。所有数字以官方套餐页为准，本站只做整理与核对。
+      </p>
+    </div>
+  </PageHero>
+
+  <div class="container-page grid gap-10 py-10 lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-start">
+    <div class="min-w-0 space-y-10">
+      {
+        unavailable && (
+          <Callout tone="warn" title="这个套餐当前不可购买">
+            库存或上架状态可能随时恢复。下方仍保留完整参数与替代建议，方便你对比；
+            当前可购买的套餐见<a href="/plans">套餐总览</a>。
+          </Callout>
+        )
+      }
+
+      <VerdictBox verdict={plan.summary} points={plan.bestFor} />
+
+      <AffiliateDisclosure />
+
+      {
+        !affiliateReady && (
+          <Callout tone="warn" title="链接指向通用页面">
+            这个套餐的推广产品编号还没有人工核对，当前链接会落到搬瓦工首页而不是该套餐的购买页。
+            功能不受影响，但你需要在站内找到对应套餐后再下单。这个提示只在本站内部可见。
+          </Callout>
+        )
+      }
+
+      <section aria-labelledby="proscons-heading" class="space-y-3">
+        <h2 id="proscons-heading" class="text-base font-medium">优缺点</h2>
+        <ProsCons pros={plan.pros} cons={plan.cons} />
+      </section>
+
+      {
+        plan.notFor.length > 0 && (
+          <section
+            aria-labelledby="notfor-heading"
+            class="rounded-xl border border-signal/30 bg-signal-soft/60 p-5"
+          >
+            <h2 id="notfor-heading" class="flex items-center gap-2 text-base font-medium text-signal">
+              <Icon name="alert" size={16} />
+              这个套餐不适合谁
+            </h2>
+            <p class="mt-2 text-sm text-fg-muted">
+              搬瓦工支持新账号 30 天内全额退款，用户退款会导致佣金被扣回。
+              所以下面这些情况，我们建议你先别买这个。
+            </p>
+            <ul class="mt-3 space-y-2 text-sm">
+              {plan.notFor.map((item) => (
+                <li class="flex gap-2">
+                  <span aria-hidden="true" class="mt-[0.6em] h-1 w-1 shrink-0 rounded-full bg-signal" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+            <div class="mt-4 flex flex-wrap gap-2.5">
+              <a href="/tools/chooser" class="btn btn-secondary btn-sm">换个方式挑套餐</a>
+              <a href="/guides" class="btn btn-ghost btn-sm">看选购指南</a>
+            </div>
+          </section>
+        )
+      }
+
+      <section aria-labelledby="specs-heading" class="space-y-3">
+        <div class="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 id="specs-heading" class="text-base font-medium">完整参数</h2>
+          <UpdateStamp date={plan.updatedAt} kind="general" />
+        </div>
+        <SpecTable plan={plan} />
+      </section>
+
+      <PricingTable plan={plan} />
+
+      {plan.scores && <ScoreBars scores={plan.scores} />}
+
+      {
+        body.html && (
+          <section aria-labelledby="detail-heading" class="space-y-3">
+            <h2 id="detail-heading" class="text-base font-medium">详细说明</h2>
+            <Prose html={body.html} />
+          </section>
+        )
+      }
+
+      {
+        deals.length > 0 && (
+          <section aria-labelledby="deals-heading" class="space-y-3">
+            <h2 id="deals-heading" class="text-base font-medium">
+              可用于这个套餐的优惠与政策
+            </h2>
+            <div class="grid gap-3 sm:grid-cols-2">
+              {deals.map((deal) => (
+                <LinkCard
+                  href={`/deals/${deal.slug}`}
+                  title={deal.title}
+                  summary={deal.summary}
+                  eyebrow={DEAL_KIND_LABELS[deal.kind] ?? deal.kind}
+                  mono={deal.code ?? deal.discount}
+                  meta={[deal.appliesToRenewal ? '续费可用' : '仅首购']}
+                />
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      {
+        benchmarks.length > 0 && (
+          <section aria-labelledby="bench-heading" class="space-y-3">
+            <h2 id="bench-heading" class="text-base font-medium">
+              相关实测
+            </h2>
+            <div class="grid gap-3 sm:grid-cols-2">
+              {benchmarks.map((benchmark) => (
+                <LinkCard
+                  href={`/benchmarks/${benchmark.slug}`}
+                  title={benchmark.title}
+                  summary={benchmark.summary}
+                  eyebrow="实测"
+                  meta={[`测试于 ${benchmark.testedAt}`, benchmark.tool]}
+                />
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      {
+        tutorials.length > 0 && (
+          <section aria-labelledby="tutorials-heading" class="space-y-3">
+            <h2 id="tutorials-heading" class="text-base font-medium">
+              买了之后：配套教程
+            </h2>
+            <p class="text-sm text-fg-muted">
+              教程按步骤写，可以单独执行某一步。遇到问题可以在页面底部找到排查表。
+            </p>
+            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {tutorials.map((tutorial) => (
+                <TutorialCard tutorial={tutorial} showSummary={false} />
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      {
+        related.datacenters.length > 0 && (
+          <section id="datacenters" aria-labelledby="dc-heading" class="scroll-mt-24 space-y-3">
+            <h2 id="dc-heading" class="text-base font-medium">
+              可选机房
+            </h2>
+            <p class="text-sm text-fg-muted">
+              {plan.network.migratable
+                ? `购买后可以在后台免费迁移到其他机房，共 ${plan.network.migratableCount} 个可选。以下是最常用的两个。`
+                : '这个套餐不支持迁移机房，购买时选定的机房无法更改，请先确认。'}
+            </p>
+            <div class="grid gap-3 sm:grid-cols-2">
+              {related.datacenters.map((dc) => (
+                <LinkCard
+                  href={`/datacenters/${dc.slug}`}
+                  title={dc.name}
+                  summary={dc.summary}
+                  eyebrow={dc.city}
+                  mono={dc.code}
+                  meta={[dc.country]}
+                />
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      {
+        related.compares.length > 0 && (
+          <section aria-labelledby="compare-heading" class="space-y-3">
+            <h2 id="compare-heading" class="text-base font-medium">
+              相关对比
+            </h2>
+            <div class="grid gap-3 sm:grid-cols-2">
+              {related.compares.map((compare) => (
+                <LinkCard
+                  href={`/compare/${compare.slug}`}
+                  title={compare.title}
+                  summary={compare.verdict}
+                  eyebrow="对比"
+                />
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      {
+        related.plans.length > 0 && (
+          <section aria-labelledby="related-heading" class="space-y-3">
+            <h2 id="related-heading" class="text-base font-medium">
+              同系列与相近套餐
+            </h2>
+            <div class="grid gap-3 sm:grid-cols-2">
+              {related.plans.map((item) => (
+                <PlanCard plan={item} compact place="plan-related" />
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      {
+        faqs.length > 0 && (
+          <section aria-labelledby="faq-heading" class="space-y-3">
+            <h2 id="faq-heading" class="text-base font-medium">
+              关于这个套餐的常见问题
+            </h2>
+            <FaqAccordion items={faqs} />
+          </section>
+        )
+      }
+
+      {
+        related.glossary.length > 0 && (
+          <section aria-labelledby="glossary-heading" class="space-y-3">
+            <h2 id="glossary-heading" class="text-base font-medium">
+              相关术语
+            </h2>
+            <ul class="flex flex-wrap gap-2">
+              {related.glossary.map((entry) => (
+                <li>
+                  <a href={`/glossary/${entry.slug}`} class="chip hover:border-line-strong">
+                    {entry.term}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+
+      {
+        related.lines.length === 0 && related.plans.length === 0 && related.tutorials.length === 0 && (
+          <EmptyState
+            title="这个套餐还没有关联内容"
+            body="关联的机房、线路和教程会在内容补全后自动出现在这里。"
+            actionLabel="看全部套餐"
+            actionHref="/plans"
+          />
+        )
+      }
+
+      <CtaBand plan={plan} links={[{ href: '/plans', label: '对比其他套餐' }]} />
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="hidden lg:block lg:sticky lg:top-20 space-y-6">
+      <Toc entries={body.toc} />
+      <div class="rounded-lg border border-line bg-surface-2 p-4 text-xs text-fg-muted">
+        <p class="font-medium text-fg">价格核对</p>
+        <div class="mt-2">
+          <UpdateStamp date={plan.pricing.priceCheckedAt} kind="price" />
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <StickyCta plan={plan} />
+</BaseLayout>

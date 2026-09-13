@@ -1,0 +1,46 @@
+---
+/**
+ * Troubleshooting table.
+ *
+ * Symptom → cause → fix. The cause column is the one that matters: a fix
+ * without a cause teaches nothing and cannot be adapted when the next error
+ * message is slightly different.
+ */
+import type { TroubleshootItem } from '../../lib/schemas';
+
+interface Props {
+  items: TroubleshootItem[];
+}
+
+const { items } = Astro.props;
+---
+
+{
+  items.length > 0 && (
+    <section aria-labelledby="troubleshoot-heading" class="space-y-3">
+      <h2 id="troubleshoot-heading" class="text-base font-medium">常见问题与排查</h2>
+
+      <div class="table-scroll rounded-lg border border-line">
+        <table>
+          <caption class="sr-only">常见故障的现象、原因与解决方法</caption>
+          <thead>
+            <tr>
+              <th scope="col" class="min-w-[10rem]">现象</th>
+              <th scope="col" class="min-w-[12rem]">原因</th>
+              <th scope="col" class="min-w-[14rem]">处理方式</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((item) => (
+              <tr>
+                <th scope="row" class="font-medium text-fg">{item.symptom}</th>
+                <td class="text-fg-muted">{item.cause}</td>
+                <td class="text-fg-muted">{item.fix}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  )
+}

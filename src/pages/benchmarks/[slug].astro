@@ -1,0 +1,199 @@
+---
+/**
+ * Benchmark detail.
+ *
+ * Published as `Dataset`, never as `Review`. A Dataset says "here is what we
+ * measured and how"; a Review says "we rate this 4.5 stars". Only one of those
+ * is honest when the site earns commission on the thing being measured, and
+ * only one of them is verifiable by the reader.
+ *
+ * The method block renders above the results on purpose.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/ui/PageHero.astro';
+import Breadcrumbs from '../../components/layout/Breadcrumbs.astro';
+import LinkCard from '../../components/cards/LinkCard.astro';
+import PlanCard from '../../components/cards/PlanCard.astro';
+import MetricTable from '../../components/sections/MetricTable.astro';
+import LatencyTable from '../../components/sections/LatencyTable.astro';
+import RouteTable from '../../components/sections/RouteTable.astro';
+import AffiliateDisclosure from '../../components/sections/AffiliateDisclosure.astro';
+import CtaBand from '../../components/sections/CtaBand.astro';
+import Callout from '../../components/ui/Callout.astro';
+import Prose from '../../components/ui/Prose.astro';
+import { getBenchmarks, plansBySlugs } from '../../lib/cms';
+import { renderMarkdown } from '../../lib/markdown';
+import { formatDate } from '../../lib/format';
+import { benchmarkSchema, breadcrumbSchema } from '../../lib/seo';
+
+export function getStaticPaths() {
+  return getBenchmarks().map((benchmark) => ({
+    params: { slug: benchmark.slug },
+    props: { benchmark },
+  }));
+}
+
+const { benchmark } = Astro.props;
+
+const path = `/benchmarks/${benchmark.slug}`;
+const crumbs = [
+  { label: '首页', href: '/' },
+  { label: '实测数据', href: '/benchmarks' },
+  { label: benchmark.title, href: path },
+];
+
+const plans = plansBySlugs(benchmark.relatedPlans);
+const conclusion = benchmark.conclusion ? renderMarkdown(benchmark.conclusion) : null;
+
+const schema = [breadcrumbSchema(crumbs, path), benchmarkSchema(benchmark, path)];
+
+const targetHref =
+  benchmark.target.type === 'plan'
+    ? `/plans/${benchmark.target.slug}`
+    : `/datacenters/${benchmark.target.slug}`;
+
+const hasResults =
+  benchmark.metrics.length > 0 ||
+  benchmark.latencyTable.length > 0 ||
+  benchmark.routeTable.length > 0;
+---
+
+<BaseLayout
+  title={benchmark.seo?.title ?? benchmark.title}
+  description={benchmark.seo?.description ?? benchmark.summary}
+  keywords={benchmark.seo?.keywords}
+  schema={schema}
+  type="article"
+  publishedAt={benchmark.publishedAt}
+  updatedAt={benchmark.updatedAt}
+>
+  <PageHero eyebrow="实测" title={benchmark.title} lede={benchmark.summary}>
+    <Breadcrumbs slot="breadcrumbs" crumbs={crumbs} />
+    <Fragment slot="chips">
+      <a href={targetHref} class="chip chip-mono hover:border-line-strong">
+        目标：{benchmark.target.label}
+      </a>
+      <span class="chip">采集于 {formatDate(benchmark.testedAt)}</span>
+      <span class="chip chip-mono">{benchmark.tool}</span>
+      {benchmark.sampleSize && <span class="chip">{benchmark.sampleSize}</span>}
+    </Fragment>
+  </PageHero>
+
+  <div class="container-page space-y-10 py-10">
+    <section
+      aria-labelledby="method-heading"
+      class="rounded-xl border border-line bg-surface-2 p-5"
+    >
+      <h2 id="method-heading" class="text-base font-medium">
+        测试方法
+      </h2>
+      <dl class="spec-grid mt-3">
+        <dt>方法说明</dt>
+        <dd class="text-fg-muted">{benchmark.method}</dd>
+        <dt>工具</dt>
+        <dd>{benchmark.tool}</dd>
+        {benchmark.sampleSize && (
+          <>
+            <dt>样本量</dt>
+            <dd>{benchmark.sampleSize}</dd>
+          </>
+        )}
+        {benchmark.timeWindow && (
+          <>
+            <dt>测试时段</dt>
+            <dd>{benchmark.timeWindow}</dd>
+          </>
+        )}
+        <dt>采集日期</dt>
+        <dd>{formatDate(benchmark.testedAt)}</dd>
+        {benchmark.rawUrl && (
+          <>
+            <dt>原始数据</dt>
+            <dd>
+              <a href={benchmark.rawUrl} class="break-all text-brand underline" rel="nofollow noopener" target="_blank">
+                {benchmark.rawUrl}
+              </a>
+            </dd>
+          </>
+        )}
+      </dl>
+    </section>
+
+    <AffiliateDisclosure />
+
+    {
+      !hasResults && (
+        <Callout tone="info" title="这一页只说明方法">
+          具体结果在对应的机房或套餐页面上展示。把方法单独写成一页，是为了让每条结果都能链接到它的口径，
+          而不是把口径散落在各处。
+        </Callout>
+      )
+    }
+
+    <MetricTable metrics={benchmark.metrics} />
+
+    {
+      benchmark.latencyTable.length > 0 && (
+        <LatencyTable
+          rows={benchmark.latencyTable}
+          measuredAt={benchmark.testedAt}
+          method={benchmark.method}
+        />
+      )
+    }
+
+    <RouteTable hops={benchmark.routeTable} />
+
+    {
+      conclusion && (
+        <section aria-labelledby="conclusion-heading" class="space-y-3">
+          <h2 id="conclusion-heading" class="text-base font-medium">
+            结论
+          </h2>
+          <Prose html={conclusion.html} />
+        </section>
+      )
+    }
+
+    {
+      plans.length > 0 && (
+        <section aria-labelledby="plans-heading" class="space-y-3">
+          <h2 id="plans-heading" class="text-base font-medium">
+            相关套餐
+          </h2>
+          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {plans.map((plan) => (
+              <PlanCard plan={plan} compact place="benchmark-plans" />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <section aria-labelledby="more-heading" class="space-y-3">
+      <h2 id="more-heading" class="text-base font-medium">
+        相关页面
+      </h2>
+      <div class="grid gap-3 sm:grid-cols-2">
+        <LinkCard
+          href={targetHref}
+          title={`${benchmark.target.label} 详细说明`}
+          summary="完整参数、适用场景与不适合的情况"
+          eyebrow={benchmark.target.type === 'plan' ? '套餐' : '机房'}
+        />
+        <LinkCard
+          href="/benchmarks"
+          title="全部实测数据"
+          summary="延迟、路由与指标记录，每条都带测试方法与日期。"
+          eyebrow="实测"
+        />
+      </div>
+    </section>
+
+    <CtaBand
+      plan={plans[0]}
+      title="看当前价格"
+      links={[{ href: '/datacenters', label: '对比机房' }]}
+    />
+  </div>
+</BaseLayout>

@@ -1,0 +1,64 @@
+{
+  "slug": "basic-vps-2gb",
+  "name": "基础 VPS（2GB）",
+  "series": "basic",
+  "tier": "entry",
+  "status": "available",
+  "tagline": "基础系列的高配档，内存与流量翻倍，价格仍低于 CN2 系列",
+  "summary": "在基础 1GB 套餐上加一倍内存、一倍硬盘、一倍流量，价格约为两倍。仍然走普通线路。适合确实需要更多资源、且不在意国内访问速度的用途——如果在意速度，同样的预算加到 CN2 GIA 的入门档更划算。",
+  "bestFor": [
+    "需要跑内存占用较高的应用",
+    "目标用户在欧美、需要更大流量额度",
+    "多站点部署在同一台机器上"
+  ],
+  "notFor": ["要对国内用户提供稳定服务", "预算敏感且用途轻量"],
+  "specs": {
+    "cpu": "Intel Xeon",
+    "cores": 3,
+    "memoryMB": 2048,
+    "diskGB": 40,
+    "diskType": "SSD",
+    "trafficTB": 2,
+    "bandwidthMbps": 1000,
+    "ipv4": 1,
+    "ipv6": true,
+    "virtualization": "KVM"
+  },
+  "network": {
+    "line": "bgp",
+    "datacenters": ["dc2", "fremont"],
+    "migratable": true,
+    "migratableCount": 8
+  },
+  "pricing": {
+    "currency": "USD",
+    "cycles": [
+      { "cycle": "semiannual", "price": 52.99, "note": "折算约 $8.83/月" },
+      { "cycle": "annual", "price": 99.99, "note": "折算约 $8.33/月" }
+    ],
+    "paymentMethods": ["alipay", "paypal", "creditcard", "unionpay"],
+    "priceCheckedAt": "2026-09-13",
+    "refundDays": 30
+  },
+  "affiliate": {
+    "pid": "0",
+    "verified": false,
+    "note": "pid 需从搬瓦工后台 Affiliates 页面复制"
+  },
+  "scores": { "performance": 3, "value": 3, "stability": 3, "latencyCN": 2 },
+  "pros": ["2GB 内存可跑 Docker 与多容器", "2TB 月流量对多数个人用途充足", "支持迁移机房"],
+  "cons": ["价格接近 CN2 GT 入门档，但线路等级更低", "普通线路的晚高峰问题依旧存在"],
+  "content": "## 多花的钱买到了什么\n\n从 1GB 到 2GB，多了 1GB 内存、20GB 硬盘、1TB 月流量和 1 个 CPU 核心。\n\n但要注意一个常见的决策陷阱：**这个价格已经接近 CN2 GT 系列的入门档了**。如果你在意国内访问速度，同样的预算放在线路升级上比放在配置升级上收益更大。\n\n## 什么时候配置比线路重要\n\n- 你要跑 Docker，多个容器同时驻留内存；\n- 你要在同一台机器上部署多个站点或服务；\n- 你的访问来源本来就在欧美。\n\n如果以上都不成立，先升级线路。",
+  "useCases": ["developer"],
+  "relatedPlans": ["basic-vps-1gb", "cn2-gt-1gb", "cn2-gia-e-1gb"],
+  "relatedTutorials": ["kiwivm-panel"],
+  "faqs": [],
+  "seo": {
+    "title": "搬瓦工基础 VPS（2GB）套餐：参数、价格与选购建议",
+    "description": "搬瓦工基础 VPS 2GB 套餐的完整参数与价格，以及一个常见决策陷阱：同样的预算应该升级配置还是升级线路。",
+    "keywords": ["搬瓦工 2GB 套餐", "搬瓦工基础 VPS 2GB"]
+  },
+  "order": 2,
+  "updatedAt": "2026-09-13",
+  "publishedAt": "2026-09-13"
+}

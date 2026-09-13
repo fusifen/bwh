@@ -1,0 +1,44 @@
+---
+/**
+ * Breadcrumbs.
+ *
+ * Rendered as a `<nav>` with an ordered list, and mirrored into
+ * `BreadcrumbList` structured data by the page (see `lib/seo`). The last crumb
+ * is plain text with `aria-current="page"` — a link to the page you are already
+ * on is a small but constant annoyance in otherwise well-built sites.
+ */
+import type { Crumb } from '../../lib/seo';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  crumbs: Crumb[];
+}
+
+const { crumbs } = Astro.props;
+---
+
+{
+  crumbs.length > 0 && (
+    <nav aria-label="面包屑导航" class="text-xs">
+      <ol class="flex flex-wrap items-center gap-1 text-fg-subtle">
+        {crumbs.map((crumb, index) => {
+          const last = index === crumbs.length - 1;
+          return (
+            <li class="flex items-center gap-1">
+              {index > 0 && <Icon name="chevron" size={12} class="-rotate-90 text-line-strong" />}
+              {last ? (
+                <span aria-current="page" class="text-fg-muted">
+                  {crumb.label}
+                </span>
+              ) : (
+                <a href={crumb.href} class="transition-colors hover:text-brand">
+                  {crumb.label}
+                </a>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  )
+}

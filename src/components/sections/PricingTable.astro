@@ -1,0 +1,129 @@
+---
+/**
+ * Pricing table.
+ *
+ * The monthly-equivalent column is the reason this exists. An annual plan looks
+ * expensive next to a monthly one until you divide by twelve, and readers who
+ * have to do that arithmetic themselves usually do not — they pick the number
+ * that looks smaller and pay more.
+ *
+ * Every price on the page carries the "checked N days ago" stamp and the
+ * tax/checkout caveat. A price presented without its age is a claim; a price
+ * presented with its age is data.
+ */
+import type { Plan } from '../../lib/schemas';
+import {
+  cycleLabel,
+  cycleSuffix,
+  formatPrice,
+  monthlyEquivalent,
+  PAYMENT_LABELS,
+} from '../../lib/format';
+import { AFFILIATE } from '../../lib/cms';
+import UpdateStamp from './UpdateStamp.astro';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  plan: Plan;
+}
+
+const { plan } = Astro.props;
+const { pricing } = plan;
+
+const cheapest = [...pricing.cycles].sort((a, b) => a.price - b.price)[0];
+const bestMonthly = Math.min(
+  ...pricing.cycles.map((entry) => monthlyEquivalent(entry.cycle, entry.price)),
+);
+const refundDays = pricing.refundDays || AFFILIATE.programFacts?.refundDays || 30;
+---
+
+<section aria-labelledby="pricing-heading" class="space-y-3">
+  <div class="flex flex-wrap items-baseline justify-between gap-2">
+    <h2 id="pricing-heading" class="text-base font-medium">价格与付款方式</h2>
+    <UpdateStamp date={pricing.priceCheckedAt} kind="price" />
+  </div>
+
+  <div class="table-scroll rounded-lg border border-line">
+    <table>
+      <caption class="sr-only">{plan.name} 各计费周期的价格</caption>
+      <thead>
+        <tr>
+          <th scope="col">计费周期</th>
+          <th scope="col">价格</th>
+          <th scope="col">折算月价</th>
+          <th scope="col">说明</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          pricing.cycles.map((entry) => {
+            const monthly = monthlyEquivalent(entry.cycle, entry.price);
+            const isBest = Math.abs(monthly - bestMonthly) < 0.005;
+            const isCheapest = cheapest && entry.cycle === cheapest.cycle;
+            return (
+              <tr class:list={[isBest && 'bg-success-soft/40']}>
+                <th scope="row" class="font-normal">
+                  <span class="font-medium text-fg">{cycleLabel(entry.cycle)}</span>
+                  {isCheapest && <span class="chip chip-brand ml-2">起价</span>}
+                </th>
+                <td class="whitespace-nowrap">
+                  {entry.listPrice && entry.listPrice > entry.price && (
+                    <s class="mr-1.5 text-fg-subtle">{formatPrice(entry.listPrice, pricing.currency)}</s>
+                  )}
+                  <span class="font-medium text-fg">{formatPrice(entry.price, pricing.currency)}</span>
+                  <span class="text-fg-subtle">{cycleSuffix(entry.cycle)}</span>
+                </td>
+                <td class="whitespace-nowrap font-medium text-brand">
+                  {formatPrice(monthly, pricing.currency)}
+                  <span class="text-xs font-normal text-fg-subtle">/月</span>
+                </td>
+                <td class="text-fg-muted">{entry.note ?? ''}</td>
+              </tr>
+            );
+          })
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <dl class="spec-grid rounded-lg border border-line bg-surface-2 p-4">
+    <dt>付款方式</dt>
+    <dd>
+      {
+        pricing.paymentMethods.length > 0
+          ? pricing.paymentMethods.map((method) => PAYMENT_LABELS[method] ?? method).join(' · ')
+          : '以官方结账页为准'
+      }
+    </dd>
+
+    <dt>退款政策</dt>
+    <dd>新账号 {refundDays} 天内可申请全额退款</dd>
+
+    {
+      pricing.couponCode && (
+        <>
+          <dt>可用优惠码</dt>
+          <dd class="font-medium">
+            {pricing.couponCode}
+            {pricing.couponDiscount ? `（${pricing.couponDiscount}）` : ''}
+          </dd>
+        </>
+      )
+    }
+
+    <dt>最低月成本</dt>
+    <dd class="font-medium text-brand">
+      {formatPrice(bestMonthly, pricing.currency)}/月
+      {cheapest && <span class="ml-1 text-xs font-normal text-fg-subtle">（{cycleLabel(cheapest.cycle)}）</span>}
+    </dd>
+  </dl>
+
+  <p class="flex items-start gap-1.5 text-xs text-fg-subtle">
+    <Icon name="info" size={13} class="mt-0.5 shrink-0" />
+    <span>
+      以上均为税前美元价，不含可能的汇率与手续费。价格与库存可能随时变动，
+      <strong class="font-medium text-fg-muted">下单前请以官方结账页显示的最终金额为准</strong>。
+      优惠码信息只在人工核实有效时展示，不发布未经确认的码。
+    </span>
+  </p>
+</section>

@@ -1,0 +1,108 @@
+---
+/**
+ * Glossary hub.
+ *
+ * Rendered as a dense definition list rather than a grid of cards. A glossary
+ * is read by scanning, and cards add whitespace that makes scanning slower
+ * without adding information. The one-sentence definition is the whole value of
+ * the entry, so it is what the list shows.
+ *
+ * This page is also a link hub: it is the cheapest way for a crawler to reach
+ * every term page, and the term pages are the ones that get quoted.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/ui/PageHero.astro';
+import Breadcrumbs from '../../components/layout/Breadcrumbs.astro';
+import AffiliateDisclosure from '../../components/sections/AffiliateDisclosure.astro';
+import EmptyState from '../../components/ui/EmptyState.astro';
+import { getGlossary } from '../../lib/cms';
+import { breadcrumbSchema, itemListSchema } from '../../lib/seo';
+
+const crumbs = [
+  { label: '首页', href: '/' },
+  { label: '术语词典', href: '/glossary' },
+];
+
+const entries = getGlossary();
+
+const schema = [
+  breadcrumbSchema(crumbs, '/glossary'),
+  itemListSchema(
+    entries.map((entry) => ({ name: entry.term, url: `/glossary/${entry.slug}` })),
+    '搬瓦工术语词典',
+  ),
+];
+---
+
+<BaseLayout
+  title="搬瓦工术语词典：VPS、KVM、CN2 GIA 是什么意思"
+  description="搬瓦工相关术语的中文解释。每条用一句话给出标准定义，再展开说明它和相邻概念的区别，以及在实际选购中意味着什么。"
+  keywords={['VPS 是什么', 'KVM 是什么', 'CN2 GIA 是什么', 'KiwiVM', '术语词典']}
+  schema={schema}
+>
+  <PageHero
+    eyebrow="术语词典"
+    title="搬瓦工术语词典"
+    lede={`共 ${entries.length} 条。每条第一句都是标准定义句（「X 是指……」），再说明它和容易混淆的概念差在哪，以及在实际选购中意味着什么。`}
+  >
+    <Breadcrumbs slot="breadcrumbs" crumbs={crumbs} />
+    <Fragment slot="chips">
+      <span class="chip chip-mono">{entries.length} 条</span>
+      <span class="chip">含一句话定义</span>
+      <span class="chip">说明与相邻概念的区别</span>
+    </Fragment>
+  </PageHero>
+
+  <div class="container-page space-y-10 py-10">
+    <AffiliateDisclosure />
+
+    {
+      entries.length > 0 ? (
+        <section aria-labelledby="terms-heading" class="space-y-3">
+          <h2 id="terms-heading" class="sr-only">
+            全部术语
+          </h2>
+          <dl class="divide-y divide-line overflow-hidden rounded-lg border border-line bg-surface">
+            {entries.map((entry) => (
+              <div class="px-4 py-4 sm:px-5">
+                <dt class="flex flex-wrap items-baseline gap-2">
+                  <a href={`/glossary/${entry.slug}`} class="text-base font-medium hover:text-brand">
+                    {entry.term}
+                  </a>
+                  {entry.termEn && (
+                    <span class="font-mono text-xs text-fg-subtle">{entry.termEn}</span>
+                  )}
+                  {entry.abbr && entry.abbr !== entry.term && (
+                    <span class="chip chip-mono">{entry.abbr}</span>
+                  )}
+                </dt>
+                <dd class="mt-2 max-w-3xl text-sm leading-relaxed text-fg-muted">{entry.shortDef}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      ) : (
+        <EmptyState
+          title="还没有术语内容"
+          body="在后台的「术语」集合里添加第一条术语，页面会自动生成。"
+          actionLabel="了解内容结构"
+          actionHref="/about"
+        />
+      )
+    }
+
+    <section class="rounded-xl border border-line bg-surface-2 p-5">
+      <h2 class="text-base font-medium">术语页为什么单独做</h2>
+      <p class="mt-2 text-sm leading-relaxed text-fg-muted">
+        「CN2 GIA 是什么」这类问题每天都有大量搜索，而且答案很短——一句话就够。
+        单独做页是因为这句话值得被独立引用：搜索引擎会把它当作定义，AI 引擎会直接摘录。
+        塞在长文中间的定义，两边都抓不到。
+      </p>
+      <div class="mt-4 flex flex-wrap gap-2.5">
+        <a href="/lines" class="btn btn-secondary btn-sm">线路说明</a>
+        <a href="/datacenters" class="btn btn-secondary btn-sm">机房说明</a>
+        <a href="/guides/beginner" class="btn btn-secondary btn-sm">新手从哪开始</a>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

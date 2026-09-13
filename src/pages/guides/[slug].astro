@@ -1,0 +1,215 @@
+---
+/**
+ * Guide detail — the pillar page.
+ *
+ * `verdict` is rendered first and stands alone, because it is the answer. The
+ * sections that follow are the argument, the checklist is the action, and the
+ * recommended plans are kept to one or two. Every extra recommendation dilutes
+ * the ones that matter.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/ui/PageHero.astro';
+import Breadcrumbs from '../../components/layout/Breadcrumbs.astro';
+import Toc from '../../components/layout/Toc.astro';
+import Prose from '../../components/ui/Prose.astro';
+import PlanCard from '../../components/cards/PlanCard.astro';
+import LinkCard from '../../components/cards/LinkCard.astro';
+import VerdictBox from '../../components/sections/VerdictBox.astro';
+import FaqAccordion from '../../components/sections/FaqAccordion.astro';
+import AffiliateDisclosure from '../../components/sections/AffiliateDisclosure.astro';
+import CtaBand from '../../components/sections/CtaBand.astro';
+import Icon from '../../components/ui/Icon.astro';
+import {
+  getCompares,
+  getGuides,
+  guidesBySlugs,
+  plansBySlugs,
+  comparesBySlugs,
+} from '../../lib/cms';
+import { renderMarkdown } from '../../lib/markdown';
+import { GUIDE_INTENT_LABELS } from '../../lib/format';
+import { breadcrumbSchema, faqSchema, guideSchema } from '../../lib/seo';
+
+export function getStaticPaths() {
+  return getGuides().map((guide) => ({ params: { slug: guide.slug }, props: { guide } }));
+}
+
+const { guide } = Astro.props;
+
+const path = `/guides/${guide.slug}`;
+const crumbs = [
+  { label: '首页', href: '/' },
+  { label: '选购指南', href: '/guides' },
+  { label: guide.title, href: path },
+];
+
+const plans = plansBySlugs(guide.recommendedPlans);
+const relatedGuides = guidesBySlugs(guide.relatedGuides);
+const relatedCompare = comparesBySlugs(guide.relatedCompare);
+
+/** Fall back to a couple of comparisons when the guide declares none. */
+const compareFallback = relatedCompare.length === 0 ? getCompares().slice(0, 2) : [];
+
+// Sections are Markdown, so each one is rendered and its headings join the TOC.
+const rendered = guide.sections.map((section) => ({
+  heading: section.heading,
+  html: renderMarkdown(section.body).html,
+}));
+
+const schema = [breadcrumbSchema(crumbs, path), guideSchema(guide, path), faqSchema(guide.faqs)];
+---
+
+<BaseLayout
+  title={guide.seo?.title ?? guide.title}
+  description={guide.seo?.description ?? guide.summary}
+  keywords={guide.seo?.keywords}
+  schema={schema}
+  type="article"
+  publishedAt={guide.publishedAt}
+  updatedAt={guide.updatedAt}
+>
+  <PageHero
+    eyebrow={GUIDE_INTENT_LABELS[guide.intent] ?? guide.intent}
+    title={guide.title}
+    lede={guide.summary}
+  >
+    <Breadcrumbs slot="breadcrumbs" crumbs={crumbs} />
+    <Fragment slot="chips">
+      {plans.map((plan) => <span class="chip chip-brand">推荐：{plan.name}</span>)}
+      <span class="chip">更新于 {guide.updatedAt}</span>
+    </Fragment>
+  </PageHero>
+
+  <div class="container-page grid gap-10 py-10 lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-start">
+    <div class="min-w-0 space-y-10">
+      <VerdictBox verdict={guide.verdict} title="结论" />
+      <AffiliateDisclosure />
+
+      {
+        rendered.length > 0 && (
+          <div class="space-y-8">
+            {rendered.map((section) => (
+              <section>
+                <h2 id={section.heading} class="scroll-mt-24 text-lg font-medium">
+                  {section.heading}
+                </h2>
+                <div class="mt-3">
+                  <Prose html={section.html} />
+                </div>
+              </section>
+            ))}
+          </div>
+        )
+      }
+
+      {
+        guide.checklist.length > 0 && (
+          <section
+            aria-labelledby="checklist-heading"
+            class="rounded-xl border border-line bg-surface-2 p-5"
+          >
+            <h2 id="checklist-heading" class="text-base font-medium">
+              购买前检查清单
+            </h2>
+            <ul class="mt-3 space-y-2 text-sm">
+              {guide.checklist.map((item) => (
+                <li class="flex gap-2.5">
+                  <Icon name="check" size={15} class="mt-0.5 shrink-0 text-success" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+
+      {
+        plans.length > 0 && (
+          <section aria-labelledby="recommend-heading" class="space-y-3">
+            <h2 id="recommend-heading" class="text-lg font-medium">
+              这个场景下推荐的套餐
+            </h2>
+            <p class="text-sm text-fg-muted">
+              只推荐 {plans.length} 个。推荐越多，等于没推荐。
+            </p>
+            <div class="grid gap-3 sm:grid-cols-2">
+              {plans.map((plan) => (
+                <PlanCard plan={plan} place={`guide-${guide.slug}`} />
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      {
+        (relatedCompare.length > 0 || compareFallback.length > 0) && (
+          <section aria-labelledby="compare-heading" class="space-y-3">
+            <h2 id="compare-heading" class="text-lg font-medium">
+              相关对比
+            </h2>
+            <div class="grid gap-3 sm:grid-cols-2">
+              {[...relatedCompare, ...compareFallback].map((compare) => (
+                <LinkCard
+                  href={`/compare/${compare.slug}`}
+                  title={compare.title}
+                  summary={compare.verdict}
+                  eyebrow="对比"
+                />
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      {
+        relatedGuides.length > 0 && (
+          <section aria-labelledby="more-guides-heading" class="space-y-3">
+            <h2 id="more-guides-heading" class="text-lg font-medium">
+              其他场景的指南
+            </h2>
+            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {relatedGuides.map((item) => (
+                <LinkCard
+                  href={`/guides/${item.slug}`}
+                  title={item.title}
+                  summary={item.verdict}
+                  eyebrow={GUIDE_INTENT_LABELS[item.intent] ?? item.intent}
+                />
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      {
+        guide.faqs.length > 0 && (
+          <section aria-labelledby="faq-heading" class="space-y-3">
+            <h2 id="faq-heading" class="text-lg font-medium">
+              常见问题
+            </h2>
+            <FaqAccordion items={guide.faqs} />
+          </section>
+        )
+      }
+
+      <CtaBand
+        plan={plans[0]}
+        title={plans[0] ? `看看 ${plans[0].name} 的当前价格` : '开始挑选'}
+        links={[
+          { href: '/tools/chooser', label: '用选择器确认' },
+          { href: '/plans', label: '对比全部套餐' },
+        ]}
+      />
+    </div>
+
+    <aside class="hidden lg:block lg:sticky lg:top-20 space-y-6">
+      <Toc
+        entries={rendered.map((section) => ({
+          id: section.heading,
+          text: section.heading,
+          level: 2,
+        }))}
+      />
+    </aside>
+  </div>
+</BaseLayout>

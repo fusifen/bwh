@@ -1,0 +1,118 @@
+---
+/**
+ * Comparison hub.
+ *
+ * Grouped by what is being compared, because the reader's question differs by
+ * group: a plan comparison is "which do I buy", a datacenter comparison is
+ * "where do I put it", a line comparison is "what am I paying for".
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/ui/PageHero.astro';
+import Breadcrumbs from '../../components/layout/Breadcrumbs.astro';
+import LinkCard from '../../components/cards/LinkCard.astro';
+import AffiliateDisclosure from '../../components/sections/AffiliateDisclosure.astro';
+import EmptyState from '../../components/ui/EmptyState.astro';
+import { getCompares } from '../../lib/cms';
+import { COMPARE_TYPE_LABELS } from '../../lib/format';
+import { breadcrumbSchema, itemListSchema } from '../../lib/seo';
+
+const crumbs = [
+  { label: '首页', href: '/' },
+  { label: '对比', href: '/compare' },
+];
+
+const compares = getCompares();
+
+/** Group by the type of the left subject — the page's own framing. */
+const groups = new Map<string, typeof compares>();
+for (const compare of compares) {
+  const bucket = groups.get(compare.left.type) ?? [];
+  bucket.push(compare);
+  groups.set(compare.left.type, bucket);
+}
+
+const schema = [
+  breadcrumbSchema(crumbs, '/compare'),
+  itemListSchema(
+    compares.map((compare) => ({ name: compare.title, url: `/compare/${compare.slug}` })),
+    '搬瓦工对比',
+  ),
+];
+---
+
+<BaseLayout
+  title="搬瓦工对比：套餐、机房与线路怎么选"
+  description="搬瓦工的套餐互比、机房互比与线路对比。每个对比都给出明确结论和适用条件，而不是只列参数让你自己判断。"
+  keywords={['搬瓦工对比', 'CN2 GIA 对比', '搬瓦工机房对比', '搬瓦工套餐对比']}
+  schema={schema}
+>
+  <PageHero
+    eyebrow="对比"
+    title="搬瓦工对比"
+    lede="每个对比页都会给出一个明确结论，并写清这个结论在什么条件下成立。只列差异不给结论的对比，等于把判断工作还给你——那正是你来这里想省掉的部分。"
+  >
+    <Breadcrumbs slot="breadcrumbs" crumbs={crumbs} />
+    <Fragment slot="chips">
+      <span class="chip chip-mono">{compares.length} 篇对比</span>
+      <span class="chip">每篇含明确结论</span>
+      <span class="chip">标注适用条件</span>
+    </Fragment>
+  </PageHero>
+
+  <div class="container-page space-y-12 py-10">
+    <AffiliateDisclosure />
+
+    {
+      compares.length > 0 ? (
+        <div class="space-y-10">
+          {[...groups.entries()].map(([type, items]) => (
+            <section aria-labelledby={`group-${type}`} class="space-y-3">
+              <div class="flex flex-wrap items-baseline justify-between gap-2 border-b border-line pb-2">
+                <h2 id={`group-${type}`} class="text-lg font-medium">
+                  {COMPARE_TYPE_LABELS[type] ?? type}对比
+                </h2>
+                <p class="text-xs text-fg-subtle">{items.length} 篇</p>
+              </div>
+              <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {items.map((compare) => (
+                  <LinkCard
+                    href={`/compare/${compare.slug}`}
+                    title={compare.title}
+                    summary={compare.verdict}
+                    eyebrow={COMPARE_TYPE_LABELS[compare.left.type] ?? compare.left.type}
+                    mono={`${compare.left.label} / ${compare.right.label}`}
+                  />
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
+      ) : (
+        <EmptyState
+          title="还没有对比内容"
+          body="在后台的「对比」集合里添加第一篇对比，页面会自动生成。"
+          actionLabel="了解内容结构"
+          actionHref="/about"
+        />
+      )
+    }
+
+    <section class="rounded-xl border border-line bg-surface-2 p-5">
+      <h2 class="text-base font-medium">怎么读对比页</h2>
+      <ol class="mt-3 grid gap-2 text-sm text-fg-muted">
+        <li>
+          <strong class="font-medium text-fg">1. 先看结论。</strong>
+          每页开头就是结论和适用条件。如果你不属于这个条件，结论对你不成立。
+        </li>
+        <li>
+          <strong class="font-medium text-fg">2. 再看差异行。</strong>
+          表格里只有真正不同的维度会被加粗，相同的维度会变淡——相同的东西不值得你花时间。
+        </li>
+        <li>
+          <strong class="font-medium text-fg">3. 最后看「什么时候选另一个」。</strong>
+          这一段是结论的边界，比结论本身更有用。
+        </li>
+      </ol>
+    </section>
+  </div>
+</BaseLayout>

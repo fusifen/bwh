@@ -1,0 +1,77 @@
+---
+/**
+ * Freshness stamp.
+ *
+ * Prices, coupon codes and stock status rot faster than anything else on this
+ * site, and a stale price costs more trust than a missing one. Every dated
+ * field gets one of these, and the tone escalates on its own — nobody has to
+ * remember to come back and mark a price as old.
+ *
+ * The thresholds live in `lib/freshness` so the page, the build-time gate and
+ * `llms.txt` all agree on what "stale" means.
+ */
+import { freshnessOf } from '../../lib/freshness';
+import { formatDate } from '../../lib/format';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  date: string;
+  /** `price` changes the wording — a price going stale is worse than a date. */
+  kind?: 'price' | 'data' | 'general';
+  /** Renders as a full-width notice bar instead of a small inline chip. */
+  bar?: boolean;
+}
+
+const { date, kind = 'general', bar = false } = Astro.props;
+
+const freshness = freshnessOf(date);
+const isAlert = freshness.tone === 'alert';
+const isWarn = freshness.tone === 'warn';
+
+const subject = kind === 'price' ? '价格' : kind === 'data' ? '实测数据' : '内容';
+
+const message =
+  kind === 'general'
+    ? `最后更新：${formatDate(date)}（${freshness.label}）`
+    : `${subject}核对于 ${formatDate(date)}，${freshness.label}`;
+
+const detail =
+  kind === 'price'
+    ? '页面价格为税前美元价，可能随时变动。下单前请以官方结账页显示的最终金额为准。'
+    : kind === 'data'
+      ? '实测数据会随时间变化，建议用页面上提供的测试 IP 自行复核当前表现。'
+      : '';
+
+const tone = isAlert ? 'alert' : isWarn ? 'warn' : 'ok';
+
+const toneClass = {
+  ok: 'text-fg-subtle',
+  warn: 'text-signal',
+  alert: 'text-danger',
+}[tone];
+---
+
+{
+  bar && (isWarn || isAlert) ? (
+    <div
+      class:list={[
+        'flex items-start gap-2 rounded-lg border px-4 py-3 text-sm',
+        isAlert
+          ? 'border-danger/30 bg-danger-soft text-danger'
+          : 'border-signal/30 bg-signal-soft text-signal',
+      ]}
+      role="status"
+    >
+      <Icon name="alert" size={16} class="mt-0.5 shrink-0" />
+      <span>
+        <strong class="font-medium">{message}</strong>
+        {detail && <span class="mt-1 block opacity-90">{detail}</span>}
+      </span>
+    </div>
+  ) : (
+    <p class:list={['flex items-center gap-1.5 text-xs', toneClass]}>
+      <Icon name={isWarn || isAlert ? 'alert' : 'clock'} size={13} class="shrink-0" />
+      <span>{message}</span>
+    </p>
+  )
+}

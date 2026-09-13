@@ -1,0 +1,56 @@
+---
+/**
+ * Measured metrics table.
+ *
+ * Every metric carries its own baseline, which is the whole point: "磁盘写入
+ * 320 MB/s" is a number, "磁盘写入 320 MB/s，同价位 SSD VPS 常见区间
+ * 200–400 MB/s" is a measurement. The baseline column is what lets a reader
+ * decide whether the number is good.
+ */
+import type { Metric } from '../../lib/schemas';
+
+interface Props {
+  metrics: Metric[];
+  title?: string;
+}
+
+const { metrics, title = '实测指标' } = Astro.props;
+---
+
+{
+  metrics.length > 0 && (
+    <section aria-labelledby="metrics-heading" class="space-y-3">
+      <h2 id="metrics-heading" class="text-base font-medium">
+        {title}
+      </h2>
+
+      <div class="table-scroll rounded-lg border border-line">
+        <table>
+          <caption class="sr-only">实测指标、数值与参考基线</caption>
+          <thead>
+            <tr>
+              <th scope="col" class="min-w-[9rem]">指标</th>
+              <th scope="col" class="min-w-[8rem]">结果</th>
+              <th scope="col" class="min-w-[14rem]">参考基线</th>
+            </tr>
+          </thead>
+          <tbody>
+            {metrics.map((metric) => (
+              <tr>
+                <th scope="row" class="font-normal text-fg-muted">{metric.name}</th>
+                <td class="font-medium">
+                  {metric.value}
+                  {metric.unit ? ` ${metric.unit}` : ''}
+                </td>
+                <td class="text-fg-muted">
+                  {metric.baseline ?? '—'}
+                  {metric.verdict && <span class="ml-1 text-fg-subtle">（{metric.verdict}）</span>}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  )
+}

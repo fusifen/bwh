@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="瓦工笔记 —— 搬瓦工套餐、机房与线路指南">
+  <rect width="1200" height="630" fill="#ffffff"/>
+  <rect x="0" y="0" width="1200" height="6" fill="#1f5ad6"/>
+  <g transform="translate(80, 96)">
+    <rect x="0" y="0" width="56" height="56" rx="14" fill="#1f5ad6"/>
+    <path d="M17 20 28 40 39 20" fill="none" stroke="#ffffff" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="76" y="40" font-family="-apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="28" font-weight="600" fill="#16202b">瓦工笔记</text>
+  </g>
+  <text x="80" y="290" font-family="-apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="62" font-weight="600" fill="#16202b">把搬瓦工的选择讲清楚</text>
+  <text x="80" y="356" font-family="-apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="30" fill="#56636f">套餐参数 · 机房线路 · 实测延迟 · 当前价格</text>
+  <g font-family="-apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="24" fill="#1f5ad6">
+    <rect x="80" y="420" width="248" height="52" rx="26" fill="#eaf1fe"/>
+    <text x="108" y="453">价格标注核对日期</text>
+    <rect x="348" y="420" width="248" height="52" rx="26" fill="#eaf1fe"/>
+    <text x="376" y="453">实测公开测试方法</text>
+    <rect x="616" y="420" width="248" height="52" rx="26" fill="#eaf1fe"/>
+    <text x="644" y="453">写明不适合谁</text>
+  </g>
+  <text x="80" y="556" font-family="-apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="22" fill="#7c8894">BandwagonHost 中文指南 · 含联盟链接</text>
+</svg>

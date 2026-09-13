@@ -1,0 +1,191 @@
+---
+/**
+ * Tutorial detail.
+ *
+ * Emits `HowTo` structured data only when there are real steps — an empty HowTo
+ * advertises a procedure that does not exist, which is worse than no markup at
+ * all.
+ *
+ * The sidebar carries the cross-sell rather than the body, because a reader who
+ * has just finished a tutorial is in the middle of a task and should not be
+ * interrupted; a reader who is looking for the next tutorial will find it there.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/ui/PageHero.astro';
+import Breadcrumbs from '../../components/layout/Breadcrumbs.astro';
+import Toc from '../../components/layout/Toc.astro';
+import TutorialCard from '../../components/cards/TutorialCard.astro';
+import PlanCard from '../../components/cards/PlanCard.astro';
+import StepsList from '../../components/sections/StepsList.astro';
+import TroubleshootTable from '../../components/sections/TroubleshootTable.astro';
+import FaqAccordion from '../../components/sections/FaqAccordion.astro';
+import AffiliateDisclosure from '../../components/sections/AffiliateDisclosure.astro';
+import CtaBand from '../../components/sections/CtaBand.astro';
+import Callout from '../../components/ui/Callout.astro';
+import Icon from '../../components/ui/Icon.astro';
+import { getFaqsFor, getTutorials, plansBySlugs, tutorialsBySlugs } from '../../lib/cms';
+import {
+  DIFFICULTY_LABELS,
+  formatDuration,
+  TUTORIAL_CATEGORY_LABELS,
+} from '../../lib/format';
+import { breadcrumbSchema, faqSchema, howToSchema } from '../../lib/seo';
+
+export function getStaticPaths() {
+  return getTutorials().map((tutorial) => ({
+    params: { slug: tutorial.slug },
+    props: { tutorial },
+  }));
+}
+
+const { tutorial } = Astro.props;
+
+const path = `/learn/${tutorial.slug}`;
+const crumbs = [
+  { label: '首页', href: '/' },
+  { label: '教程库', href: '/learn' },
+  { label: tutorial.title, href: path },
+];
+
+const related = tutorialsBySlugs(tutorial.relatedTutorials);
+const plans = plansBySlugs(tutorial.relatedPlans);
+const faqs = [...tutorial.faqs, ...getFaqsFor('tutorials', tutorial.slug)];
+
+const schema = [
+  breadcrumbSchema(crumbs, path),
+  howToSchema(tutorial, path),
+  faqSchema(faqs),
+];
+
+/** The TOC is derived from the steps, since the steps are the document. */
+const toc = tutorial.steps.map((step, index) => ({
+  id: `step-${index + 1}`,
+  text: step.title,
+  level: 2,
+}));
+---
+
+<BaseLayout
+  title={tutorial.seo?.title ?? tutorial.title}
+  description={tutorial.seo?.description ?? tutorial.summary}
+  keywords={tutorial.seo?.keywords}
+  schema={schema}
+  type="article"
+  publishedAt={tutorial.publishedAt}
+  updatedAt={tutorial.updatedAt}
+  tightBottom
+>
+  <PageHero
+    eyebrow={TUTORIAL_CATEGORY_LABELS[tutorial.category] ?? tutorial.category}
+    title={tutorial.title}
+    lede={tutorial.summary}
+  >
+    <Breadcrumbs slot="breadcrumbs" crumbs={crumbs} />
+    <Fragment slot="chips">
+      <span class="chip">
+        <Icon name="clock" size={12} />
+        {formatDuration(tutorial.timeMinutes)}
+      </span>
+      <span class="chip chip-mono">
+        难度：{DIFFICULTY_LABELS[tutorial.difficulty] ?? tutorial.difficulty}
+      </span>
+      {tutorial.steps.length > 0 && <span class="chip">{tutorial.steps.length} 个步骤</span>}
+      <span class="chip">更新于 {tutorial.updatedAt}</span>
+    </Fragment>
+  </PageHero>
+
+  <div class="container-page grid gap-10 py-10 lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-start">
+    <div class="min-w-0 space-y-10">
+      {
+        tutorial.prerequisites.length > 0 && (
+          <section
+            aria-labelledby="prereq-heading"
+            class="rounded-xl border border-line bg-surface-2 p-5"
+          >
+            <h2 id="prereq-heading" class="text-base font-medium">
+              开始之前
+            </h2>
+            <ul class="mt-3 space-y-2 text-sm">
+              {tutorial.prerequisites.map((item) => (
+                <li class="flex gap-2.5">
+                  <Icon name="check" size={15} class="mt-0.5 shrink-0 text-fg-subtle" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+
+      <AffiliateDisclosure />
+
+      {
+        tutorial.steps.length > 0 ? (
+          <section aria-labelledby="steps-heading" class="space-y-4">
+            <h2 id="steps-heading" class="text-lg font-medium">
+              操作步骤
+            </h2>
+            <StepsList steps={tutorial.steps} />
+          </section>
+        ) : (
+          <Callout tone="info" title="这篇教程还在补步骤">
+            目前只有说明文字。步骤会按结构化格式补齐，补齐后会自动生成对应的操作指引。
+          </Callout>
+        )
+      }
+
+      <TroubleshootTable items={tutorial.troubleshooting} />
+
+      {
+        related.length > 0 && (
+          <section aria-labelledby="related-heading" class="space-y-3">
+            <h2 id="related-heading" class="text-base font-medium">
+              接下来可能要看
+            </h2>
+            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {related.map((item) => (
+                <TutorialCard tutorial={item} showSummary={false} />
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      {
+        faqs.length > 0 && (
+          <section aria-labelledby="faq-heading" class="space-y-3">
+            <h2 id="faq-heading" class="text-base font-medium">
+              常见问题
+            </h2>
+            <FaqAccordion items={faqs} />
+          </section>
+        )
+      }
+
+      <CtaBand
+        title="需要一台机器来练手？"
+        body="入门套餐折算月成本最低，30 天内可全额退款，适合用来把流程走通一遍。"
+        links={[{ href: '/learn', label: '回到教程库' }]}
+      />
+    </div>
+
+    <aside class="hidden lg:block lg:sticky lg:top-20 space-y-6">
+      <Toc entries={toc} title="步骤目录" />
+
+      {
+        plans.length > 0 && (
+          <section class="rounded-lg border border-line bg-surface-2 p-4">
+            <h2 class="section-label">这篇教程涉及的套餐</h2>
+            <ul class="mt-3 space-y-3">
+              {plans.slice(0, 2).map((plan) => (
+                <li>
+                  <PlanCard plan={plan} compact place="tutorial-sidebar" />
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+    </aside>
+  </div>
+</BaseLayout>

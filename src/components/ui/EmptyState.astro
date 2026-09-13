@@ -1,0 +1,33 @@
+---
+/**
+ * Empty state.
+ *
+ * Reached when a collection is genuinely empty (a new install, or a filter that
+ * matched nothing). It says what is missing and offers the next useful step
+ * rather than apologising.
+ */
+import Icon from './Icon.astro';
+
+interface Props {
+  title: string;
+  body?: string;
+  actionLabel?: string;
+  actionHref?: string;
+  icon?: string;
+}
+
+const { title, body, actionLabel, actionHref, icon = 'info' } = Astro.props;
+---
+
+<div class="rounded-lg border border-dashed border-line bg-surface-2 px-6 py-10 text-center">
+  <Icon name={icon} size={22} class="mx-auto text-fg-subtle" />
+  <p class="mt-3 text-sm font-medium">{title}</p>
+  {body && <p class="mx-auto mt-1.5 max-w-md text-sm text-fg-muted">{body}</p>}
+  {
+    actionLabel && actionHref && (
+      <a href={actionHref} class="btn btn-secondary btn-sm mt-4">
+        {actionLabel}
+      </a>
+    )
+  }
+</div>

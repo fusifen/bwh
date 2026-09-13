@@ -1,0 +1,215 @@
+---
+/**
+ * Site search.
+ *
+ * The index is serialised into the page at build time and searched client-side.
+ * There is no search endpoint because there is no search server — the whole
+ * corpus is a few hundred short documents, and a linear scan with substring
+ * scoring beats any index structure at that size while adding zero
+ * infrastructure.
+ *
+ * `noindex` is set: this page is a query-dependent view of pages that are
+ * already indexed, and letting it into the index produces near-duplicate
+ * results for every query anyone has ever run.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/ui/PageHero.astro';
+import Breadcrumbs from '../components/layout/Breadcrumbs.astro';
+import Icon from '../components/ui/Icon.astro';
+import { getSearchIndex } from '../lib/cms';
+import { SEARCH_TYPE_LABELS } from '../config/nav';
+import { breadcrumbSchema } from '../lib/seo';
+
+const crumbs = [
+  { label: '首页', href: '/' },
+  { label: '搜索', href: '/search' },
+];
+
+const index = getSearchIndex();
+
+/*
+  The payload is an object, not a bare array.
+
+  The client reads `payload.docs` and `payload.labels`. Serialising the index on
+  its own would make `payload` an array, so `payload.docs` would be `undefined`
+  and every search would return nothing — with the page still answering 200, so
+  nothing in the build or the smoke test would notice.
+
+  Labels ship with the docs rather than being hardcoded in the script because
+  they come from `SEARCH_TYPE_LABELS`, the same table the rest of the site uses;
+  duplicating them here is how the search results would start disagreeing with
+  the pages they point at.
+*/
+const payload = { docs: index, labels: SEARCH_TYPE_LABELS };
+
+// `\u003c` keeps content containing `<` from closing the script tag early.
+const json = JSON.stringify(payload).replace(/</g, '\\u003c');
+
+const schema = [breadcrumbSchema(crumbs, '/search')];
+---
+
+<BaseLayout
+  title="站内搜索"
+  description="搜索本站的套餐、机房、线路、教程与术语。"
+  noindex
+  schema={schema}
+>
+  <PageHero
+    eyebrow="搜索"
+    title="站内搜索"
+    lede={`可搜索 ${index.length} 个页面。支持套餐名、机房代码、线路名称、术语与教程标题。`}
+  >
+    <Breadcrumbs slot="breadcrumbs" crumbs={crumbs} />
+  </PageHero>
+
+  <div class="container-page py-10">
+    <div class="mx-auto max-w-2xl">
+      <form role="search" class="flex gap-2" data-search-form>
+        <label for="q" class="sr-only">搜索关键词</label>
+        <div class="relative flex-1">
+          <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-fg-subtle">
+            <Icon name="search" size={16} />
+          </span>
+          <input
+            id="q"
+            name="q"
+            type="search"
+            autocomplete="off"
+            placeholder="例如：CN2 GIA、DC6、退款、重装系统"
+            class="w-full rounded-lg border border-line bg-surface py-2.5 pl-9 pr-3 text-sm outline-none transition-colors focus:border-brand"
+          />
+        </div>
+        <button type="submit" class="btn btn-primary">搜索</button>
+      </form>
+
+      <p class="mt-3 text-xs text-fg-subtle">
+        搜索在你的浏览器里完成，不会把关键词发送到服务器。
+      </p>
+
+      <div data-search-status class="mt-6 text-sm text-fg-muted" aria-live="polite"></div>
+      <div data-search-results class="mt-4 space-y-2"></div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script type="application/json" id="search-index" set:html={json} is:inline />
+
+<script is:inline>
+  (function () {
+    var node = document.getElementById('search-index');
+    var form = document.querySelector('[data-search-form]');
+    var input = document.getElementById('q');
+    var status = document.querySelector('[data-search-status]');
+    var results = document.querySelector('[data-search-results]');
+    if (!node || !form || !input || !status || !results) return;
+
+    var payload;
+    try {
+      payload = JSON.parse(node.textContent || '{}');
+    } catch (e) {
+      return;
+    }
+
+    var docs = payload.docs || [];
+    var LABELS = payload.labels || {};
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // Mirrors `search()` in lib/cms so the client and the build-time tests
+    // agree on what a match is. Title beats keywords beats body text.
+    function run(query) {
+      var needle = query.trim().toLowerCase();
+      if (!needle) return [];
+      var tokens = needle.split(/\s+/).filter(Boolean);
+      var hits = [];
+
+      docs.forEach(function (doc) {
+        var title = doc.title.toLowerCase();
+        var summary = doc.summary.toLowerCase();
+        var keywords = doc.keywords.join(' ').toLowerCase();
+        var score = 0;
+
+        if (title === needle) score += 40;
+        else if (title.indexOf(needle) !== -1) score += 20;
+        if (keywords.indexOf(needle) !== -1) score += 8;
+        if (summary.indexOf(needle) !== -1) score += 3;
+
+        if (tokens.length > 1) {
+          var haystack = title + ' ' + keywords + ' ' + summary;
+          var all = tokens.every(function (token) {
+            return haystack.indexOf(token) !== -1;
+          });
+          if (!all) return;
+          score += 2;
+        }
+
+        if (score > 0) hits.push({ doc: doc, score: score });
+      });
+
+      return hits
+        .sort(function (a, b) {
+          return b.score - a.score;
+        })
+        .slice(0, 24);
+    }
+
+    function render(query) {
+      var hits = run(query);
+      if (!query.trim()) {
+        status.textContent = '输入关键词开始搜索。';
+        results.innerHTML = '';
+        return;
+      }
+      if (hits.length === 0) {
+        status.textContent = '没有找到匹配的页面。试试更短的关键词，或者看套餐总览与术语词典。';
+        results.innerHTML = '';
+        return;
+      }
+
+      status.textContent = '找到 ' + hits.length + ' 个结果：';
+      results.innerHTML = hits
+        .map(function (hit) {
+          var doc = hit.doc;
+          var label = LABELS[doc.type] || doc.type;
+          var summary = doc.summary.length > 140 ? doc.summary.slice(0, 139) + '…' : doc.summary;
+          return (
+            '<a href="' + escapeHtml(doc.url) + '" class="card card-hover flex flex-col gap-1.5 p-4">' +
+            '<span class="chip chip-mono w-fit">' + escapeHtml(label) + '</span>' +
+            '<span class="text-sm font-medium">' + escapeHtml(doc.title) + '</span>' +
+            '<span class="text-sm text-fg-muted">' + escapeHtml(summary) + '</span>' +
+            '</a>'
+          );
+        })
+        .join('');
+    }
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      var query = input.value;
+      // Keep the query in the URL so a result can be shared or reloaded.
+      var url = new URL(window.location.href);
+      if (query.trim()) url.searchParams.set('q', query.trim());
+      else url.searchParams.delete('q');
+      window.history.replaceState({}, '', url);
+      render(query);
+    });
+
+    input.addEventListener('input', function () {
+      render(input.value);
+    });
+
+    var initial = new URL(window.location.href).searchParams.get('q');
+    if (initial) {
+      input.value = initial;
+      render(initial);
+    } else {
+      status.textContent = '输入关键词开始搜索。';
+    }
+  })();
+</script>

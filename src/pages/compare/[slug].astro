@@ -1,0 +1,214 @@
+---
+/**
+ * Comparison detail.
+ *
+ * The verdict is rendered before the table, not after it. A reader who wants
+ * the answer should get it first; the table is there to let them check the
+ * reasoning, not to make them do it. Answer engines behave the same way — they
+ * quote a stated conclusion and ignore a table that expects them to derive one.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/ui/PageHero.astro';
+import Breadcrumbs from '../../components/layout/Breadcrumbs.astro';
+import PlanCard from '../../components/cards/PlanCard.astro';
+import LinkCard from '../../components/cards/LinkCard.astro';
+import VerdictBox from '../../components/sections/VerdictBox.astro';
+import CompareDimensions from '../../components/sections/CompareDimensions.astro';
+import FaqAccordion from '../../components/sections/FaqAccordion.astro';
+import AffiliateDisclosure from '../../components/sections/AffiliateDisclosure.astro';
+import CtaBand from '../../components/sections/CtaBand.astro';
+import Callout from '../../components/ui/Callout.astro';
+import { getCompares, plansBySlugs } from '../../lib/cms';
+import { COMPARE_TYPE_LABELS } from '../../lib/format';
+import { breadcrumbSchema, compareSchema, faqSchema } from '../../lib/seo';
+
+export function getStaticPaths() {
+  return getCompares().map((compare) => ({ params: { slug: compare.slug }, props: { compare } }));
+}
+
+const { compare } = Astro.props;
+
+const path = `/compare/${compare.slug}`;
+const crumbs = [
+  { label: '首页', href: '/' },
+  { label: '对比', href: '/compare' },
+  { label: compare.title, href: path },
+];
+
+/** `brand` subjects have no page of their own, so they render unlinked. */
+const SUBJECT_PREFIX: Record<string, string | null> = {
+  plan: '/plans',
+  datacenter: '/datacenters',
+  line: '/lines',
+  brand: null,
+};
+
+function subjectHref(subject: { type: string; slug: string }): string | undefined {
+  const prefix = SUBJECT_PREFIX[subject.type];
+  return prefix ? `${prefix}/${subject.slug}` : undefined;
+}
+
+const leftHref = subjectHref(compare.left);
+const rightHref = subjectHref(compare.right);
+
+const plans = plansBySlugs(compare.relatedPlans);
+const schema = [breadcrumbSchema(crumbs, path), compareSchema(compare, path), faqSchema(compare.faqs)];
+
+const onlyOneSide = !compare.whenChooseLeft || !compare.whenChooseRight;
+---
+
+<BaseLayout
+  title={compare.seo?.title ?? compare.title}
+  description={compare.seo?.description ?? compare.summary}
+  keywords={compare.seo?.keywords}
+  schema={schema}
+  type="article"
+  updatedAt={compare.updatedAt}
+>
+  <PageHero
+    eyebrow={`${COMPARE_TYPE_LABELS[compare.left.type] ?? compare.left.type}对比`}
+    title={compare.title}
+    lede={compare.summary}
+  >
+    <Breadcrumbs slot="breadcrumbs" crumbs={crumbs} />
+    <Fragment slot="chips">
+      <span class="chip chip-mono">{compare.left.label}</span>
+      <span class="chip">对比</span>
+      <span class="chip chip-mono">{compare.right.label}</span>
+      <span class="chip">更新于 {compare.updatedAt}</span>
+    </Fragment>
+  </PageHero>
+
+  <div class="container-page space-y-10 py-10">
+    <VerdictBox verdict={compare.verdict} title="结论" />
+    <AffiliateDisclosure />
+
+    <section aria-labelledby="dimensions-heading" class="space-y-3">
+      <h2 id="dimensions-heading" class="text-lg font-medium">
+        逐项对比
+      </h2>
+      <CompareDimensions
+        dimensions={compare.dimensions}
+        leftLabel={compare.left.label}
+        rightLabel={compare.right.label}
+        leftHref={leftHref}
+        rightHref={rightHref}
+      />
+    </section>
+
+    <section aria-labelledby="when-heading" class="space-y-3">
+      <h2 id="when-heading" class="text-lg font-medium">
+        什么时候选哪一个
+      </h2>
+
+      {onlyOneSide && (
+        <Callout tone="info">
+          这个对比只有一个方向有明确建议。另一侧的情况比较分散，需要结合你的具体用途判断。
+        </Callout>
+      )}
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        {
+          compare.whenChooseLeft && (
+            <section class="rounded-lg border border-line bg-surface p-4">
+              <h3 class="text-sm font-medium">
+                选{' '}
+                {leftHref ? (
+                  <a href={leftHref} class="text-brand hover:underline">
+                    {compare.left.label}
+                  </a>
+                ) : (
+                  compare.left.label
+                )}
+                的情况
+              </h3>
+              <p class="mt-2 text-sm leading-relaxed text-fg-muted">{compare.whenChooseLeft}</p>
+            </section>
+          )
+        }
+
+        {
+          compare.whenChooseRight && (
+            <section class="rounded-lg border border-line bg-surface p-4">
+              <h3 class="text-sm font-medium">
+                选{' '}
+                {rightHref ? (
+                  <a href={rightHref} class="text-brand hover:underline">
+                    {compare.right.label}
+                  </a>
+                ) : (
+                  compare.right.label
+                )}
+                的情况
+              </h3>
+              <p class="mt-2 text-sm leading-relaxed text-fg-muted">{compare.whenChooseRight}</p>
+            </section>
+          )
+        }
+      </div>
+    </section>
+
+    {
+      plans.length > 0 && (
+        <section aria-labelledby="plans-heading" class="space-y-3">
+          <h2 id="plans-heading" class="text-lg font-medium">
+            这个对比涉及的套餐
+          </h2>
+          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {plans.map((plan) => (
+              <PlanCard plan={plan} compact place="compare-plans" />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <section aria-labelledby="more-heading" class="space-y-3">
+      <h2 id="more-heading" class="text-lg font-medium">
+        继续看
+      </h2>
+      <div class="grid gap-3 sm:grid-cols-2">
+        {
+          leftHref && (
+            <LinkCard
+              href={leftHref}
+              title={`${compare.left.label} 详细说明`}
+              eyebrow={COMPARE_TYPE_LABELS[compare.left.type] ?? compare.left.type}
+              summary="完整参数、适用场景与不适合的情况"
+            />
+          )
+        }
+        {
+          rightHref && (
+            <LinkCard
+              href={rightHref}
+              title={`${compare.right.label} 详细说明`}
+              eyebrow={COMPARE_TYPE_LABELS[compare.right.type] ?? compare.right.type}
+              summary="完整参数、适用场景与不适合的情况"
+            />
+          )
+        }
+      </div>
+    </section>
+
+    {
+      compare.faqs.length > 0 && (
+        <section aria-labelledby="faq-heading" class="space-y-3">
+          <h2 id="faq-heading" class="text-lg font-medium">
+            常见问题
+          </h2>
+          <FaqAccordion items={compare.faqs} />
+        </section>
+      )
+    }
+
+    <CtaBand
+      plan={plans[0]}
+      title="看完对比，看当前价格"
+      links={[
+        { href: '/compare', label: '其他对比' },
+        { href: '/tools/chooser', label: '用选择器挑' },
+      ]}
+    />
+  </div>
+</BaseLayout>

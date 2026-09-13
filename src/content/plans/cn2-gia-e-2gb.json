@@ -1,0 +1,69 @@
+{
+  "slug": "cn2-gia-e-2gb",
+  "name": "CN2 GIA-E 套餐（2GB）",
+  "series": "cn2-gia-e",
+  "tier": "mainstream",
+  "status": "available",
+  "tagline": "GIA-E 系列的实用档，2GB 内存 + 2TB 流量，跑得动真实应用",
+  "summary": "在 GIA-E 1GB 的基础上翻倍内存、硬盘和流量。1GB 档跑静态站和反向代理够用，但一旦要跑数据库、多容器或 Java 应用就会吃紧，2GB 是能稳定承载实际业务的最低门槛。同样支持十几个机房免费切换。",
+  "bestFor": [
+    "要在服务器上跑数据库或多容器",
+    "部署真实业务而非练手项目",
+    "需要 2TB 月流量"
+  ],
+  "notFor": ["预算敏感、用途轻量", "目标用户全在欧美"],
+  "specs": {
+    "cpu": "Intel Xeon",
+    "cores": 3,
+    "memoryMB": 2048,
+    "diskGB": 40,
+    "diskType": "SSD",
+    "trafficTB": 2,
+    "bandwidthMbps": 2500,
+    "ipv4": 1,
+    "ipv6": true,
+    "virtualization": "KVM"
+  },
+  "network": {
+    "line": "cn2-gia",
+    "datacenters": ["dc6", "dc9"],
+    "migratable": true,
+    "migratableCount": 12
+  },
+  "pricing": {
+    "currency": "USD",
+    "cycles": [
+      { "cycle": "quarterly", "price": 89.99, "note": "折算约 $30.00/月" },
+      { "cycle": "annual", "price": 299.99, "note": "折算约 $25.00/月" }
+    ],
+    "paymentMethods": ["alipay", "paypal", "creditcard", "unionpay"],
+    "priceCheckedAt": "2026-09-13",
+    "refundDays": 30
+  },
+  "affiliate": {
+    "pid": "0",
+    "verified": false,
+    "note": "pid 需从搬瓦工后台 Affiliates 页面复制"
+  },
+  "scores": { "performance": 4, "value": 4, "stability": 5, "latencyCN": 4 },
+  "pros": [
+    "2GB 内存可稳定运行数据库与多容器",
+    "2TB 月流量对中小型业务充足",
+    "CN2 GIA 线路 + 十几个机房免费切换",
+    "3 核配置，突发负载承受力更好"
+  ],
+  "cons": ["年付接近 300 美元，是需要认真考虑的支出", "相比 1GB 档价格涨幅明显"],
+  "content": "## 什么时候必须上 2GB\n\n1GB 内存不是「少一点」，而是「某些事做不了」。分界线大致在这里：\n\n| 用途 | 1GB 够吗 |\n| :--- | :--- |\n| 静态站、反向代理 | 够 |\n| Nginx + PHP + MySQL 小站 | 勉强，需调优 |\n| Docker 多容器 | 不够 |\n| 数据库 + 应用 + 缓存同机 | 不够 |\n| Java / Node 重型应用 | 不够 |\n\n如果上表里有任何一行落在「不够」，直接选 2GB。省下的钱会在你反复调优和排查 OOM 的时间里还回去。\n\n## 关于年付\n\n年付折算月成本比季付低约 17%，但一次支出接近 300 美元。建议：**先用季付确认线路在你的宽带下确实符合预期，再转年付**。搬瓦工支持新账号 30 天全额退款，季付试错的成本很低。",
+  "useCases": ["website", "developer", "cross-border"],
+  "relatedPlans": ["cn2-gia-e-1gb", "ecommerce-1gb"],
+  "relatedTutorials": ["migrate-datacenter", "kiwivm-panel"],
+  "faqs": [],
+  "seo": {
+    "title": "搬瓦工 CN2 GIA-E 套餐（2GB）：价格与「什么时候必须上 2GB」",
+    "description": "搬瓦工 CN2 GIA-E 2GB 套餐完整参数与价格。一张表判断 1GB 内存够不够用，以及季付试错再转年付的实际做法。",
+    "keywords": ["搬瓦工 2GB 套餐", "搬瓦工 CN2 GIA-E 2GB", "搬瓦工 GIA-E 价格"]
+  },
+  "order": 5,
+  "updatedAt": "2026-09-13",
+  "publishedAt": "2026-09-13"
+}

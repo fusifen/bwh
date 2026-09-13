@@ -1,0 +1,174 @@
+---
+/**
+ * Glossary term detail.
+ *
+ * The one-sentence definition is rendered as its own block at the top, in the
+ * standard form, because it is the single most quotable string on the site.
+ * `seeAlso` is resolved into real links — a term page that does not link onward
+ * is a dead end, and the glossary's job in the link graph is to be a hub.
+ *
+ * Backlinks are computed rather than authored: any plan, line or datacenter
+ * that references this term's page gets linked from here, so the triangle
+ * (term ↔ line ↔ plan) closes without anyone maintaining a list.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/ui/PageHero.astro';
+import Breadcrumbs from '../../components/layout/Breadcrumbs.astro';
+import Prose from '../../components/ui/Prose.astro';
+import LinkCard from '../../components/cards/LinkCard.astro';
+import AffiliateDisclosure from '../../components/sections/AffiliateDisclosure.astro';
+import CtaBand from '../../components/sections/CtaBand.astro';
+import {
+  getGlossary,
+  getPlans,
+  getLines,
+  getDatacenters,
+  glossaryBySlugs,
+} from '../../lib/cms';
+import { renderMarkdown } from '../../lib/markdown';
+import { breadcrumbSchema, glossarySchema } from '../../lib/seo';
+
+export function getStaticPaths() {
+  return getGlossary().map((entry) => ({ params: { slug: entry.slug }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+
+const path = `/glossary/${entry.slug}`;
+const crumbs = [
+  { label: '首页', href: '/' },
+  { label: '术语词典', href: '/glossary' },
+  { label: entry.term, href: path },
+];
+
+const body = renderMarkdown(entry.fullDef);
+const related = glossaryBySlugs(entry.related);
+
+/**
+ * Anything on the site that points at this term. `seeAlso` on the entity side
+ * is the authored direction; this is the reverse lookup, so the author only
+ * writes the link once.
+ */
+const backlinks = [
+  ...getPlans()
+    .filter((plan) => plan.content.includes(`/glossary/${entry.slug}`))
+    .map((plan) => ({ href: `/plans/${plan.slug}`, title: plan.name, eyebrow: '套餐' })),
+  ...getLines()
+    .filter((line) => line.content.includes(`/glossary/${entry.slug}`))
+    .map((line) => ({ href: `/lines/${line.slug}`, title: line.name, eyebrow: '线路' })),
+  ...getDatacenters()
+    .filter((dc) => dc.content.includes(`/glossary/${entry.slug}`))
+    .map((dc) => ({ href: `/datacenters/${dc.slug}`, title: dc.name, eyebrow: '机房' })),
+];
+
+const schema = [breadcrumbSchema(crumbs, path), glossarySchema(entry, path)];
+---
+
+<BaseLayout
+  title={entry.seo?.title ?? `${entry.term} 是什么意思`}
+  description={entry.seo?.description ?? entry.shortDef}
+  keywords={entry.seo?.keywords}
+  schema={schema}
+  type="article"
+  updatedAt={entry.updatedAt}
+>
+  <PageHero eyebrow="术语" title={entry.term} lede={entry.termEn}>
+    <Breadcrumbs slot="breadcrumbs" crumbs={crumbs} />
+    <Fragment slot="chips">
+      {entry.abbr && <span class="chip chip-mono">{entry.abbr}</span>}
+      {entry.termEn && <span class="chip">{entry.termEn}</span>}
+      <span class="chip">更新于 {entry.updatedAt}</span>
+    </Fragment>
+  </PageHero>
+
+  <div class="container-page space-y-10 py-10">
+    <section
+      aria-labelledby="definition-heading"
+      class="rounded-xl border border-brand/25 bg-brand-soft/60 px-5 py-4"
+    >
+      <h2 id="definition-heading" class="section-label">定义</h2>
+      <p class="mt-2 text-[0.9375rem] leading-relaxed">{entry.shortDef}</p>
+    </section>
+
+    <AffiliateDisclosure />
+
+    {
+      body.html && (
+        <section aria-labelledby="detail-heading" class="space-y-3">
+          <h2 id="detail-heading" class="text-base font-medium">
+            展开说明
+          </h2>
+          <Prose html={body.html} />
+        </section>
+      )
+    }
+
+    {
+      related.length > 0 && (
+        <section aria-labelledby="related-heading" class="space-y-3">
+          <h2 id="related-heading" class="text-base font-medium">
+            相关术语
+          </h2>
+          <ul class="grid gap-2 sm:grid-cols-2">
+            {related.map((item) => (
+              <li class="card p-4">
+                <a href={`/glossary/${item.slug}`} class="text-sm font-medium hover:text-brand">
+                  {item.term}
+                </a>
+                <p class="mt-1.5 text-sm leading-relaxed text-fg-muted">{item.shortDef}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    {
+      entry.seeAlso.length > 0 && (
+        <section aria-labelledby="seealso-heading" class="space-y-3">
+          <h2 id="seealso-heading" class="text-base font-medium">
+            在哪里会遇到这个概念
+          </h2>
+          <ul class="flex flex-wrap gap-2">
+            {entry.seeAlso.map((href) => (
+              <li>
+                <a href={href} class="chip hover:border-line-strong">
+                  {href}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    {
+      backlinks.length > 0 && (
+        <section aria-labelledby="backlinks-heading" class="space-y-3">
+          <h2 id="backlinks-heading" class="text-base font-medium">
+            涉及这个术语的页面
+          </h2>
+          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {backlinks.map((link) => (
+              <LinkCard href={link.href} title={link.title} eyebrow={link.eyebrow} />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <section class="rounded-xl border border-line bg-surface-2 p-5">
+      <h2 class="text-base font-medium">继续</h2>
+      <div class="mt-3 flex flex-wrap gap-2.5">
+        <a href="/glossary" class="btn btn-secondary btn-sm">回到术语词典</a>
+        <a href="/lines" class="btn btn-secondary btn-sm">线路说明</a>
+        <a href="/plans" class="btn btn-secondary btn-sm">看套餐</a>
+      </div>
+    </section>
+
+    <CtaBand
+      title="选型时用得上这些概念"
+      links={[{ href: '/tools/chooser', label: '用选择器挑套餐' }]}
+    />
+  </div>
+</BaseLayout>

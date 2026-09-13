@@ -1,0 +1,99 @@
+---
+/**
+ * Post detail.
+ *
+ * A plain article layout: title, meta, body, and the plans it references. No
+ * table of contents unless the body actually has headings — an empty TOC rail
+ * is worse than no rail.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/ui/PageHero.astro';
+import Breadcrumbs from '../../components/layout/Breadcrumbs.astro';
+import Toc from '../../components/layout/Toc.astro';
+import Prose from '../../components/ui/Prose.astro';
+import PlanCard from '../../components/cards/PlanCard.astro';
+import AffiliateDisclosure from '../../components/sections/AffiliateDisclosure.astro';
+import CtaBand from '../../components/sections/CtaBand.astro';
+import { getPosts, plansBySlugs } from '../../lib/cms';
+import { renderMarkdown } from '../../lib/markdown';
+import { formatDate } from '../../lib/format';
+import { breadcrumbSchema, postSchema } from '../../lib/seo';
+
+export function getStaticPaths() {
+  return getPosts().map((post) => ({ params: { slug: post.slug }, props: { post } }));
+}
+
+const { post } = Astro.props;
+
+const path = `/blog/${post.slug}`;
+const crumbs = [
+  { label: '首页', href: '/' },
+  { label: '资讯', href: '/blog' },
+  { label: post.title, href: path },
+];
+
+const body = renderMarkdown(post.content);
+const plans = plansBySlugs(post.relatedPlans);
+const hasToc = body.toc.filter((entry) => entry.level <= 3).length >= 3;
+
+const schema = [breadcrumbSchema(crumbs, path), postSchema(post, path)];
+---
+
+<BaseLayout
+  title={post.seo?.title ?? post.title}
+  description={post.seo?.description ?? post.summary}
+  keywords={post.seo?.keywords}
+  schema={schema}
+  type="article"
+  publishedAt={post.publishedAt}
+  updatedAt={post.updatedAt}
+>
+  <PageHero eyebrow={post.category} title={post.title} lede={post.summary}>
+    <Breadcrumbs slot="breadcrumbs" crumbs={crumbs} />
+    <Fragment slot="chips">
+      <span class="chip">{post.author}</span>
+      <span class="chip">发布于 {formatDate(post.publishedAt ?? post.updatedAt)}</span>
+      {post.updatedAt !== post.publishedAt && (
+        <span class="chip">更新于 {formatDate(post.updatedAt)}</span>
+      )}
+      {post.tags.map((tag) => <span class="chip chip-mono">{tag}</span>)}
+    </Fragment>
+  </PageHero>
+
+  <div class:list={['container-page py-10', hasToc && 'grid gap-10 lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-start']}>
+    <div class="min-w-0 space-y-10">
+      <AffiliateDisclosure />
+
+      <Prose html={body.html} />
+
+      {
+        plans.length > 0 && (
+          <section aria-labelledby="plans-heading" class="space-y-3">
+            <h2 id="plans-heading" class="text-base font-medium">
+              文中提到的套餐
+            </h2>
+            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {plans.map((plan) => (
+                <PlanCard plan={plan} compact place="post-plans" />
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      <CtaBand
+        plan={plans[0]}
+        title="看看当前价格"
+        links={[{ href: '/blog', label: '回到资讯' }]}
+      />
+    </div>
+
+    {
+      hasToc && (
+        <aside class="hidden lg:block lg:sticky lg:top-20">
+          <Toc entries={body.toc} />
+        </aside>
+      )
+    }
+  </div>
+</BaseLayout>

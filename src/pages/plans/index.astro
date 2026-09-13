@@ -1,0 +1,171 @@
+---
+/**
+ * Plan index.
+ *
+ * Two layers, because there are two kinds of reader:
+ *
+ *   - one who wants to compare everything at once → the comparison table;
+ *   - one who wants to understand the product line → the series groups.
+ *
+ * The comparison table is capped at the mainstream plans. Ten columns of specs
+ * is not a comparison, it is a spreadsheet — and a table nobody can read
+ * converts nobody.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/ui/PageHero.astro';
+import Breadcrumbs from '../../components/layout/Breadcrumbs.astro';
+import PlanCard from '../../components/cards/PlanCard.astro';
+import PlanCompareTable from '../../components/sections/PlanCompareTable.astro';
+import AffiliateDisclosure from '../../components/sections/AffiliateDisclosure.astro';
+import EmptyState from '../../components/ui/EmptyState.astro';
+import {
+  AFFILIATE,
+  getPlans,
+  getPlansBySeries,
+  getPurchasablePlans,
+} from '../../lib/cms';
+import { SERIES_LABELS, STATUS_LABELS } from '../../lib/format';
+import { breadcrumbSchema, itemListSchema } from '../../lib/seo';
+
+const crumbs = [
+  { label: '首页', href: '/' },
+  { label: '套餐', href: '/plans' },
+];
+
+const all = getPlans();
+const purchasable = getPurchasablePlans();
+const groups = getPlansBySeries();
+
+/**
+ * The comparison set. Mainstream tiers only — entry and pro plans are still
+ * listed below, but mixing a $20 limited plan with a $300 enterprise plan in
+ * one table makes every row meaningless.
+ */
+const compareSet = purchasable.filter(
+  (plan) => plan.tier === 'mainstream' || plan.tier === 'entry',
+).slice(0, 5);
+
+const schema = [
+  breadcrumbSchema(crumbs, '/plans'),
+  itemListSchema(
+    all.map((plan) => ({ name: plan.name, url: `/plans/${plan.slug}` })),
+    '搬瓦工全部套餐',
+  ),
+];
+
+const refundDays = AFFILIATE.programFacts?.refundDays ?? 30;
+---
+
+<BaseLayout
+  title="搬瓦工套餐总览：参数、价格与适用场景"
+  description="搬瓦工全部在售套餐的参数与价格对比。按系列分组列出 CPU、内存、硬盘、月流量、端口带宽与线路，标注价格核对日期，并写明每个套餐适合谁、不适合谁。"
+  keywords={['搬瓦工套餐', '搬瓦工套餐对比', '搬瓦工价格', 'BandwagonHost 套餐']}
+  schema={schema}
+>
+  <PageHero
+    eyebrow="套餐"
+    title="搬瓦工套餐总览"
+    lede={`共收录 ${all.length} 个套餐，其中 ${purchasable.length} 个当前可购买。价格均为税前美元价并标注核对日期；每个套餐都写明「不适合谁」，因为买错带来的退款对双方都是损失。`}
+  >
+    <Breadcrumbs slot="breadcrumbs" crumbs={crumbs} />
+    <Fragment slot="chips">
+      <span class="chip chip-mono">{all.length} 个套餐</span>
+      <span class="chip">新账号 {refundDays} 天可退款</span>
+      <span class="chip">支持支付宝</span>
+    </Fragment>
+  </PageHero>
+
+  <div class="container-page space-y-12 py-10">
+    <AffiliateDisclosure />
+
+    {
+      compareSet.length > 1 && (
+        <section aria-labelledby="compare-heading" class="space-y-4">
+          <div>
+            <h2 id="compare-heading" class="text-lg font-medium">主力套餐横向对比</h2>
+            <p class="mt-1 text-sm text-fg-muted">
+              只比较差异项会被标出，相同的项会变淡。表格里的「最低折算月价」是把季付、年付统一换算后的数字，方便直接比。
+            </p>
+          </div>
+          <PlanCompareTable plans={compareSet} caption="搬瓦工主力套餐参数与价格对比" place="plans-index" />
+        </section>
+      )
+    }
+
+    {
+      groups.length > 0 ? (
+        <div class="space-y-10">
+          {groups.map((group) => (
+            <section aria-labelledby={`series-${group.series}`} class="space-y-4">
+              <div class="flex flex-wrap items-baseline justify-between gap-2 border-b border-line pb-2">
+                <h2 id={`series-${group.series}`} class="text-lg font-medium">
+                  {SERIES_LABELS[group.series] ?? group.series}
+                </h2>
+                <p class="text-xs text-fg-subtle">{group.plans.length} 个套餐</p>
+              </div>
+
+              <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {group.plans.map((plan) => (
+                  <PlanCard plan={plan} place={`plans-${group.series}`} />
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
+      ) : (
+        <EmptyState
+          title="还没有套餐内容"
+          body="在后台的「套餐」集合里添加第一个套餐，页面会自动生成。"
+          actionLabel="了解内容结构"
+          actionHref="/about"
+        />
+      )
+    }
+
+    {
+      all.some((plan) => plan.status === 'out-of-stock' || plan.status === 'discontinued') && (
+        <section aria-labelledby="unavailable-heading" class="space-y-3">
+          <h2 id="unavailable-heading" class="text-base font-medium">已售罄或下架</h2>
+          <p class="text-sm text-fg-muted">
+            这些套餐的页面会保留（有搜索排名和外部链接），但状态已标注，并给出替代建议。
+          </p>
+          <ul class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {all
+              .filter((plan) => plan.status === 'out-of-stock' || plan.status === 'discontinued')
+              .map((plan) => (
+                <li class="card flex items-center justify-between gap-3 p-3 text-sm">
+                  <a href={`/plans/${plan.slug}`} class="font-medium hover:text-brand">
+                    {plan.name}
+                  </a>
+                  <span class="chip chip-signal shrink-0">{STATUS_LABELS[plan.status] ?? plan.status}</span>
+                </li>
+              ))}
+          </ul>
+        </section>
+      )
+    }
+
+    <section class="rounded-xl border border-line bg-surface-2 p-5">
+      <h2 class="text-base font-medium">怎么用这张表</h2>
+      <ol class="mt-3 grid gap-2 text-sm text-fg-muted">
+        <li>
+          <strong class="font-medium text-fg">1. 先确定访问来源。</strong>
+          服务对象在国内，线路就比配置重要；服务对象在欧美，多付的线路钱买不到东西。
+        </li>
+        <li>
+          <strong class="font-medium text-fg">2. 再看内存和流量。</strong>
+          1GB 内存跑静态站、反向代理、轻量 API 够用；跑数据库或多个容器会吃紧。
+        </li>
+        <li>
+          <strong class="font-medium text-fg">3. 最后看是否需要换机房。</strong>
+          不确定选哪个机房时，支持免费迁移的套餐相当于买了一份选择权。
+        </li>
+      </ol>
+      <div class="mt-4 flex flex-wrap gap-2.5">
+        <a href="/lines" class="btn btn-secondary btn-sm">先搞懂线路的区别</a>
+        <a href="/datacenters" class="btn btn-secondary btn-sm">看各机房的实际表现</a>
+        <a href="/tools/chooser" class="btn btn-secondary btn-sm">用选择器帮我挑</a>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

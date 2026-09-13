@@ -1,0 +1,120 @@
+---
+/**
+ * Plan card — the unit the whole site is built out of.
+ *
+ * Four facts and a price, because that is what the decision turns on. The
+ * monthly-equivalent figure is shown as prominently as the headline price: a
+ * reader comparing a $49.99/quarter plan against a $169.99/year plan cannot do
+ * that division in their head, and if the site does not do it for them they
+ * will compare the wrong numbers.
+ *
+ * `notFor` gets a line of its own. Recommending everything is the same as
+ * recommending nothing.
+ */
+import type { Plan } from '../../lib/schemas';
+import { planMonthlyFrom, planEntryPrice } from '../../lib/cms';
+import {
+  cycleLabel,
+  formatBandwidth,
+  formatDisk,
+  formatMemory,
+  formatPrice,
+  formatTraffic,
+  SERIES_LABELS,
+  STATUS_LABELS,
+} from '../../lib/format';
+import CtaButton from '../ui/CtaButton.astro';
+
+interface Props {
+  plan: Plan;
+  /** Compact variant for sidebars and related blocks. */
+  compact?: boolean;
+  place?: string;
+}
+
+const { plan, compact = false, place = 'plan-card' } = Astro.props;
+
+const monthly = planMonthlyFrom(plan);
+const entry = planEntryPrice(plan);
+const series = SERIES_LABELS[plan.series] ?? plan.series;
+const unavailable = plan.status === 'out-of-stock' || plan.status === 'discontinued';
+
+const facts = [
+  formatMemory(plan.specs.memoryMB),
+  formatDisk(plan.specs.diskGB),
+  `${formatTraffic(plan.specs.trafficTB)}/月`,
+  formatBandwidth(plan.specs.bandwidthMbps),
+];
+---
+
+<article class="card card-hover flex flex-col p-4">
+  <div class="flex items-start justify-between gap-3">
+    <div class="min-w-0">
+      <p class="section-label">{series}</p>
+      <h3 class="mt-1 text-[0.9375rem] font-medium leading-snug">
+        <a href={`/plans/${plan.slug}`} class="transition-colors hover:text-brand">{plan.name}</a>
+      </h3>
+    </div>
+    {
+      unavailable && (
+        <span class="chip chip-signal shrink-0">{STATUS_LABELS[plan.status] ?? plan.status}</span>
+      )
+    }
+  </div>
+
+  {
+    !compact && (
+      <p class="mt-2 line-clamp-3 text-sm leading-relaxed text-fg-muted">{plan.tagline}</p>
+    )
+  }
+
+  <dl class="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
+    {
+      facts.map((fact) => (
+        <div class="flex items-center gap-1.5 text-fg-muted">
+          <span aria-hidden="true" class="h-1 w-1 rounded-full bg-line-strong" />
+          <dd>{fact}</dd>
+        </div>
+      ))
+    }
+  </dl>
+
+  {
+    plan.bestFor.length > 0 && (
+      <p class="mt-3 text-xs leading-relaxed text-fg-muted">
+        <span class="text-fg-subtle">适合：</span>
+        {plan.bestFor.slice(0, 2).join('；')}
+      </p>
+    )
+  }
+
+  {
+    plan.notFor.length > 0 && !compact && (
+      <p class="mt-1.5 text-xs leading-relaxed text-signal">
+        <span class="opacity-80">不适合：</span>
+        {plan.notFor.slice(0, 2).join('；')}
+      </p>
+    )
+  }
+
+  <div class="mt-4 flex items-end justify-between gap-3 border-t border-line pt-3">
+    <div>
+      {
+        Number.isFinite(monthly) ? (
+          <>
+            <p class="text-lg font-medium leading-none text-fg">
+              {formatPrice(monthly, plan.pricing.currency)}
+              <span class="text-xs font-normal text-fg-subtle">/月</span>
+            </p>
+            <p class="mt-1 text-xs text-fg-subtle">
+              最低折算{entry ? `（${cycleLabel(entry.cycle)} ${formatPrice(entry.price, plan.pricing.currency)}）` : ''}
+            </p>
+          </>
+        ) : (
+          <p class="text-sm text-fg-subtle">价格待更新</p>
+        )
+      }
+    </div>
+    <CtaButton plan={plan} size="sm" label="查看价格" place={place} />
+  </div>
+</article>

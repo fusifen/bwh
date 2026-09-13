@@ -1,0 +1,138 @@
+---
+/**
+ * Line index.
+ *
+ * The table carries the definition sentences rather than a paraphrase of them.
+ * A line page's job is to be quotable — "CN2 GIA 是指……" is the sentence an
+ * answer engine lifts — and burying it in a card summary wastes that.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/ui/PageHero.astro';
+import Breadcrumbs from '../../components/layout/Breadcrumbs.astro';
+import LinkCard from '../../components/cards/LinkCard.astro';
+import AffiliateDisclosure from '../../components/sections/AffiliateDisclosure.astro';
+import EmptyState from '../../components/ui/EmptyState.astro';
+import { getLines, getPlansForLine } from '../../lib/cms';
+import { breadcrumbSchema, itemListSchema } from '../../lib/seo';
+
+const crumbs = [
+  { label: '首页', href: '/' },
+  { label: '线路', href: '/lines' },
+];
+
+const lines = getLines();
+
+const schema = [
+  breadcrumbSchema(crumbs, '/lines'),
+  itemListSchema(
+    lines.map((line) => ({ name: line.name, url: `/lines/${line.slug}` })),
+    '搬瓦工线路',
+  ),
+];
+---
+
+<BaseLayout
+  title="搬瓦工线路说明：CN2 GIA、CN2 GT、9929、CMIN2 的区别"
+  description="搬瓦工各条线路的定义、典型延迟与晚高峰表现对比。说明每条线路在什么情况下值得付溢价，以及它最常被混淆的那条线路差在哪。"
+  keywords={['CN2 GIA', 'CN2 GT', '搬瓦工线路', 'AS9929', 'CMIN2', 'CN2 GIA 区别']}
+  schema={schema}
+>
+  <PageHero
+    eyebrow="线路"
+    title="搬瓦工线路说明"
+    lede="访问速度主要由线路决定，其次才是配置。同一个机房、同一台机器，走不同线路的晚高峰表现可以差出几倍——而这个差距只在拥塞时才暴露，所以闲时的测速截图参考价值有限。"
+  >
+    <Breadcrumbs slot="breadcrumbs" crumbs={crumbs} />
+    <Fragment slot="chips">
+      <span class="chip chip-mono">{lines.length} 条线路</span>
+      <span class="chip">含定义句</span>
+      <span class="chip">说明溢价是否值得</span>
+    </Fragment>
+  </PageHero>
+
+  <div class="container-page space-y-12 py-10">
+    <AffiliateDisclosure />
+
+    {
+      lines.length > 0 ? (
+        <>
+          <section aria-labelledby="table-heading" class="space-y-3">
+            <h2 id="table-heading" class="text-lg font-medium">
+              线路对照
+            </h2>
+            <div class="table-scroll rounded-lg border border-line">
+              <table>
+                <caption class="sr-only">搬瓦工各线路的定义、晚高峰表现与可用机房</caption>
+                <thead>
+                  <tr>
+                    <th scope="col" class="min-w-[8rem]">线路</th>
+                    <th scope="col" class="min-w-[18rem]">定义</th>
+                    <th scope="col" class="min-w-[12rem]">晚高峰</th>
+                    <th scope="col">可用机房</th>
+                    <th scope="col">套餐</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {lines.map((line) => (
+                    <tr>
+                      <th scope="row" class="font-medium">
+                        <a href={`/lines/${line.slug}`} class="hover:text-brand">
+                          {line.name}
+                        </a>
+                      </th>
+                      <td class="text-fg-muted">{line.definition}</td>
+                      <td class="text-fg-muted">{line.peakBehavior || '—'}</td>
+                      <td class="tabular">{line.availableDatacenters.length} 个</td>
+                      <td class="tabular">{getPlansForLine(line.slug).length} 个</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section aria-labelledby="cards-heading" class="space-y-3">
+            <h2 id="cards-heading" class="text-lg font-medium">
+              逐条说明
+            </h2>
+            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {lines.map((line) => (
+                <LinkCard
+                  href={`/lines/${line.slug}`}
+                  title={line.name}
+                  summary={line.summary}
+                  eyebrow="线路"
+                  mono={line.abbr}
+                  meta={[
+                    `${line.availableDatacenters.length} 个机房`,
+                    `${getPlansForLine(line.slug).length} 个套餐`,
+                  ]}
+                />
+              ))}
+            </div>
+          </section>
+        </>
+      ) : (
+        <EmptyState
+          title="还没有线路内容"
+          body="在后台的「线路」集合里添加第一条线路，页面会自动生成。"
+          actionLabel="了解内容结构"
+          actionHref="/about"
+        />
+      )
+    }
+
+    <section class="rounded-xl border border-line bg-surface-2 p-5">
+      <h2 class="text-base font-medium">判断线路值不值得付溢价</h2>
+      <p class="mt-2 text-sm leading-relaxed text-fg-muted">
+        只有一个判断标准：<strong class="font-medium text-fg">你的访问时段里有没有晚高峰</strong>。
+        闲时所有线路表现接近，差距只在链路拥塞时体现。如果你的服务在晚上九点之后会被访问，
+        优质线路的钱花得值；如果使用时段集中在白天，普通线路完全够用。
+      </p>
+      <div class="mt-4 flex flex-wrap gap-2.5">
+        <a href="/datacenters" class="btn btn-secondary btn-sm">看各机房的实测表现</a>
+        <a href="/compare" class="btn btn-secondary btn-sm">线路对比</a>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

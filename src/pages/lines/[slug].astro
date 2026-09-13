@@ -1,0 +1,247 @@
+---
+/**
+ * Line detail.
+ *
+ * The definition sentence is pulled out of the body copy and rendered as its
+ * own block near the top, in the standard "X 是指……" form. Answer engines lift
+ * that pattern almost verbatim, and a definition buried three paragraphs into a
+ * page is a definition that does not get quoted.
+ *
+ * `comparedWith` is rendered as a dedicated section rather than left to the
+ * reader to assemble: the confusion between two similar line names is the most
+ * common reason someone lands here in the first place.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/ui/PageHero.astro';
+import Breadcrumbs from '../../components/layout/Breadcrumbs.astro';
+import Toc from '../../components/layout/Toc.astro';
+import Prose from '../../components/ui/Prose.astro';
+import LinkCard from '../../components/cards/LinkCard.astro';
+import PlanCard from '../../components/cards/PlanCard.astro';
+import VerdictBox from '../../components/sections/VerdictBox.astro';
+import ProsCons from '../../components/sections/ProsCons.astro';
+import FaqAccordion from '../../components/sections/FaqAccordion.astro';
+import AffiliateDisclosure from '../../components/sections/AffiliateDisclosure.astro';
+import CtaBand from '../../components/sections/CtaBand.astro';
+import {
+  getFaqsFor,
+  getLines,
+  getPlansForLine,
+  getRelatedForLine,
+  linesBySlugs,
+} from '../../lib/cms';
+import { renderMarkdown } from '../../lib/markdown';
+import { breadcrumbSchema, faqSchema, lineSchema } from '../../lib/seo';
+
+export function getStaticPaths() {
+  return getLines().map((line) => ({ params: { slug: line.slug }, props: { line } }));
+}
+
+const { line } = Astro.props;
+
+const path = `/lines/${line.slug}`;
+const crumbs = [
+  { label: '首页', href: '/' },
+  { label: '线路', href: '/lines' },
+  { label: line.name, href: path },
+];
+
+const related = getRelatedForLine(line);
+const body = renderMarkdown(line.content);
+const plans = getPlansForLine(line.slug);
+const datacenters = related.datacenters;
+const faqs = [...line.faqs, ...getFaqsFor('lines', line.slug)];
+
+/** The lines this one is most often confused with, resolved to full records. */
+const confusable = linesBySlugs(line.comparedWith.map((entry) => entry.slug));
+
+const schema = [breadcrumbSchema(crumbs, path), lineSchema(line, path), faqSchema(faqs)];
+---
+
+<BaseLayout
+  title={line.seo?.title ?? `${line.name} 是什么：定义、表现与适用场景`}
+  description={line.seo?.description ?? line.summary}
+  keywords={line.seo?.keywords}
+  schema={schema}
+  type="article"
+  updatedAt={line.updatedAt}
+>
+  <PageHero eyebrow="线路" title={line.name} lede={line.summary}>
+    <Breadcrumbs slot="breadcrumbs" crumbs={crumbs} />
+    <Fragment slot="chips">
+      <span class="chip chip-mono">{line.abbr}</span>
+      <span class="chip">{plans.length} 个套餐</span>
+      <span class="chip">{datacenters.length} 个机房</span>
+      {line.typicalLatency && <span class="chip">延迟：{line.typicalLatency}</span>}
+    </Fragment>
+  </PageHero>
+
+  <div class="container-page grid gap-10 py-10 lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-start">
+    <div class="min-w-0 space-y-10">
+      <!-- The quotable definition, kept as its own block on purpose. -->
+      <section
+        aria-labelledby="definition-heading"
+        class="rounded-xl border border-brand/25 bg-brand-soft/60 px-5 py-4"
+      >
+        <h2 id="definition-heading" class="section-label">定义</h2>
+        <p class="mt-2 text-[0.9375rem] leading-relaxed">{line.definition}</p>
+      </section>
+
+      <VerdictBox verdict={line.verdict} title="值不值得为它付溢价" />
+      <AffiliateDisclosure />
+
+      <section aria-labelledby="profile-heading" class="space-y-3">
+        <h2 id="profile-heading" class="text-base font-medium">
+          实际表现
+        </h2>
+        <dl class="spec-grid rounded-lg border border-line bg-surface-2 p-4">
+          <dt>典型延迟</dt>
+          <dd>{line.typicalLatency || '未标注'}</dd>
+          <dt>丢包情况</dt>
+          <dd>{line.typicalLoss || '未标注'}</dd>
+          <dt>晚高峰</dt>
+          <dd>{line.peakBehavior || '未标注'}</dd>
+        </dl>
+      </section>
+
+      <section aria-labelledby="proscons-heading" class="space-y-3">
+        <h2 id="proscons-heading" class="text-base font-medium">优缺点</h2>
+        <ProsCons pros={line.pros} cons={line.cons} />
+      </section>
+
+      {
+        line.comparedWith.length > 0 && (
+          <section aria-labelledby="confused-heading" class="space-y-3">
+            <h2 id="confused-heading" class="text-base font-medium">
+              它最常被混淆的线路
+            </h2>
+            <div class="space-y-3">
+              {line.comparedWith.map((entry) => {
+                const other = confusable.find((item) => item.slug === entry.slug);
+                return (
+                  <div class="rounded-lg border border-line bg-surface p-4">
+                    <p class="text-sm font-medium">
+                      {other ? (
+                        <a href={`/lines/${other.slug}`} class="hover:text-brand">
+                          {other.name}
+                        </a>
+                      ) : (
+                        entry.slug
+                      )}
+                    </p>
+                    <p class="mt-1.5 text-sm leading-relaxed text-fg-muted">{entry.difference}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )
+      }
+
+      {
+        body.html && (
+          <section aria-labelledby="detail-heading" class="space-y-3">
+            <h2 id="detail-heading" class="text-base font-medium">详细说明</h2>
+            <Prose html={body.html} />
+          </section>
+        )
+      }
+
+      {
+        datacenters.length > 0 && (
+          <section aria-labelledby="dc-heading" class="space-y-3">
+            <h2 id="dc-heading" class="text-base font-medium">
+              提供这条线路的机房
+            </h2>
+            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {datacenters.map((dc) => (
+                <LinkCard
+                  href={`/datacenters/${dc.slug}`}
+                  title={dc.name}
+                  summary={dc.summary}
+                  eyebrow={`${dc.country} · ${dc.city}`}
+                  mono={dc.code}
+                />
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      {
+        plans.length > 0 && (
+          <section aria-labelledby="plans-heading" class="space-y-3">
+            <h2 id="plans-heading" class="text-base font-medium">
+              使用这条线路的套餐
+            </h2>
+            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {plans.map((plan) => (
+                <PlanCard plan={plan} compact place="line-plans" />
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      {
+        related.compares.length > 0 && (
+          <section aria-labelledby="compare-heading" class="space-y-3">
+            <h2 id="compare-heading" class="text-base font-medium">
+              相关对比
+            </h2>
+            <div class="grid gap-3 sm:grid-cols-2">
+              {related.compares.map((compare) => (
+                <LinkCard
+                  href={`/compare/${compare.slug}`}
+                  title={compare.title}
+                  summary={compare.verdict}
+                  eyebrow="对比"
+                />
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      {
+        related.glossary.length > 0 && (
+          <section aria-labelledby="glossary-heading" class="space-y-3">
+            <h2 id="glossary-heading" class="text-base font-medium">
+              相关术语
+            </h2>
+            <ul class="flex flex-wrap gap-2">
+              {related.glossary.map((entry) => (
+                <li>
+                  <a href={`/glossary/${entry.slug}`} class="chip hover:border-line-strong">
+                    {entry.term}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+
+      {
+        faqs.length > 0 && (
+          <section aria-labelledby="faq-heading" class="space-y-3">
+            <h2 id="faq-heading" class="text-base font-medium">
+              关于这条线路的常见问题
+            </h2>
+            <FaqAccordion items={faqs} />
+          </section>
+        )
+      }
+
+      <CtaBand
+        plan={plans[0]}
+        title={plans[0] ? `用 ${line.abbr} 线路的套餐` : '选择一条线路开始'}
+        links={[{ href: '/lines', label: '对比其他线路' }]}
+      />
+    </div>
+
+    <aside class="hidden lg:block lg:sticky lg:top-20 space-y-6">
+      <Toc entries={body.toc} />
+    </aside>
+  </div>
+</BaseLayout>

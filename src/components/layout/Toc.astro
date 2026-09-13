@@ -1,0 +1,52 @@
+---
+/**
+ * Table of contents.
+ *
+ * Built from the renderer's `toc` output rather than by parsing the DOM, which
+ * means the outline and the document cannot disagree. Anchors are plain links —
+ * no scroll-spy — because `scroll-padding-top` on `html` already keeps headings
+ * clear of the sticky header, and a scroll-spy would need JavaScript on pages
+ * that otherwise ship none.
+ */
+import type { TocEntry } from '../../lib/markdown';
+
+interface Props {
+  entries: TocEntry[];
+  title?: string;
+  /** Sticky sidebar on wide screens, a collapsible block on narrow ones. */
+  sticky?: boolean;
+}
+
+const { entries, title = '本页目录', sticky = true } = Astro.props;
+
+// Only surface h2/h3 — an outline that lists every h4 is a second document.
+const items = entries.filter((entry) => entry.level <= 3);
+---
+
+{
+  items.length >= 3 && (
+    <nav
+      aria-labelledby="toc-heading"
+      class:list={['text-sm', sticky && 'lg:sticky lg:top-20']}
+    >
+      <h2 id="toc-heading" class="section-label">
+        {title}
+      </h2>
+      <ul class="mt-3 space-y-1 border-l border-line">
+        {items.map((entry) => (
+          <li>
+            <a
+              href={`#${entry.id}`}
+              class:list={[
+                'block border-l-2 border-transparent py-0.5 text-fg-muted transition-colors hover:border-brand hover:text-brand',
+                entry.level === 2 ? '-ml-px pl-3' : '-ml-px pl-6 text-[0.8125rem]',
+              ]}
+            >
+              {entry.text}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}

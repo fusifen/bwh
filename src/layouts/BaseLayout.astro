@@ -1,0 +1,170 @@
+---
+/**
+ * The document shell.
+ *
+ * Three things happen here that are easy to get wrong:
+ *
+ * 1. **Theme is resolved before first paint.** The inline script runs ahead of
+ *    the stylesheet, so there is no flash of the wrong theme. It is the only
+ *    inline script that must block, and it is under 300 bytes.
+ *
+ * 2. **`Organization` + `WebSite` are emitted on every page.** Answer engines
+ *    and search crawlers resolve the site's identity from any entry point, not
+ *    just the homepage, and these two nodes are cheap.
+ *
+ * 3. **A skip link precedes the header.** The nav is long enough on mobile that
+ *    a keyboard user needs to be able to jump past it.
+ */
+import Header from '../components/layout/Header.astro';
+import Footer from '../components/layout/Footer.astro';
+import SeoHead from '../components/seo/SeoHead.astro';
+import { SITE } from '../lib/cms';
+import { jsonLdGraph, organizationSchema, websiteSchema, type JsonLdNode } from '../lib/seo';
+
+interface Props {
+  title: string;
+  description?: string;
+  noindex?: boolean;
+  /** Extra `@graph` nodes for this page. Site-level nodes are added automatically. */
+  schema?: JsonLdNode[];
+  ogImage?: string;
+  type?: 'website' | 'article';
+  publishedAt?: string;
+  updatedAt?: string;
+  keywords?: string[];
+  /** Removes the bottom padding so a sticky CTA bar can sit flush. */
+  tightBottom?: boolean;
+}
+
+const {
+  title,
+  description,
+  noindex = false,
+  schema = [],
+  ogImage,
+  type,
+  publishedAt,
+  updatedAt,
+  keywords,
+  tightBottom = false,
+} = Astro.props;
+
+const jsonLd = jsonLdGraph(organizationSchema(), websiteSchema(), schema);
+---
+
+<!doctype html>
+<html lang={SITE.htmlLang} data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f1319" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/brand/logo.svg" />
+
+    <script is:inline>
+      // Resolve the theme before the first paint. Runs ahead of the stylesheet,
+      // so the reader never sees the wrong palette flash.
+      (function () {
+        try {
+          var stored = localStorage.getItem('cx-theme');
+          var theme =
+            stored ||
+            (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) {
+          /* private mode, or localStorage disabled — the default stands */
+        }
+      })();
+    </script>
+
+    <SeoHead
+      title={title}
+      description={description}
+      noindex={noindex}
+      jsonLd={jsonLd}
+      ogImage={ogImage}
+      type={type}
+      publishedAt={publishedAt}
+      updatedAt={updatedAt}
+      keywords={keywords}
+    />
+  </head>
+
+  <body class="min-h-screen flex flex-col bg-bg text-fg">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-brand focus:px-4 focus:py-2 focus:text-white"
+    >
+      跳到正文
+    </a>
+
+    <Header />
+
+    <main id="main" class={tightBottom ? 'flex-1' : 'flex-1 pb-16 sm:pb-20'}>
+      <slot />
+    </main>
+
+    <Footer />
+
+    <script is:inline>
+      // Theme toggle + mobile nav. Both are progressive enhancements: without
+      // JS the site renders in the light theme with the nav collapsed into a
+      // <noscript>-free fallback list, so nothing is unreachable.
+      (function () {
+        var root = document.documentElement;
+
+        function syncToggle() {
+          var dark = root.getAttribute('data-theme') === 'dark';
+          document.querySelectorAll('[data-theme-toggle]').forEach(function (btn) {
+            btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+            btn.setAttribute('aria-label', dark ? '切换到浅色模式' : '切换到深色模式');
+            var sun = btn.querySelector('[data-icon="sun"]');
+            var moon = btn.querySelector('[data-icon="moon"]');
+            if (sun) sun.hidden = !dark;
+            if (moon) moon.hidden = dark;
+          });
+        }
+
+        document.addEventListener('click', function (event) {
+          var toggle = event.target.closest('[data-theme-toggle]');
+          if (toggle) {
+            var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            root.setAttribute('data-theme', next);
+            try {
+              localStorage.setItem('cx-theme', next);
+            } catch (e) {}
+            syncToggle();
+            return;
+          }
+
+          var navBtn = event.target.closest('[data-nav-toggle]');
+          if (navBtn) {
+            var panel = document.getElementById('mobile-nav');
+            if (!panel) return;
+            var open = panel.hasAttribute('hidden');
+            if (open) panel.removeAttribute('hidden');
+            else panel.setAttribute('hidden', '');
+            navBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+          }
+        });
+
+        // Sticky CTA: appears once the reader is past the first screen, and
+        // never covers the footer's own links.
+        var sticky = document.querySelector('[data-sticky-cta]');
+        if (sticky) {
+          var onScroll = function () {
+            var past = window.scrollY > 700;
+            sticky.toggleAttribute('hidden', !past);
+          };
+          window.addEventListener('scroll', onScroll, { passive: true });
+          onScroll();
+        }
+
+        syncToggle();
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,133 @@
+---
+/**
+ * Latency table.
+ *
+ * The numbers are only evidence if the method travels with them, so the table
+ * always renders its measurement date, tool and sample size — and when there is
+ * no measurement, it says so and hands the reader the test IP instead of
+ * filling the gap with an estimate.
+ *
+ * Publishing the test IP is the strongest trust signal available here: the
+ * reader can reproduce the number, which is something no screenshot can offer.
+ */
+import type { LatencyRow } from '../../lib/schemas';
+import { formatDate, trimNumber } from '../../lib/format';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  rows: LatencyRow[];
+  measuredAt?: string;
+  method?: string;
+  testIp?: string;
+  testFileUrl?: string;
+  lookingGlass?: string;
+}
+
+const { rows, measuredAt, method, testIp, testFileUrl, lookingGlass } = Astro.props;
+
+/** Colour the average latency band so the eye can scan a long table. */
+function band(avg: number): string {
+  if (avg <= 0) return 'text-fg-subtle';
+  if (avg < 160) return 'text-success';
+  if (avg < 220) return 'text-fg';
+  if (avg < 300) return 'text-signal';
+  return 'text-danger';
+}
+---
+
+<section aria-labelledby="latency-heading" class="space-y-3">
+  <div class="flex flex-wrap items-baseline justify-between gap-2">
+    <h2 id="latency-heading" class="text-base font-medium">实测延迟</h2>
+    {measuredAt && <p class="text-xs text-fg-subtle">采集于 {formatDate(measuredAt)}</p>}
+  </div>
+
+  {
+    rows.length > 0 ? (
+      <div class="table-scroll rounded-lg border border-line">
+        <table>
+          <caption class="sr-only">各地实测延迟与丢包率（毫秒）</caption>
+          <thead>
+            <tr>
+              <th scope="col">测试点</th>
+              <th scope="col">最小</th>
+              <th scope="col">平均</th>
+              <th scope="col">最大</th>
+              <th scope="col">丢包</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr>
+                <th scope="row" class="font-normal text-fg-muted">{row.from}</th>
+                <td class="tabular">{trimNumber(row.min, 1)} ms</td>
+                <td class:list={['tabular font-medium', band(row.avg)]}>{trimNumber(row.avg, 1)} ms</td>
+                <td class="tabular">{trimNumber(row.max, 1)} ms</td>
+                <td class:list={['tabular', row.loss > 1 ? 'text-signal' : 'text-fg-muted']}>
+                  {trimNumber(row.loss, 1)}%
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    ) : (
+      <div class="rounded-lg border border-dashed border-line bg-surface-2 px-5 py-6 text-sm">
+        <p class="flex items-start gap-2 text-fg-muted">
+          <Icon name="info" size={15} class="mt-0.5 shrink-0 text-brand" />
+          <span>
+            <strong class="font-medium text-fg">这个机房还没有完成实测。</strong>
+            本站不使用估算值填充表格。你可以用下方的测试 IP 自行测一遍，结果比任何截图都可靠。
+          </span>
+        </p>
+      </div>
+    )
+  }
+
+  {
+    (method || testIp || testFileUrl || lookingGlass) && (
+      <dl class="spec-grid rounded-lg border border-line bg-surface-2 p-4">
+        {method && (
+          <>
+            <dt>测试方法</dt>
+            <dd class="text-fg-muted">{method}</dd>
+          </>
+        )}
+        {testIp && (
+          <>
+            <dt>测试 IP</dt>
+            <dd class="font-mono text-xs">{testIp}</dd>
+          </>
+        )}
+        {testFileUrl && (
+          <>
+            <dt>测试文件</dt>
+            <dd>
+              <a href={testFileUrl} class="break-all text-brand underline" rel="nofollow noopener" target="_blank">
+                {testFileUrl}
+              </a>
+            </dd>
+          </>
+        )}
+        {lookingGlass && (
+          <>
+            <dt>Looking Glass</dt>
+            <dd>
+              <a href={lookingGlass} class="break-all text-brand underline" rel="nofollow noopener" target="_blank">
+                {lookingGlass}
+              </a>
+            </dd>
+          </>
+        )}
+      </dl>
+    )
+  }
+
+  {
+    testIp && (
+      <p class="text-xs text-fg-subtle">
+        自测建议：分别在国内不同运营商网络下执行 <code>ping</code> 与 <code>mtr</code>，
+        重点看晚高峰（21:00–23:00）的抖动和丢包，而不是闲时的平均值。
+      </p>
+    )
+  }
+</section>

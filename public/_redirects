@@ -1,0 +1,21 @@
+# Cloudflare Pages redirects.
+#
+# Rules here run BEFORE Pages Functions, so nothing may match /go/* — that path
+# is served by the `src/pages/go/[plan].ts` server route and a rule here would
+# silently replace click attribution with a blind redirect.
+#
+# These aliases exist because singular/plural guesses are the most common way a
+# visitor arrives at a 404 on a site whose URLs are all plural. They are cheap
+# and they keep link equity pointed at the canonical path.
+
+/plan        /plans        301
+/datacenter  /datacenters  301
+/line        /lines        301
+/guide       /guides       301
+/tutorial    /learn        301
+/tutorials   /learn        301
+/term        /glossary     301
+/terms       /glossary     301
+/faq/        /faq          301
+/rss         /rss.xml      301
+/feed        /rss.xml      301

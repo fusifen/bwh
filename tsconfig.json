@@ -1,5 +1,25 @@
 {
   "extends": "astro/tsconfigs/strict",
   "include": [".astro/types.d.ts", "**/*"],
-  "exclude": ["dist"]
+  /*
+    Build output must never be type-checked.
+
+    `allowJs` is on, so any `.js`/`.mjs` under the project root is parsed. A
+    build artifact directory therefore gets swept in — including the minified
+    vendor chunks — and the Astro language server grows without bound: a plain
+    `exclude: ["dist"]` is not enough, because it only matches that exact name.
+    Renaming a stale `dist` to `dist.bak` (the usual way to clear it without
+    deleting) is enough to send `astro check` past 8 GB of heap.
+
+    The patterns below cover the names a build output realistically takes, so
+    the check stays fast and cannot be defeated by a directory rename.
+  */
+  "exclude": ["dist", "dist-*", "dist.*", "build", "public"],
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "strictNullChecks": true,
+    "allowJs": true,
+    "verbatimModuleSyntax": true
+  }
 }

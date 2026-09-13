@@ -1,0 +1,78 @@
+{
+  "slug": "basic-vps-1gb",
+  "name": "基础 VPS（1GB）",
+  "series": "basic",
+  "tier": "entry",
+  "status": "available",
+  "tagline": "搬瓦工价格最低的常规套餐，普通线路、欧美多机房可选",
+  "summary": "价格是搬瓦工常规套餐里最低的一档，年付不到 50 美元。走国际 BGP 普通线路，国内访问晚高峰表现不稳定。适合目标用户在欧美、或者只是想花最少的钱把 VPS 摸一遍的人。要服务国内用户的话，建议直接从 CN2 GIA 起步。",
+  "bestFor": [
+    "第一次接触 VPS，想用最低成本试一遍",
+    "目标用户在欧美，不在意国内访问速度",
+    "跑定时任务、数据备份等对延迟不敏感的用途"
+  ],
+  "notFor": [
+    "要对国内用户提供稳定服务",
+    "需要晚高峰稳定的对外服务",
+    "需要 RAID 磁盘冗余"
+  ],
+  "specs": {
+    "cpu": "Intel Xeon",
+    "cores": 2,
+    "memoryMB": 1024,
+    "diskGB": 20,
+    "diskType": "SSD",
+    "trafficTB": 1,
+    "bandwidthMbps": 1000,
+    "ipv4": 1,
+    "ipv6": true,
+    "virtualization": "KVM"
+  },
+  "network": {
+    "line": "bgp",
+    "datacenters": ["dc2", "fremont"],
+    "migratable": true,
+    "migratableCount": 8
+  },
+  "pricing": {
+    "currency": "USD",
+    "cycles": [
+      { "cycle": "monthly", "price": 5.99, "note": "月付单价明显高于年付折算" },
+      { "cycle": "annual", "price": 49.99, "note": "折算约 $4.17/月" }
+    ],
+    "paymentMethods": ["alipay", "paypal", "creditcard", "unionpay"],
+    "priceCheckedAt": "2026-09-13",
+    "refundDays": 30
+  },
+  "affiliate": {
+    "pid": "0",
+    "verified": false,
+    "note": "pid 需从搬瓦工后台 Affiliates 页面复制该套餐的推广链接后填入"
+  },
+  "scores": { "performance": 3, "value": 4, "stability": 3, "latencyCN": 2 },
+  "pros": [
+    "价格是常规套餐里最低的一档",
+    "支持迁移机房，买错机房可以免费换",
+    "KVM 虚拟化，可以自行安装任意系统",
+    "支持支付宝付款"
+  ],
+  "cons": [
+    "普通线路，国内晚高峰表现不稳定",
+    "1TB 月流量对跑大流量业务偏紧",
+    "2 核共享，不适合持续高负载"
+  ],
+  "content": "## 多花的钱买到了什么\n\n和限量版套餐相比，这个套餐贵出来的部分是「可迁移机房」和「库存稳定」。搬瓦工的机房迁移是免费一键操作，数据保留、不用重装——如果你还不确定该选哪个机房，这个能力本身就值这笔差价。\n\n## 买之前先确认\n\n1. **你的服务对象在哪。** 如果主要在国内，这个套餐会让你失望，直接从 CN2 GIA 起步更省事。\n2. **月流量够不够。** 1TB 月流量看着不少，但如果跑图床、视频或大文件分发，很快会用完。\n3. **能不能接受共享 CPU。** 2 核是共享资源，持续高负载会被限制。\n\n## 适合做什么\n\n- 学习 Linux 与服务器运维\n- 跑定时任务、爬虫调度、数据同步\n- 个人博客（访问量不大的话）\n- 目标在欧美的轻量服务\n\n## 不适合做什么\n\n- 面向国内用户的稳定服务\n- 大流量分发\n- 需要磁盘冗余的生产数据\n\n搬瓦工禁止在 VPS 上群发邮件、挖矿、以及长时间占满 CPU。使用前建议先读一遍服务条款，避免账号被停。",
+  "useCases": ["beginner", "developer"],
+  "relatedPlans": ["basic-vps-2gb", "cn2-gt-1gb", "limited-fremont-1gb"],
+  "relatedTutorials": ["kiwivm-panel", "reinstall-os"],
+  "faqs": [],
+  "seo": {
+    "title": "搬瓦工基础 VPS（1GB）套餐：参数、价格与适合人群",
+    "description": "搬瓦工基础 VPS 1GB 套餐的完整参数、付款周期价格、普通线路的实际表现，以及适合与不适合的使用场景。含购买前自检清单。",
+    "keywords": ["搬瓦工基础套餐", "搬瓦工 1GB", "搬瓦工 最低价套餐", "搬瓦工 $49.99"]
+  },
+  "featured": true,
+  "order": 1,
+  "updatedAt": "2026-09-13",
+  "publishedAt": "2026-09-13"
+}

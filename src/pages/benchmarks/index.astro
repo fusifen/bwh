@@ -1,0 +1,134 @@
+---
+/**
+ * Benchmark index.
+ *
+ * Leads with the methodology page rather than the results, because a number
+ * without its method is not evidence. The order is deliberate: a reader who
+ * wants to trust the numbers has to be able to find out how they were taken
+ * before they read any of them.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/ui/PageHero.astro';
+import Breadcrumbs from '../../components/layout/Breadcrumbs.astro';
+import LinkCard from '../../components/cards/LinkCard.astro';
+import AffiliateDisclosure from '../../components/sections/AffiliateDisclosure.astro';
+import EmptyState from '../../components/ui/EmptyState.astro';
+import { getBenchmarks } from '../../lib/cms';
+import { formatDate } from '../../lib/format';
+import { breadcrumbSchema, itemListSchema } from '../../lib/seo';
+
+const crumbs = [
+  { label: '首页', href: '/' },
+  { label: '实测数据', href: '/benchmarks' },
+];
+
+const benchmarks = getBenchmarks();
+
+/** Method write-ups read as documentation, not as results. */
+const methodPages = benchmarks.filter((item) => item.metrics.length === 0 && item.latencyTable.length === 0);
+const resultPages = benchmarks.filter((item) => !methodPages.includes(item));
+
+const schema = [
+  breadcrumbSchema(crumbs, '/benchmarks'),
+  itemListSchema(
+    benchmarks.map((item) => ({ name: item.title, url: `/benchmarks/${item.slug}` })),
+    '搬瓦工实测数据',
+  ),
+];
+---
+
+<BaseLayout
+  title="搬瓦工实测数据：延迟、路由与测试方法"
+  description="搬瓦工的实测延迟、路由走向与磁盘网络指标。每条数据都标注测试工具、样本量、测试时段与采集日期，并提供机房测试 IP 供自行复核。"
+  keywords={['搬瓦工实测', '搬瓦工延迟测试', 'VPS 延迟', 'mtr 路由']}
+  schema={schema}
+>
+  <PageHero
+    eyebrow="实测数据"
+    title="实测数据与测试方法"
+    lede="这里的数据都由本站自己跑，不是转述。每条记录都带测试工具、样本量、测试时段和采集日期；每个机房页面都提供测试 IP，你可以自己复核，不必相信截图。"
+  >
+    <Breadcrumbs slot="breadcrumbs" crumbs={crumbs} />
+    <Fragment slot="chips">
+      <span class="chip chip-mono">{benchmarks.length} 条记录</span>
+      <span class="chip">公开测试方法</span>
+      <span class="chip">提供测试 IP</span>
+    </Fragment>
+  </PageHero>
+
+  <div class="container-page space-y-12 py-10">
+    <AffiliateDisclosure />
+
+    {
+      methodPages.length > 0 && (
+        <section aria-labelledby="method-heading" class="space-y-3">
+          <div>
+            <h2 id="method-heading" class="text-lg font-medium">
+              先看方法
+            </h2>
+            <p class="mt-1 text-sm text-fg-muted">
+              没有方法的数字只是说法。这几页说明数据是怎么来的、口径是什么、怎么自己验证。
+            </p>
+          </div>
+          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {methodPages.map((item) => (
+              <LinkCard
+                href={`/benchmarks/${item.slug}`}
+                title={item.title}
+                summary={item.summary}
+                eyebrow="方法"
+                meta={[`更新于 ${formatDate(item.updatedAt)}`]}
+              />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    {
+      resultPages.length > 0 ? (
+        <section aria-labelledby="results-heading" class="space-y-3">
+          <h2 id="results-heading" class="text-lg font-medium">
+            实测结果
+          </h2>
+          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {resultPages.map((item) => (
+              <LinkCard
+                href={`/benchmarks/${item.slug}`}
+                title={item.title}
+                summary={item.summary}
+                eyebrow="实测"
+                mono={item.target.label}
+                meta={[
+                  `采集于 ${formatDate(item.testedAt)}`,
+                  item.tool,
+                  ...(item.sampleSize ? [item.sampleSize] : []),
+                ]}
+              />
+            ))}
+          </div>
+        </section>
+      ) : (
+        <EmptyState
+          title="实测结果还在积累"
+          body="本站不使用估算值填充。机房页面提供了测试 IP，你可以先自己跑一遍，结果比任何截图都可靠。"
+          actionLabel="去机房页面看测试 IP"
+          actionHref="/datacenters"
+        />
+      )
+    }
+
+    <section class="rounded-xl border border-line bg-surface-2 p-5">
+      <h2 class="text-base font-medium">为什么要公开方法</h2>
+      <p class="mt-2 text-sm leading-relaxed text-fg-muted">
+        同一个机房的延迟数字可以差出很多倍，取决于测的时间、测的地方和用的工具。
+        只给结论不给口径的「实测」，读者无法判断它是不是晚高峰测的、是不是只测了一个运营商。
+        公开方法之后，你可以判断这份数据对你的情况是否适用，也可以自己复现一遍。
+      </p>
+      <div class="mt-4 flex flex-wrap gap-2.5">
+        <a href="/datacenters" class="btn btn-secondary btn-sm">各机房的测试 IP</a>
+        <a href="/lines" class="btn btn-secondary btn-sm">线路的区别</a>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

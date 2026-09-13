@@ -1,0 +1,491 @@
+@import 'tailwindcss';
+
+/*
+  Dark mode is driven by `data-theme` on <html>, not by a media query, so the
+  reader's explicit choice wins over the OS setting. The initial value is set by
+  a tiny inline script in BaseLayout before first paint, which is why there is no
+  flash of the wrong theme.
+
+  `@custom-variant` (rather than `darkMode: 'class'`) is the Tailwind 4 way.
+*/
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* -----------------------------------------------------------------------------
+   Semantic tokens
+
+   Utilities are generated from `--color-*` names, but the values point at plain
+   CSS variables so a single `[data-theme]` swap re-themes the whole site without
+   duplicating every utility in a `dark:` variant.
+   -------------------------------------------------------------------------- */
+
+:root {
+  --bg: #ffffff;
+  --bg-subtle: #f7f8fa;
+  --bg-muted: #eef1f5;
+  --surface: #ffffff;
+  --surface-2: #f7f8fa;
+  --line: #e3e7ed;
+  --line-strong: #cbd3dd;
+  --fg: #16202b;
+  --fg-muted: #56636f;
+  --fg-subtle: #7c8894;
+  --brand: #1f5ad6;
+  --brand-strong: #1a4bb0;
+  --brand-soft: #eaf1fe;
+  --signal: #b45309;
+  --signal-soft: #fef3c7;
+  --danger: #c0392b;
+  --danger-soft: #fdecea;
+  --success: #1f7a4d;
+  --success-soft: #e7f6ee;
+  --shadow-card: 0 1px 2px rgba(16, 32, 43, 0.04), 0 1px 3px rgba(16, 32, 43, 0.06);
+}
+
+[data-theme='dark'] {
+  --bg: #0f1319;
+  --bg-subtle: #141a21;
+  --bg-muted: #1b232c;
+  --surface: #141a21;
+  --surface-2: #1b232c;
+  --line: #263039;
+  --line-strong: #3a4650;
+  --fg: #e8edf2;
+  --fg-muted: #9aa7b4;
+  --fg-subtle: #74818e;
+  --brand: #5b9bff;
+  --brand-strong: #86b6ff;
+  --brand-soft: #16233a;
+  --signal: #f0b429;
+  --signal-soft: #2e2410;
+  --danger: #f2777a;
+  --danger-soft: #2e1a1a;
+  --success: #4ec98a;
+  --success-soft: #12281e;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+@theme {
+  --color-bg: var(--bg);
+  --color-bg-subtle: var(--bg-subtle);
+  --color-bg-muted: var(--bg-muted);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-soft: var(--brand-soft);
+  --color-signal: var(--signal);
+  --color-signal-soft: var(--signal-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+
+  /*
+    Chinese-first stack. The Latin faces are listed first so numbers and code
+    pick up the better-hinted glyphs, and the CJK faces carry the body text.
+    No webfont is loaded: a CJK webfont is measured in megabytes, and a
+    system-font stack renders instantly with no layout shift.
+  */
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', 'Helvetica Neue',
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Source Han Sans SC',
+    'Noto Sans CJK SC', sans-serif;
+  --font-mono:
+    ui-monospace, 'SF Mono', 'JetBrains Mono', 'Cascadia Mono', Menlo, Consolas,
+    'Liberation Mono', monospace;
+
+  --radius-card: 12px;
+}
+
+/* -----------------------------------------------------------------------------
+   Base
+   -------------------------------------------------------------------------- */
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    border-color: var(--line);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* Sticky header height + breathing room, so in-page anchors don't land
+       under the header. */
+    scroll-padding-top: 5.5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-weight: 500;
+    line-height: 1.35;
+    letter-spacing: -0.005em;
+  }
+
+  /* Numerals must line up vertically in spec and price tables. This single
+     rule does more for how "engineered" the site feels than any colour choice. */
+  table,
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  a {
+    color: inherit;
+    text-underline-offset: 3px;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  ::selection {
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+  }
+
+  code,
+  kbd,
+  pre,
+  samp {
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+  }
+}
+
+/* -----------------------------------------------------------------------------
+   Components
+   -------------------------------------------------------------------------- */
+
+@layer components {
+  .container-page {
+    width: 100%;
+    max-width: 76rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+
+  .container-narrow {
+    width: 100%;
+    max-width: 52rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+  }
+
+  .card-hover {
+    transition:
+      border-color 0.15s,
+      box-shadow 0.15s;
+  }
+  .card-hover:hover {
+    border-color: var(--line-strong);
+    box-shadow: var(--shadow-card);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    border-radius: 8px;
+    padding: 0.5rem 0.9rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.4;
+    border: 1px solid transparent;
+    transition:
+      background-color 0.15s,
+      border-color 0.15s,
+      color 0.15s;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .btn-primary {
+    background: var(--brand);
+    color: #ffffff;
+    border-color: var(--brand);
+  }
+  .btn-primary:hover {
+    background: var(--brand-strong);
+    border-color: var(--brand-strong);
+  }
+
+  .btn-secondary {
+    background: var(--surface);
+    color: var(--fg);
+    border-color: var(--line-strong);
+  }
+  .btn-secondary:hover {
+    border-color: var(--brand);
+    color: var(--brand);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--fg-muted);
+    border-color: transparent;
+  }
+  .btn-ghost:hover {
+    background: var(--bg-muted);
+    color: var(--fg);
+  }
+
+  .btn-sm {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8125rem;
+  }
+
+  .btn-lg {
+    padding: 0.65rem 1.15rem;
+    font-size: 0.9375rem;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.1rem 0.55rem;
+    font-size: 0.75rem;
+    line-height: 1.6;
+    color: var(--fg-muted);
+    background: var(--surface-2);
+    white-space: nowrap;
+  }
+
+  .chip-brand {
+    background: var(--brand-soft);
+    border-color: transparent;
+    color: var(--brand-strong);
+  }
+
+  .chip-signal {
+    background: var(--signal-soft);
+    border-color: transparent;
+    color: var(--signal);
+  }
+
+  .chip-mono {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.02em;
+  }
+
+  /*
+    Wide tables scroll inside their own box rather than pushing the page wide.
+    The shadow hints that there is more to the right without adding a scrollbar
+    UI that would look out of place in a static document.
+  */
+  .table-scroll {
+    width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+
+  .table-scroll table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .table-scroll th,
+  .table-scroll td {
+    padding: 0.55rem 0.75rem;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .table-scroll thead th {
+    font-weight: 500;
+    color: var(--fg-muted);
+    background: var(--surface-2);
+    white-space: nowrap;
+  }
+
+  .table-scroll tbody tr:last-child th,
+  .table-scroll tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  /* Reading-width prose for rendered Markdown. */
+  .prose-cx {
+    max-width: 46rem;
+    color: var(--fg);
+    line-height: 1.8;
+  }
+  .prose-cx > * + * {
+    margin-top: 1.1em;
+  }
+  .prose-cx h2 {
+    font-size: 1.25rem;
+    margin-top: 2.2em;
+    margin-bottom: 0.5em;
+  }
+  .prose-cx h3 {
+    font-size: 1.0625rem;
+    margin-top: 1.7em;
+    margin-bottom: 0.4em;
+  }
+  .prose-cx h4 {
+    font-size: 0.9375rem;
+    margin-top: 1.4em;
+    margin-bottom: 0.3em;
+  }
+  .prose-cx p,
+  .prose-cx li {
+    color: var(--fg);
+  }
+  .prose-cx ul,
+  .prose-cx ol {
+    padding-inline-start: 1.35em;
+  }
+  .prose-cx ul {
+    list-style: disc;
+  }
+  .prose-cx ol {
+    list-style: decimal;
+  }
+  .prose-cx li + li {
+    margin-top: 0.3em;
+  }
+  .prose-cx a {
+    color: var(--brand);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--brand) 35%, transparent);
+  }
+  .prose-cx a:hover {
+    text-decoration-color: var(--brand);
+  }
+  .prose-cx strong {
+    font-weight: 500;
+  }
+  .prose-cx code {
+    background: var(--bg-muted);
+    border-radius: 4px;
+    padding: 0.1em 0.35em;
+    font-size: 0.85em;
+  }
+  .prose-cx blockquote {
+    border-left: 2px solid var(--line-strong);
+    padding-left: 1rem;
+    color: var(--fg-muted);
+  }
+  .prose-cx hr {
+    border: none;
+    border-top: 1px solid var(--line);
+    margin-block: 2rem;
+  }
+  .prose-cx table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .prose-cx th,
+  .prose-cx td {
+    padding: 0.5rem 0.7rem;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+  }
+  .prose-cx thead th {
+    background: var(--surface-2);
+    font-weight: 500;
+    color: var(--fg-muted);
+  }
+
+  .code-block {
+    background: var(--bg-muted);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0.85rem 1rem;
+    overflow-x: auto;
+    font-size: 0.8125rem;
+    line-height: 1.65;
+  }
+
+  /* Two-column definition list used by spec tables outside prose. */
+  .spec-grid {
+    display: grid;
+    grid-template-columns: minmax(7rem, 10rem) 1fr;
+    gap: 0.4rem 1rem;
+    font-size: 0.875rem;
+  }
+  .spec-grid dt {
+    color: var(--fg-muted);
+  }
+  .spec-grid dd {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .section-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fg-subtle);
+  }
+}
+
+/* -----------------------------------------------------------------------------
+   Utilities
+   -------------------------------------------------------------------------- */
+
+@utility sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+@media print {
+  header,
+  footer,
+  nav,
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #ffffff;
+    color: #000000;
+  }
+}

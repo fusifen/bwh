@@ -1,0 +1,17 @@
+{
+  "slug": "cn2-gia",
+  "term": "CN2 GIA",
+  "termEn": "CN2 Global Internet Access",
+  "abbr": "CN2 GIA",
+  "shortDef": "CN2 GIA 是指中国电信下一代承载网（CN2）中面向企业客户的 Global Internet Access 等级线路，相比普通 CN2 线路拥塞率更低、晚高峰表现更稳定。",
+  "fullDef": "## 它在 CN2 里的位置\n\nCN2（China Telecom Next Carrier Network）是中国电信的下一代承载网，它内部按客户定位分了等级。GIA 是其中面向企业客户的一档，GT 是面向普通用户的一档。\n\n三者的关系可以这样理解：\n\n| 线路 | 定位 | 晚高峰表现 |\n| :--- | :--- | :--- |\n| 163 骨干网 | 普通用户 | 拥塞明显 |\n| CN2 GT | 普通用户中的较高档 | 优于 163，仍会受影响 |\n| CN2 GIA | 企业客户 | 掉速幅度最小 |\n\n价格差距主要来自这个定位差异，而不是技术上的「更快」。闲时三者延迟接近，差距在拥塞时才显现。\n\n## 为什么它常被拿来当卖点\n\n国内访问海外服务器的体验瓶颈通常出现在晚高峰——也就是晚上八点到十一点。这段时间普通线路会因为拥塞出现明显掉速和丢包，而 CN2 GIA 因为优先级更高，受影响的幅度小得多。\n\n对需要稳定服务国内用户的场景，这个差异是能被用户直接感知的。这也是为什么在搬瓦工的产品线里，它是最值得付溢价的一档。\n\n## 什么时候不必买\n\n如果访问者主要在欧美，或者你的服务只在白天被使用，为 GIA 付的溢价买不到收益。\n\n开发测试场景通常也不需要——SSH 和 Git 对延迟的敏感度远低于网页访问。\n\n## 怎么验证\n\n商家的线路宣传不总是准确。用 `mtr` 或 `traceroute` 做回程路由追踪，看结果里是否经过 AS4809（中国电信 CN2），以及经过时走的是哪一档。\n\n一次追踪结果不代表永久状态，线路会调整，所以实测数据要标注采集时间。",
+  "related": ["asn", "bandwidth-vs-traffic"],
+  "seeAlso": ["/lines/cn2-gia", "/lines/cn2-gt", "/compare/cn2-gia-vs-cn2-gt", "/benchmarks/method-latency"],
+  "seo": {
+    "title": "CN2 GIA 是什么：定义、与 CN2 GT 的区别、什么时候值得买",
+    "description": "CN2 GIA 的完整定义。它在 CN2 网络中的定位、与 163 骨干网和 CN2 GT 的实际差异、什么场景下值得付溢价，以及如何用路由追踪验证线路真伪。",
+    "keywords": ["CN2 GIA 是什么", "CN2 GIA CN2 GT 区别", "CN2 GIA 线路", "AS4809"]
+  },
+  "order": 8,
+  "updatedAt": "2026-09-13"
+}

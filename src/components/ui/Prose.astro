@@ -1,0 +1,27 @@
+---
+/**
+ * Renders a Markdown string that has already been through `renderMarkdown`.
+ *
+ * Pages never call `set:html` directly — they go through this, so the
+ * `prose-cx` wrapper and the escaping guarantee live in one place. The HTML
+ * handed in is always produced by `lib/markdown`, which escapes before applying
+ * inline formatting, so authored content cannot inject markup.
+ */
+interface Props {
+  html: string;
+  class?: string;
+  /** Constrain to a readable measure. Off when the block sits in a narrow column. */
+  narrow?: boolean;
+}
+
+const { html, class: className = '', narrow = true } = Astro.props;
+---
+
+{
+  html && (
+    <div
+      class:list={['prose-cx', narrow && 'max-w-[46rem]', className]}
+      set:html={html}
+    />
+  )
+}

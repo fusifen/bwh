@@ -1,0 +1,49 @@
+---
+/**
+ * The disclosure block that sits above the fold on any page carrying a purchase
+ * link.
+ *
+ * Placed in the body, not the footer, because a disclosure the reader never
+ * scrolls to is not a disclosure. It is written in plain language and states
+ * the one fact that actually matters to them — the price does not change —
+ * rather than burying it in legalese.
+ */
+import { AFFILIATE } from '../../lib/cms';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  /** One-line variant for tight spots like a sticky bar or a card footer. */
+  compact?: boolean;
+}
+
+const { compact = false } = Astro.props;
+
+const rate = AFFILIATE.programFacts?.commissionRate ?? '22%';
+const refundDays = AFFILIATE.programFacts?.refundDays ?? 30;
+---
+
+{
+  compact ? (
+    <p class="text-xs text-fg-subtle">
+      <Icon name="info" size={12} class="mr-1 inline align-[-2px]" />
+      {AFFILIATE.disclosureShort}
+      <a href="/disclosure" class="ml-1 underline">详情</a>
+    </p>
+  ) : (
+    <aside
+      class="rounded-lg border border-line bg-surface-2 px-4 py-3 text-sm text-fg-muted"
+      aria-label="联盟披露"
+    >
+      <p class="flex items-start gap-2">
+        <Icon name="info" size={15} class="mt-0.5 shrink-0 text-brand" />
+        <span>
+          <strong class="font-medium text-fg">本站含联盟链接。</strong>
+          你通过页面上的链接购买，成交金额的 {rate} 会作为佣金支付给本站，
+          <strong class="font-medium text-fg">你支付的价格与直接访问官网完全一致</strong>。
+          新账号 {refundDays} 天内可全额退款；用户退款会导致佣金被扣回，所以我们更希望你买对，而不是买贵。
+          <a href="/disclosure" class="ml-1 whitespace-nowrap text-brand underline">完整披露</a>
+        </span>
+      </p>
+    </aside>
+  )
+}

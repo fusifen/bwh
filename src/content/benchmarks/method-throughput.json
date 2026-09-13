@@ -1,0 +1,30 @@
+{
+  "slug": "method-throughput",
+  "title": "我们怎么测带宽与磁盘 IO",
+  "summary": "带宽和磁盘性能是套餐参数表里看不出来的部分。这一页说明本站用什么工具、在什么条件下测这两项，以及为什么单次测速结果不足以作为结论。",
+  "target": { "type": "datacenter", "slug": "dc9", "label": "洛杉矶 DC9（方法示例）" },
+  "testedAt": "2026-09-13",
+  "method": "磁盘性能用 fio 做顺序读写与随机读写测试，记录 IOPS 与吞吐；网络吞吐用 speedtest 与 iperf3 分别测试单线程和多线程表现。所有测试在同一时段重复三次取中位数，避免单次波动被当成结论。共享 CPU 的套餐会在测试时标注当时的负载情况。",
+  "tool": "fio / speedtest-cli / iperf3 / dd",
+  "sampleSize": "每项测试重复 3 次取中位数",
+  "timeWindow": "闲时与晚高峰分别测试，以区分线路影响与硬件性能",
+  "metrics": [
+    { "name": "磁盘顺序读写", "value": "fio 顺序读写，块大小 1M", "baseline": "反映大文件传输能力" },
+    { "name": "磁盘随机读写", "value": "fio 随机读写，块大小 4K", "baseline": "反映数据库类负载能力" },
+    { "name": "单线程吞吐", "value": "speedtest-cli 单线程", "baseline": "反映单连接的实际速度" },
+    { "name": "多线程吞吐", "value": "iperf3 多线程", "baseline": "反映端口带宽上限" },
+    { "name": "重复次数", "value": "3 次取中位数", "baseline": "单次结果受邻居负载影响很大，不可作为结论" },
+    { "name": "负载标注", "value": "记录测试时的 CPU 负载", "baseline": "共享 CPU 的套餐在不同负载下表现差异明显" }
+  ],
+  "latencyTable": [],
+  "routeTable": [],
+  "conclusion": "关于这类数据的一个提醒：搬瓦工的套餐是共享 CPU 和共享带宽的，同一套餐在不同时间、不同邻居负载下的表现可能差很多。所以本站不把单次测速结果当作套餐的固定属性来展示——如果你的用途对性能有硬性要求，建议自己在实际使用时段测一遍，这比任何第三方数据都可靠。",
+  "relatedPlans": ["cn2-gia-e-1gb", "ecommerce-1gb"],
+  "seo": {
+    "title": "我们怎么测带宽与磁盘 IO：工具、方法与为什么单次测速不可信",
+    "description": "VPS 带宽与磁盘性能的测试方法说明。fio 与 iperf3 的使用方式、为什么要重复三次取中位数，以及共享 CPU 套餐为什么不能只看单次测速结果。",
+    "keywords": ["VPS 磁盘测试", "fio 测试", "VPS 带宽测试", "iperf3"]
+  },
+  "order": 2,
+  "updatedAt": "2026-09-13"
+}

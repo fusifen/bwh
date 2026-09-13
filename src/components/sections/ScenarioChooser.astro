@@ -1,0 +1,389 @@
+---
+/**
+ * Scenario chooser — the highest-leverage conversion component on the site.
+ *
+ * Three questions, then one or two recommendations with a stated reason. The
+ * constraint is deliberate: a chooser that returns five options has moved the
+ * decision back to the reader, which is exactly what they came here to avoid.
+ *
+ * The scoring runs client-side over a payload frozen at build time, so the
+ * component needs no API, no external script and no network request. The
+ * results are announced through `aria-live` because a result that appears
+ * silently below the fold is a result a screen-reader user never receives.
+ *
+ * Without JavaScript the question steps simply do not advance — the page still
+ * renders the scenario list and the full plan table below it, so the chooser is
+ * an enhancement over content that is already there, not a gate in front of it.
+ */
+import { affHrefFor, getPlans, getScenarios, planEntryPrice, planMonthlyFrom } from '../../lib/cms';
+import {
+  cycleLabel,
+  formatDisk,
+  formatMemory,
+  formatPrice,
+  formatTraffic,
+  SERIES_LABELS,
+  STATUS_LABELS,
+} from '../../lib/format';
+import AffiliateDisclosure from './AffiliateDisclosure.astro';
+
+const scenarios = getScenarios();
+const plans = getPlans();
+
+const payload = {
+  scenarios: scenarios.map((scenario) => ({
+    slug: scenario.slug,
+    name: scenario.name,
+    question: scenario.question,
+    summary: scenario.summary,
+    budgetHint: scenario.budgetHint,
+    technicalLevel: scenario.technicalLevel,
+    plans: scenario.recommendedPlans,
+    guide: scenario.guide ?? null,
+  })),
+  plans: plans.map((plan) => {
+    const entry = planEntryPrice(plan);
+    return {
+      slug: plan.slug,
+      name: plan.name,
+      series: SERIES_LABELS[plan.series] ?? plan.series,
+      tagline: plan.tagline,
+      memory: formatMemory(plan.specs.memoryMB),
+      disk: formatDisk(plan.specs.diskGB),
+      traffic: formatTraffic(plan.specs.trafficTB),
+      monthly: planMonthlyFrom(plan),
+      currency: plan.pricing.currency,
+      entryLabel: entry ? `${cycleLabel(entry.cycle)} ${formatPrice(entry.price, plan.pricing.currency)}` : '',
+      migratable: plan.network.migratable,
+      status: STATUS_LABELS[plan.status] ?? plan.status,
+      available: plan.status === 'available' || plan.status === 'limited',
+      url: `/plans/${plan.slug}`,
+      aff: affHrefFor(plan),
+      notFor: plan.notFor.slice(0, 1),
+    };
+  }),
+};
+
+// `\u003c` keeps a stray `<` in the content from closing the script tag early.
+const json = JSON.stringify(payload).replace(/</g, '\\u003c');
+---
+
+<section id="chooser" class="scroll-mt-24" aria-labelledby="chooser-heading">
+  <div class="rounded-xl border border-line bg-surface p-5 sm:p-6">
+    <div class="flex flex-wrap items-baseline justify-between gap-2">
+      <h2 id="chooser-heading" class="text-base font-medium">三步选出适合你的套餐</h2>
+      <p class="text-xs text-fg-subtle">共 3 个问题，不收集任何信息</p>
+    </div>
+
+    <!-- Progress -->
+    <ol class="mt-4 flex items-center gap-2 text-xs" aria-hidden="true">
+      {['用途', '预算', '经验'].map((label, index) => (
+        <li class="flex items-center gap-2">
+          {index > 0 && <span class="h-px w-6 bg-line-strong" />}
+          <span data-step-dot={index} class="flex items-center gap-1.5 text-fg-subtle">
+            <span class="grid h-5 w-5 place-items-center rounded-full border border-line text-[0.6875rem]">
+              {index + 1}
+            </span>
+            {label}
+          </span>
+        </li>
+      ))}
+    </ol>
+
+    <!-- Step 1: purpose -->
+    <fieldset data-step-panel="0" class="mt-5">
+      <legend class="text-sm font-medium">1. 你主要拿这台机器做什么？</legend>
+      <div class="mt-3 grid gap-2 sm:grid-cols-2">
+        {
+          scenarios.map((scenario) => (
+            <button
+              type="button"
+              data-chooser-scenario={scenario.slug}
+              class="rounded-lg border border-line bg-surface-2 px-3.5 py-3 text-left transition-colors hover:border-brand hover:bg-brand-soft/40"
+            >
+              <span class="block text-sm font-medium">{scenario.name}</span>
+              <span class="mt-1 block text-xs leading-relaxed text-fg-muted">{scenario.question}</span>
+              {scenario.budgetHint && (
+                <span class="mt-1.5 block text-xs text-fg-subtle">常见预算：{scenario.budgetHint}</span>
+              )}
+            </button>
+          ))
+        }
+      </div>
+    </fieldset>
+
+    <!-- Step 2: budget -->
+    <fieldset data-step-panel="1" hidden class="mt-5">
+      <legend class="text-sm font-medium">2. 你的预算大概在哪个区间？</legend>
+      <div class="mt-3 grid gap-2 sm:grid-cols-3">
+        {
+          [
+            { key: 'low', label: '尽量省', hint: '折算月成本 5 美元以内' },
+            { key: 'mid', label: '平衡', hint: '折算月成本 5–12 美元' },
+            { key: 'high', label: '优先体验', hint: '折算月成本 12 美元以上' },
+          ].map((option) => (
+            <button
+              type="button"
+              data-chooser-budget={option.key}
+              class="rounded-lg border border-line bg-surface-2 px-3.5 py-3 text-left transition-colors hover:border-brand hover:bg-brand-soft/40"
+            >
+              <span class="block text-sm font-medium">{option.label}</span>
+              <span class="mt-1 block text-xs text-fg-muted">{option.hint}</span>
+            </button>
+          ))
+        }
+      </div>
+    </fieldset>
+
+    <!-- Step 3: experience -->
+    <fieldset data-step-panel="2" hidden class="mt-5">
+      <legend class="text-sm font-medium">3. 你用过 VPS 或 Linux 服务器吗？</legend>
+      <div class="mt-3 grid gap-2 sm:grid-cols-3">
+        {
+          [
+            { key: 'new', label: '完全没用过', hint: '需要能随时换机房的方案' },
+            { key: 'some', label: '用过一点', hint: '能自己装系统、连 SSH' },
+            { key: 'pro', label: '比较熟练', hint: '按配置和线路挑就行' },
+          ].map((option) => (
+            <button
+              type="button"
+              data-chooser-level={option.key}
+              class="rounded-lg border border-line bg-surface-2 px-3.5 py-3 text-left transition-colors hover:border-brand hover:bg-brand-soft/40"
+            >
+              <span class="block text-sm font-medium">{option.label}</span>
+              <span class="mt-1 block text-xs text-fg-muted">{option.hint}</span>
+            </button>
+          ))
+        }
+      </div>
+    </fieldset>
+
+    <!-- Result -->
+    <div data-chooser-result hidden class="mt-5 border-t border-line pt-5">
+      <div class="flex flex-wrap items-baseline justify-between gap-2">
+        <h3 class="text-sm font-medium">根据你的选择，建议先看这两个</h3>
+        <button type="button" data-chooser-reset class="text-xs text-brand underline">
+          重新选择
+        </button>
+      </div>
+
+      <p data-chooser-reason class="mt-2 text-sm text-fg-muted" aria-live="polite"></p>
+
+      <div data-chooser-cards class="mt-4 grid gap-3 sm:grid-cols-2"></div>
+
+      <p class="mt-4 text-xs text-fg-subtle">
+        结果基于本站的编辑判断，不是个性化推荐系统。每个套餐页都写明了「不适合谁」，
+        建议在决定前看一眼。
+      </p>
+    </div>
+  </div>
+
+  <div class="mt-3">
+    <AffiliateDisclosure compact />
+  </div>
+</section>
+
+<script type="application/json" id="chooser-data" set:html={json} is:inline />
+
+<script is:inline>
+  (function () {
+    var node = document.getElementById('chooser-data');
+    var root = document.getElementById('chooser');
+    if (!node || !root) return;
+
+    var data;
+    try {
+      data = JSON.parse(node.textContent || '{}');
+    } catch (e) {
+      return;
+    }
+
+    var plansBySlug = {};
+    data.plans.forEach(function (plan) {
+      plansBySlug[plan.slug] = plan;
+    });
+
+    var state = { scenario: null, budget: null, level: null };
+
+    var panels = root.querySelectorAll('[data-step-panel]');
+    var dots = root.querySelectorAll('[data-step-dot]');
+    var result = root.querySelector('[data-chooser-result]');
+    var reasonEl = root.querySelector('[data-chooser-reason]');
+    var cardsEl = root.querySelector('[data-chooser-cards]');
+
+    function showStep(index) {
+      panels.forEach(function (panel) {
+        if (Number(panel.getAttribute('data-step-panel')) === index) panel.removeAttribute('hidden');
+        else panel.setAttribute('hidden', '');
+      });
+      dots.forEach(function (dot) {
+        var i = Number(dot.getAttribute('data-step-dot'));
+        dot.className = i <= index ? 'flex items-center gap-1.5 text-brand' : 'flex items-center gap-1.5 text-fg-subtle';
+      });
+    }
+
+    /** Budget band a monthly-equivalent figure falls into. */
+    function band(monthly) {
+      if (!isFinite(monthly)) return 'high';
+      if (monthly <= 5) return 'low';
+      if (monthly <= 12) return 'mid';
+      return 'high';
+    }
+
+    var BAND_ORDER = { low: 0, mid: 1, high: 2 };
+
+    function score(plan, scenario, budget, level) {
+      var base = scenario.plans.indexOf(plan.slug);
+      var total = base === -1 ? 0 : (scenario.plans.length - base) * 4;
+      var reasons = [];
+
+      if (base === 0) reasons.push('本站该场景的首选');
+
+      var distance = Math.abs(BAND_ORDER[band(plan.monthly)] - BAND_ORDER[budget]);
+      if (distance === 0) {
+        total += 5;
+        reasons.push('价格落在你选的预算区间内');
+      } else {
+        total -= distance * 3;
+      }
+
+      if (level === 'new') {
+        if (plan.migratable) {
+          total += 4;
+          reasons.push('支持免费换机房，买错机房不用重买');
+        } else {
+          total -= 2;
+        }
+      } else if (level === 'pro') {
+        if (plan.monthly >= 8) {
+          total += 2;
+          reasons.push('配置与线路更宽裕，适合有经验的用法');
+        }
+      } else if (plan.migratable) {
+        total += 1;
+      }
+
+      if (!plan.available) total -= 20;
+
+      return { total: total, reasons: reasons };
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function render() {
+      var scenario = data.scenarios.filter(function (item) {
+        return item.slug === state.scenario;
+      })[0];
+      if (!scenario) return;
+
+      var scored = data.plans
+        .map(function (plan) {
+          var result = score(plan, scenario, state.budget, state.level);
+          return { plan: plan, total: result.total, reasons: result.reasons };
+        })
+        .sort(function (a, b) {
+          return b.total - a.total;
+        })
+        .slice(0, 2);
+
+      var levelLabel = { new: '刚接触服务器', some: '有一点经验', pro: '比较熟练' }[state.level] || '';
+      var budgetLabel = { low: '尽量省', mid: '平衡', high: '优先体验' }[state.budget] || '';
+      reasonEl.textContent =
+        '按「' + scenario.name + '」+「' + budgetLabel + '」+「' + levelLabel + '」筛选，' +
+        '优先考虑价格区间匹配、以及是否需要机房迁移能力。以下两个最接近：';
+
+      cardsEl.innerHTML = scored
+        .map(function (item) {
+          var plan = item.plan;
+          var facts = [plan.memory, plan.disk, plan.traffic + '/月'].join(' · ');
+          var reasonText = item.reasons.length > 0 ? item.reasons.slice(0, 2).join('；') : '综合匹配度较高';
+          var priceText = isFinite(plan.monthly)
+            ? '$' + plan.monthly.toFixed(2).replace(/\.00$/, '') + '/月'
+            : '价格待更新';
+          return (
+            '<article class="flex flex-col rounded-lg border border-line bg-surface-2 p-4">' +
+            '<p class="text-[0.6875rem] uppercase tracking-wider text-fg-subtle">' + escapeHtml(plan.series) + '</p>' +
+            '<h4 class="mt-1 text-sm font-medium"><a href="' + escapeHtml(plan.url) + '" class="hover:text-brand">' + escapeHtml(plan.name) + '</a></h4>' +
+            '<p class="mt-1.5 text-xs text-fg-muted">' + escapeHtml(facts) + '</p>' +
+            '<p class="mt-2 text-sm font-medium">' + escapeHtml(priceText) + '</p>' +
+            (plan.entryLabel ? '<p class="text-xs text-fg-subtle">起价 ' + escapeHtml(plan.entryLabel) + '</p>' : '') +
+            '<p class="mt-2 text-xs leading-relaxed text-brand">' + escapeHtml(reasonText) + '</p>' +
+            (plan.notFor[0] ? '<p class="mt-1.5 text-xs leading-relaxed text-signal">不适合：' + escapeHtml(plan.notFor[0]) + '</p>' : '') +
+            '<div class="mt-3 flex flex-wrap gap-2">' +
+            '<a href="' + escapeHtml(plan.aff) + '" rel="sponsored nofollow noopener" target="_blank" data-aff-link="true" data-aff-plan="' + escapeHtml(plan.slug) + '" data-aff-place="chooser" class="btn btn-primary btn-sm">查看当前价格</a>' +
+            '<a href="' + escapeHtml(plan.url) + '" class="btn btn-secondary btn-sm">看详细参数</a>' +
+            '</div>' +
+            '</article>'
+          );
+        })
+        .join('');
+
+      var guideLink = '';
+      if (scenario.guide) {
+        guideLink =
+          '<p class="mt-4 text-xs text-fg-subtle">完整判断依据见选购指南：' +
+          '<a class="text-brand underline" href="/guides/' + escapeHtml(scenario.guide) + '">' +
+          escapeHtml(scenario.name) + ' 怎么选</a></p>';
+      }
+      // The guide link is rebuilt on every run, so the previous one is dropped
+      // first rather than accumulating one per selection.
+      var existing = root.querySelector('[data-chooser-guide]');
+      if (existing) existing.remove();
+      if (guideLink) {
+        var wrap = document.createElement('div');
+        wrap.setAttribute('data-chooser-guide', '');
+        wrap.innerHTML = guideLink;
+        cardsEl.parentNode.appendChild(wrap);
+      }
+
+      result.removeAttribute('hidden');
+      result.setAttribute('tabindex', '-1');
+      result.focus({ preventScroll: true });
+
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', 'chooser_complete', {
+          scenario: state.scenario,
+          budget: state.budget,
+          level: state.level,
+        });
+      }
+    }
+
+    root.addEventListener('click', function (event) {
+      var scenarioBtn = event.target.closest('[data-chooser-scenario]');
+      if (scenarioBtn) {
+        state.scenario = scenarioBtn.getAttribute('data-chooser-scenario');
+        showStep(1);
+        return;
+      }
+
+      var budgetBtn = event.target.closest('[data-chooser-budget]');
+      if (budgetBtn) {
+        state.budget = budgetBtn.getAttribute('data-chooser-budget');
+        showStep(2);
+        return;
+      }
+
+      var levelBtn = event.target.closest('[data-chooser-level]');
+      if (levelBtn) {
+        state.level = levelBtn.getAttribute('data-chooser-level');
+        render();
+        return;
+      }
+
+      if (event.target.closest('[data-chooser-reset]')) {
+        state = { scenario: null, budget: null, level: null };
+        result.setAttribute('hidden', '');
+        showStep(0);
+      }
+    });
+
+    showStep(0);
+  })();
+</script>

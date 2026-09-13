@@ -1,0 +1,123 @@
+---
+/**
+ * FAQ hub.
+ *
+ * One pool of questions, rendered here and embedded on the entity pages that
+ * reference them. The `slug` on each question is the anchor id, so
+ * `/faq/#refund-policy` and the accordion on the plan page are the same
+ * content, not two copies that drift.
+ *
+ * Questions are grouped by category with anchor navigation, because a flat list
+ * of twenty questions is a page people bounce off.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/ui/PageHero.astro';
+import Breadcrumbs from '../../components/layout/Breadcrumbs.astro';
+import FaqAccordion from '../../components/sections/FaqAccordion.astro';
+import AffiliateDisclosure from '../../components/sections/AffiliateDisclosure.astro';
+import EmptyState from '../../components/ui/EmptyState.astro';
+import { getFaqs } from '../../lib/cms';
+import { breadcrumbSchema, faqSchema } from '../../lib/seo';
+
+const crumbs = [
+  { label: '首页', href: '/' },
+  { label: '常见问题', href: '/faq' },
+];
+
+const faqs = getFaqs();
+
+/** Category labels and order. Unknown categories fall to the end, not to a bin. */
+const CATEGORY_LABELS: Record<string, string> = {
+  general: '关于搬瓦工',
+  billing: '付款、退款与计费',
+  network: '网络与线路',
+  usage: '使用与运维',
+  other: '其他',
+};
+
+const CATEGORY_ORDER = ['general', 'billing', 'network', 'usage', 'other'];
+
+const groups = new Map<string, typeof faqs>();
+for (const faq of faqs) {
+  const bucket = groups.get(faq.category) ?? [];
+  bucket.push(faq);
+  groups.set(faq.category, bucket);
+}
+
+const ordered = [...groups.entries()].sort(
+  (a, b) =>
+    (CATEGORY_ORDER.indexOf(a[0]) === -1 ? 99 : CATEGORY_ORDER.indexOf(a[0])) -
+    (CATEGORY_ORDER.indexOf(b[0]) === -1 ? 99 : CATEGORY_ORDER.indexOf(b[0])),
+);
+
+const schema = [breadcrumbSchema(crumbs, '/faq'), faqSchema(faqs)];
+---
+
+<BaseLayout
+  title="搬瓦工常见问题"
+  description="关于搬瓦工的常见问题：公司背景、支付宝付款、退款政策、线路选择、机房迁移与使用限制。答案尽量直接，并链接到更详细的页面。"
+  keywords={['搬瓦工常见问题', '搬瓦工怎么样', '搬瓦工退款', '搬瓦工支付宝']}
+  schema={schema}
+>
+  <PageHero
+    eyebrow="常见问题"
+    title="搬瓦工常见问题"
+    lede={`共 ${faqs.length} 条问答。答案尽量直接给出结论，需要展开的部分会链接到对应的详情页，而不是在这里重写一遍。`}
+  >
+    <Breadcrumbs slot="breadcrumbs" crumbs={crumbs} />
+    <Fragment slot="chips">
+      <span class="chip chip-mono">{faqs.length} 条</span>
+      <span class="chip">{ordered.length} 个分类</span>
+    </Fragment>
+  </PageHero>
+
+  <div class="container-page space-y-10 py-10">
+    <AffiliateDisclosure />
+
+    {
+      ordered.length > 0 && (
+        <nav aria-label="问题分类" class="flex flex-wrap gap-2">
+          {ordered.map(([category, items]) => (
+            <a href={`#cat-${category}`} class="chip hover:border-line-strong">
+              {CATEGORY_LABELS[category] ?? category}
+              <span class="text-fg-subtle">{items.length}</span>
+            </a>
+          ))}
+        </nav>
+      )
+    }
+
+    {
+      ordered.length > 0 ? (
+        <div class="space-y-10">
+          {ordered.map(([category, items]) => (
+            <section id={`cat-${category}`} class="scroll-mt-24 space-y-3">
+              <h2 class="text-lg font-medium">{CATEGORY_LABELS[category] ?? category}</h2>
+              <FaqAccordion items={items} headingLevel="h3" />
+            </section>
+          ))}
+        </div>
+      ) : (
+        <EmptyState
+          title="还没有问答内容"
+          body="在后台的「问答」集合里添加第一条，页面会自动生成。"
+          actionLabel="了解内容结构"
+          actionHref="/about"
+        />
+      )
+    }
+
+    <section class="rounded-xl border border-line bg-surface-2 p-5">
+      <h2 class="text-base font-medium">没找到答案？</h2>
+      <p class="mt-2 text-sm leading-relaxed text-fg-muted">
+        可以试试站内搜索，或者看对应的详情页——套餐、机房、线路和教程页面上的说明通常比问答更完整。
+        如果发现某处信息与实际不符，欢迎通过联系页面告知我们。
+      </p>
+      <div class="mt-4 flex flex-wrap gap-2.5">
+        <a href="/search" class="btn btn-secondary btn-sm">站内搜索</a>
+        <a href="/contact" class="btn btn-secondary btn-sm">联系我们</a>
+        <a href="/plans" class="btn btn-secondary btn-sm">看套餐</a>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

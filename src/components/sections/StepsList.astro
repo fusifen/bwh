@@ -1,0 +1,70 @@
+---
+/**
+ * Tutorial steps.
+ *
+ * Structured steps rather than a blob of Markdown, because that structure is
+ * what produces a valid `HowTo` node — and because it lets a step carry its own
+ * warning, which is where the dangerous instructions live ("run this before
+ * that, or you lock yourself out").
+ *
+ * Step bodies go through the Markdown renderer, so fenced code inside a step
+ * becomes a real code block.
+ */
+import type { TutorialStep } from '../../lib/schemas';
+import { renderMarkdown } from '../../lib/markdown';
+import Callout from '../ui/Callout.astro';
+
+interface Props {
+  steps: TutorialStep[];
+}
+
+const { steps } = Astro.props;
+---
+
+{
+  steps.length > 0 && (
+    <ol class="space-y-5">
+      {steps.map((step, index) => {
+        const rendered = renderMarkdown(step.body);
+        return (
+          <li id={`step-${index + 1}`} class="scroll-mt-24 border-t border-line pt-5 first:border-t-0 first:pt-0">
+            <div class="flex items-start gap-3">
+              <span
+                aria-hidden="true"
+                class="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-brand-soft text-xs font-medium text-brand"
+              >
+                {index + 1}
+              </span>
+              <div class="min-w-0 flex-1">
+                <h3 class="text-[0.9375rem] font-medium">
+                  <span class="sr-only">第 {index + 1} 步：</span>
+                  {step.title}
+                </h3>
+
+                <div class="prose-cx mt-2 max-w-[46rem] text-sm" set:html={rendered.html} />
+
+                {step.code && (
+                  <pre class="code-block mt-3"><code>{step.code}</code></pre>
+                )}
+
+                {step.note && (
+                  <div class="mt-3">
+                    <Callout tone="info">{step.note}</Callout>
+                  </div>
+                )}
+
+                {step.warning && (
+                  <div class="mt-3">
+                    <Callout tone="danger" title="注意">
+                      {step.warning}
+                    </Callout>
+                  </div>
+                )}
+              </div>
+            </div>
+          </li>
+        );
+      })}
+    </ol>
+  )
+}

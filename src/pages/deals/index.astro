@@ -1,0 +1,157 @@
+---
+/**
+ * Deals hub.
+ *
+ * Two rules shape this page:
+ *
+ *   1. **No unverified codes.** A coupon list is the fastest-rotting content on
+ *      any affiliate site, and a dead code wastes more of the reader's time than
+ *      having no list at all. Every entry carries its verification date.
+ *   2. **Expired entries stay, demoted.** A page that ranks for "搬瓦工优惠码"
+ *      and then 404s loses the ranking permanently. Expired deals keep their
+ *      page, move to a collapsed section, and point at what is live now.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/ui/PageHero.astro';
+import Breadcrumbs from '../../components/layout/Breadcrumbs.astro';
+import LinkCard from '../../components/cards/LinkCard.astro';
+import AffiliateDisclosure from '../../components/sections/AffiliateDisclosure.astro';
+import Callout from '../../components/ui/Callout.astro';
+import EmptyState from '../../components/ui/EmptyState.astro';
+import { getActiveDeals, getExpiredDeals } from '../../lib/cms';
+import { DEAL_KIND_LABELS, DEAL_STATUS_LABELS, formatDate } from '../../lib/format';
+import { breadcrumbSchema, itemListSchema } from '../../lib/seo';
+
+const crumbs = [
+  { label: '首页', href: '/' },
+  { label: '优惠', href: '/deals' },
+];
+
+const active = getActiveDeals();
+const expired = getExpiredDeals();
+
+const schema = [
+  breadcrumbSchema(crumbs, '/deals'),
+  itemListSchema(
+    active.map((deal) => ({ name: deal.title, url: `/deals/${deal.slug}` })),
+    '搬瓦工当前优惠',
+  ),
+];
+---
+
+<BaseLayout
+  title="搬瓦工优惠与政策：当前有效条目"
+  description="搬瓦工当前有效的优惠、活动与购买政策。只收录人工核实过的条目并标注核实日期，不发布未经确认的优惠码。含 30 天退款政策说明。"
+  keywords={['搬瓦工优惠', '搬瓦工优惠码', '搬瓦工退款', '搬瓦工活动']}
+  schema={schema}
+>
+  <PageHero
+    eyebrow="优惠"
+    title="优惠与购买政策"
+    lede={`当前有效 ${active.length} 条。本站不发布未经核实的优惠码——一个失效的码比没有码更浪费你的时间。每条都标注了最后核实日期，过期条目会移到下方并标注状态。`}
+  >
+    <Breadcrumbs slot="breadcrumbs" crumbs={crumbs} />
+    <Fragment slot="chips">
+      <span class="chip chip-mono">{active.length} 条有效</span>
+      <span class="chip">标注核实日期</span>
+      <span class="chip">续费可用会单独标注</span>
+    </Fragment>
+  </PageHero>
+
+  <div class="container-page space-y-12 py-10">
+    <AffiliateDisclosure />
+
+    {
+      active.length > 0 ? (
+        <section aria-labelledby="active-heading" class="space-y-3">
+          <h2 id="active-heading" class="text-lg font-medium">
+            当前有效
+          </h2>
+          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {active.map((deal) => (
+              <LinkCard
+                href={`/deals/${deal.slug}`}
+                title={deal.title}
+                summary={deal.summary}
+                eyebrow={DEAL_KIND_LABELS[deal.kind] ?? deal.kind}
+                mono={deal.code ?? deal.discount}
+                meta={[
+                  `核实于 ${formatDate(deal.verifiedAt)}`,
+                  deal.appliesToRenewal ? '续费可用' : '仅首购',
+                  ...(deal.expiresAt ? [`至 ${formatDate(deal.expiresAt)}`] : []),
+                ]}
+                accent="brand"
+              />
+            ))}
+          </div>
+        </section>
+      ) : (
+        <EmptyState
+          title="当前没有已核实的优惠条目"
+          body="与其列出可能已经失效的优惠码，不如什么都不列。30 天退款政策依然有效，可在下面查看。"
+          actionLabel="看套餐价格"
+          actionHref="/plans"
+        />
+      )
+    }
+
+    <Callout tone="info" title="关于优惠码的态度">
+      这个品类的优惠码信息腐坏极快，很多站点为了排名会列出大量未经验证的码。
+      本站的做法是：确认有效才展示，并标注核实日期；没有标注日期的优惠码信息，请不要采信。
+      搬瓦工在双十一、黑五等节点会放出全场折扣，届时我们会核实后更新。
+    </Callout>
+
+    {
+      expired.length > 0 && (
+        <section aria-labelledby="expired-heading" class="space-y-3">
+          <div>
+            <h2 id="expired-heading" class="text-lg font-medium">
+              已结束
+            </h2>
+            <p class="mt-1 text-sm text-fg-muted">
+              页面保留是因为它可能有搜索排名和外部链接。状态已标注，内容仅作记录。
+            </p>
+          </div>
+          <ul class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {expired.map((deal) => (
+              <li class="card flex items-start justify-between gap-3 p-4">
+                <div class="min-w-0">
+                  <a href={`/deals/${deal.slug}`} class="text-sm font-medium hover:text-brand">
+                    {deal.title}
+                  </a>
+                  <p class="mt-1 text-xs text-fg-subtle">
+                    {formatDate(deal.startsAt ?? deal.verifiedAt)} –{' '}
+                    {deal.expiresAt ? formatDate(deal.expiresAt) : '未标注结束时间'}
+                  </p>
+                </div>
+                <span class="chip shrink-0">{DEAL_STATUS_LABELS[deal.status] ?? deal.status}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    <section class="rounded-xl border border-line bg-surface-2 p-5">
+      <h2 class="text-base font-medium">买之前值得知道的三件事</h2>
+      <ol class="mt-3 grid gap-2 text-sm text-fg-muted">
+        <li>
+          <strong class="font-medium text-fg">1. 新账号 30 天内可全额退款。</strong>
+          在后台自助提交，不需要联系客服。只适用于新账号的首次购买。
+        </li>
+        <li>
+          <strong class="font-medium text-fg">2. 支持支付宝付款。</strong>
+          国内用户不需要办双币信用卡，按当日汇率结算。
+        </li>
+        <li>
+          <strong class="font-medium text-fg">3. 价格随时可能变动。</strong>
+          页面上的价格是税前美元价，下单前请以官方结账页显示的最终金额为准。
+        </li>
+      </ol>
+      <div class="mt-4 flex flex-wrap gap-2.5">
+        <a href="/plans" class="btn btn-secondary btn-sm">看套餐价格</a>
+        <a href="/faq" class="btn btn-secondary btn-sm">常见问题</a>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

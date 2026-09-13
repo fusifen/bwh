@@ -1,0 +1,273 @@
+---
+/**
+ * Datacenter detail.
+ *
+ * The two things this page must do that a generic hosting page does not:
+ *
+ *   1. **Publish the test IP.** A reader who can reproduce the latency number
+ *      does not need to trust the site, which is the entire point.
+ *   2. **Say when there is no measurement.** An empty latency table with an
+ *      honest explanation beats an estimated number that looks like data. The
+ *      `LatencyTable` component renders that state; this page just has to not
+ *      fake the input.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/ui/PageHero.astro';
+import Breadcrumbs from '../../components/layout/Breadcrumbs.astro';
+import Toc from '../../components/layout/Toc.astro';
+import Prose from '../../components/ui/Prose.astro';
+import Callout from '../../components/ui/Callout.astro';
+import LinkCard from '../../components/cards/LinkCard.astro';
+import PlanCard from '../../components/cards/PlanCard.astro';
+import TutorialCard from '../../components/cards/TutorialCard.astro';
+import VerdictBox from '../../components/sections/VerdictBox.astro';
+import ProsCons from '../../components/sections/ProsCons.astro';
+import LatencyTable from '../../components/sections/LatencyTable.astro';
+import FaqAccordion from '../../components/sections/FaqAccordion.astro';
+import AffiliateDisclosure from '../../components/sections/AffiliateDisclosure.astro';
+import RelatedGrid from '../../components/sections/RelatedGrid.astro';
+import CtaBand from '../../components/sections/CtaBand.astro';
+import {
+  getDatacenters,
+  getFaqsFor,
+  getPlansForDatacenter,
+  getRelatedForDatacenter,
+} from '../../lib/cms';
+import { renderMarkdown } from '../../lib/markdown';
+import { breadcrumbSchema, datacenterSchema, faqSchema } from '../../lib/seo';
+
+export function getStaticPaths() {
+  return getDatacenters().map((datacenter) => ({
+    params: { slug: datacenter.slug },
+    props: { datacenter },
+  }));
+}
+
+const { datacenter } = Astro.props;
+
+const path = `/datacenters/${datacenter.slug}`;
+const crumbs = [
+  { label: '首页', href: '/' },
+  { label: '机房', href: '/datacenters' },
+  { label: datacenter.name, href: path },
+];
+
+const related = getRelatedForDatacenter(datacenter);
+const body = renderMarkdown(datacenter.content);
+const line = related.lines[0];
+const plans = getPlansForDatacenter(datacenter.slug);
+const faqs = [...datacenter.faqs, ...getFaqsFor('datacenters', datacenter.slug)];
+
+const schema = [
+  breadcrumbSchema(crumbs, path),
+  datacenterSchema(datacenter, path),
+  faqSchema(faqs),
+];
+
+const networkRows: Array<[string, string]> = [
+  ['中国电信', datacenter.network.telecom || '未标注'],
+  ['中国联通', datacenter.network.unicom || '未标注'],
+  ['中国移动', datacenter.network.mobile || '未标注'],
+];
+---
+
+<BaseLayout
+  title={datacenter.seo?.title ?? `${datacenter.name}：线路构成与适用场景`}
+  description={datacenter.seo?.description ?? datacenter.summary}
+  keywords={datacenter.seo?.keywords}
+  schema={schema}
+  type="article"
+  updatedAt={datacenter.updatedAt}
+>
+  <PageHero
+    eyebrow={`${datacenter.country} · ${datacenter.city}`}
+    title={datacenter.name}
+    lede={datacenter.summary}
+  >
+    <Breadcrumbs slot="breadcrumbs" crumbs={crumbs} />
+    <Fragment slot="chips">
+      <span class="chip chip-mono">{datacenter.code}</span>
+      {line && <a href={`/lines/${line.slug}`} class="chip hover:border-line-strong">线路：{line.abbr}</a>}
+      <span class="chip">{plans.length} 个套餐可选</span>
+      {
+        datacenter.migratableTargets.length > 0 && (
+          <span class="chip">可迁移到 {datacenter.migratableTargets.length} 个机房</span>
+        )
+      }
+      {datacenter.testIp && <span class="chip chip-mono">测试 IP {datacenter.testIp}</span>}
+    </Fragment>
+  </PageHero>
+
+  <div class="container-page grid gap-10 py-10 lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-start">
+    <div class="min-w-0 space-y-10">
+      <VerdictBox verdict={datacenter.summary} points={datacenter.bestFor} />
+      <AffiliateDisclosure />
+
+      <section aria-labelledby="network-heading" class="space-y-3">
+        <h2 id="network-heading" class="text-base font-medium">
+          三网走向
+        </h2>
+        <div class="table-scroll rounded-lg border border-line">
+          <table>
+            <caption class="sr-only">{datacenter.name} 各运营商方向的线路走向</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="w-40">运营商</th>
+                <th scope="col">线路</th>
+              </tr>
+            </thead>
+            <tbody>
+              {networkRows.map(([carrier, route]) => (
+                <tr>
+                  <th scope="row" class="font-normal text-fg-muted">{carrier}</th>
+                  <td class="font-medium">{route}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <LatencyTable
+        rows={datacenter.latency}
+        measuredAt={datacenter.latencyMeasuredAt}
+        method={datacenter.latencyMethod}
+        testIp={datacenter.testIp}
+        testFileUrl={datacenter.testFileUrl}
+        lookingGlass={datacenter.lookingGlass}
+      />
+
+      <section aria-labelledby="proscons-heading" class="space-y-3">
+        <h2 id="proscons-heading" class="text-base font-medium">优缺点</h2>
+        <ProsCons pros={datacenter.pros} cons={datacenter.cons} />
+      </section>
+
+      {
+        datacenter.notFor.length > 0 && (
+          <Callout tone="warn" title="什么情况下不该选这个机房">
+            <ul class="space-y-1.5">
+              {datacenter.notFor.map((item) => (
+                <li class="flex gap-2">
+                  <span aria-hidden="true" class="mt-[0.6em] h-1 w-1 shrink-0 rounded-full bg-signal" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </Callout>
+        )
+      }
+
+      {
+        body.html && (
+          <section aria-labelledby="detail-heading" class="space-y-3">
+            <h2 id="detail-heading" class="text-base font-medium">详细说明</h2>
+            <Prose html={body.html} />
+          </section>
+        )
+      }
+
+      {
+        plans.length > 0 && (
+          <section aria-labelledby="plans-heading" class="space-y-3">
+            <h2 id="plans-heading" class="text-base font-medium">
+              可以部署在这个机房的套餐
+            </h2>
+            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {plans.slice(0, 6).map((plan) => (
+                <PlanCard plan={plan} compact place="datacenter-plans" />
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      {
+        related.datacenters.length > 0 && (
+          <section aria-labelledby="migrate-heading" class="space-y-3">
+            <h2 id="migrate-heading" class="text-base font-medium">
+              可以从这里迁移到
+            </h2>
+            <p class="text-sm text-fg-muted">
+              如果使用的套餐支持机房迁移，可以在后台免费切换，数据保留、不用重装系统。
+            </p>
+            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {related.datacenters.map((dc) => (
+                <LinkCard
+                  href={`/datacenters/${dc.slug}`}
+                  title={dc.name}
+                  summary={dc.summary}
+                  eyebrow={`${dc.country} · ${dc.city}`}
+                  mono={dc.code}
+                />
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      {
+        related.tutorials.length > 0 && (
+          <section aria-labelledby="tutorials-heading" class="space-y-3">
+            <h2 id="tutorials-heading" class="text-base font-medium">
+              相关教程
+            </h2>
+            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {related.tutorials.map((tutorial) => (
+                <TutorialCard tutorial={tutorial} showSummary={false} />
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      <RelatedGrid
+        title="继续了解"
+        items={[
+          ...(line
+            ? [
+                {
+                  href: `/lines/${line.slug}`,
+                  title: `${line.abbr} 是什么`,
+                  summary: line.definition,
+                  eyebrow: '线路',
+                },
+              ]
+            : []),
+          ...related.compares.map((compare) => ({
+            href: `/compare/${compare.slug}`,
+            title: compare.title,
+            summary: compare.verdict,
+            eyebrow: '对比',
+          })),
+          ...related.benchmarks.map((benchmark) => ({
+            href: `/benchmarks/${benchmark.slug}`,
+            title: benchmark.title,
+            summary: benchmark.summary,
+            eyebrow: '实测',
+          })),
+        ]}
+      />
+
+      {
+        faqs.length > 0 && (
+          <section aria-labelledby="faq-heading" class="space-y-3">
+            <h2 id="faq-heading" class="text-base font-medium">
+              关于这个机房的常见问题
+            </h2>
+            <FaqAccordion items={faqs} />
+          </section>
+        )
+      }
+
+      <CtaBand
+        plan={plans[0]}
+        title={plans[0] ? `在 ${datacenter.name} 部署一个` : '选一个机房开始'}
+        links={[{ href: '/datacenters', label: '对比其他机房' }]}
+      />
+    </div>
+
+    <aside class="hidden lg:block lg:sticky lg:top-20 space-y-6">
+      <Toc entries={body.toc} />
+    </aside>
+  </div>
+</BaseLayout>

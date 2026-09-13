@@ -1,0 +1,118 @@
+---
+/**
+ * Site header.
+ *
+ * Six links, a theme toggle, a search link, and a mobile panel. Deliberately no
+ * dropdowns: this audience reads on phones, and a hover menu on a phone is a
+ * menu that does not exist. Secondary navigation is carried by the footer and
+ * by in-page hub blocks, which also spreads internal link equity further than a
+ * six-item menu ever could.
+ */
+import { SITE } from '../../lib/cms';
+import { PRIMARY_NAV } from '../../config/nav';
+import Icon from '../ui/Icon.astro';
+
+const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
+
+function isActive(href: string): boolean {
+  if (href === '/') return path === '/';
+  return path === href || path.startsWith(`${href}/`);
+}
+---
+
+<header class="sticky top-0 z-40 border-b border-line bg-bg/90 backdrop-blur supports-[backdrop-filter]:bg-bg/75">
+  <div class="container-page flex h-14 items-center gap-3">
+    <a href="/" class="flex shrink-0 items-center gap-2" aria-label={`${SITE.siteName} 首页`}>
+      <img src={SITE.logo || '/brand/logo.svg'} alt="" width="132" height="32" class="h-7 w-auto" />
+    </a>
+
+    <nav class="ml-2 hidden items-center gap-0.5 lg:flex" aria-label="主导航">
+      {
+        PRIMARY_NAV.map((item) => (
+          <a
+            href={item.href}
+            class:list={[
+              'rounded-md px-2.5 py-1.5 text-sm transition-colors',
+              isActive(item.href)
+                ? 'bg-bg-muted font-medium text-fg'
+                : 'text-fg-muted hover:bg-bg-muted hover:text-fg',
+            ]}
+            aria-current={isActive(item.href) ? 'page' : undefined}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="ml-auto flex items-center gap-1">
+      <a
+        href="/search"
+        class="rounded-md p-2 text-fg-muted transition-colors hover:bg-bg-muted hover:text-fg"
+        aria-label="搜索站内内容"
+      >
+        <Icon name="search" size={18} />
+      </a>
+
+      <button
+        type="button"
+        data-theme-toggle
+        class="rounded-md p-2 text-fg-muted transition-colors hover:bg-bg-muted hover:text-fg"
+        aria-pressed="false"
+        aria-label="切换到深色模式"
+      >
+        <Icon name="moon" size={18} class="block" />
+        <Icon name="sun" size={18} class="hidden" />
+      </button>
+
+      <a href="/plans" class="btn btn-primary btn-sm hidden sm:inline-flex">
+        全部套餐
+      </a>
+
+      <button
+        type="button"
+        data-nav-toggle
+        class="rounded-md p-2 text-fg-muted transition-colors hover:bg-bg-muted hover:text-fg lg:hidden"
+        aria-expanded="false"
+        aria-controls="mobile-nav"
+        aria-label="打开导航菜单"
+      >
+        <Icon name="menu" size={18} />
+      </button>
+    </div>
+  </div>
+
+  <!--
+    `hidden` is toggled by the inline script in BaseLayout. Without JavaScript
+    the panel stays collapsed, so the primary nav is additionally repeated as a
+    plain list inside <noscript> below — nothing becomes unreachable.
+  -->
+  <div id="mobile-nav" hidden class="border-t border-line bg-bg lg:hidden">
+    <nav class="container-page grid gap-0.5 py-3" aria-label="移动端导航">
+      {
+        PRIMARY_NAV.map((item) => (
+          <a
+            href={item.href}
+            class:list={[
+              'rounded-md px-3 py-2 text-sm',
+              isActive(item.href) ? 'bg-bg-muted font-medium text-fg' : 'text-fg-muted hover:bg-bg-muted',
+            ]}
+          >
+            <span class="block text-fg">{item.label}</span>
+            {item.description && <span class="block text-xs text-fg-subtle">{item.description}</span>}
+          </a>
+        ))
+      }
+      <a href="/search" class="rounded-md px-3 py-2 text-sm text-fg-muted hover:bg-bg-muted">
+        <span class="block text-fg">搜索</span>
+        <span class="block text-xs text-fg-subtle">按关键词查找套餐、机房与教程</span>
+      </a>
+    </nav>
+  </div>
+
+  <noscript>
+    <nav class="container-page flex flex-wrap gap-x-4 gap-y-1 border-t border-line py-2 text-sm" aria-label="主导航">
+      {PRIMARY_NAV.map((item) => <a href={item.href} class="text-fg-muted underline">{item.label}</a>)}
+    </nav>
+  </noscript>
+</header>

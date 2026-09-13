@@ -1,0 +1,207 @@
+---
+/**
+ * Plan comparison table — the decision core of the site.
+ *
+ * Three things make this more than a `<table>`:
+ *
+ * 1. **Rows that actually differ are marked.** If every plan in the set shares
+ *    a value, the row is dimmed; if values diverge, the row is flagged. A
+ *    comparison where everything looks equally important is a comparison the
+ *    reader has to re-do themselves.
+ *
+ * 2. **The first column is sticky** on wide screens, so the row labels stay
+ *    visible when a six-plan table scrolls sideways.
+ *
+ * 3. **Narrow screens get cards, not a sideways scroll.** A horizontally
+ *    scrolling comparison table on a phone is a table nobody reads. Each card
+ *    carries only the four fields that decide the purchase, plus the CTA.
+ *
+ * The table is a real `<table>` with `<caption>` and `scope`d headers: the same
+ * markup that makes it accessible is the markup an answer engine can parse.
+ */
+import type { Plan } from '../../lib/schemas';
+import { planEntryPrice, planMonthlyFrom } from '../../lib/cms';
+import {
+  cycleLabel,
+  formatBandwidth,
+  formatDisk,
+  formatMemory,
+  formatPrice,
+  formatTraffic,
+  SERIES_LABELS,
+  STATUS_LABELS,
+} from '../../lib/format';
+import CtaButton from '../ui/CtaButton.astro';
+
+interface Props {
+  plans: Plan[];
+  caption?: string;
+  /** Slug of the plan to visually favour, if the page has a recommendation. */
+  recommended?: string;
+  place?: string;
+}
+
+const { plans, caption = '套餐参数对比', recommended, place = 'compare-table' } = Astro.props;
+
+interface Row {
+  label: string;
+  values: string[];
+  /** True when the row carries information that distinguishes the plans. */
+  differs: boolean;
+}
+
+function buildRows(items: Plan[]): Row[] {
+  const defs: Array<{ label: string; pick: (plan: Plan) => string }> = [
+    {
+      label: '最低折算月价',
+      pick: (plan) => {
+        const monthly = planMonthlyFrom(plan);
+        return Number.isFinite(monthly) ? `${formatPrice(monthly, plan.pricing.currency)}/月` : '—';
+      },
+    },
+    {
+      label: '起价',
+      pick: (plan) => {
+        const entry = planEntryPrice(plan);
+        return entry ? `${cycleLabel(entry.cycle)} ${formatPrice(entry.price, plan.pricing.currency)}` : '—';
+      },
+    },
+    { label: '内存', pick: (plan) => formatMemory(plan.specs.memoryMB) },
+    { label: '硬盘', pick: (plan) => `${formatDisk(plan.specs.diskGB)} ${plan.specs.diskType}` },
+    { label: '月流量', pick: (plan) => formatTraffic(plan.specs.trafficTB) },
+    { label: '端口带宽', pick: (plan) => formatBandwidth(plan.specs.bandwidthMbps) },
+    { label: '线路', pick: (plan) => plan.network.line },
+    { label: '可选机房', pick: (plan) => `${plan.network.datacenters.length} 个` },
+    { label: '机房迁移', pick: (plan) => (plan.network.migratable ? `支持（${plan.network.migratableCount} 个）` : '不支持') },
+    { label: '状态', pick: (plan) => STATUS_LABELS[plan.status] ?? plan.status },
+  ];
+
+  return defs.map((def) => {
+    const values = items.map((plan) => def.pick(plan));
+    const distinct = new Set(values);
+    return { label: def.label, values, differs: distinct.size > 1 };
+  });
+}
+
+const rows = buildRows(plans);
+const recommendedPlan = recommended ? plans.find((plan) => plan.slug === recommended) : undefined;
+
+/** Four fields worth showing on a phone, in the order that decides the buy. */
+function keyFacts(plan: Plan): Array<[string, string]> {
+  const monthly = planMonthlyFrom(plan);
+  return [
+    ['内存', formatMemory(plan.specs.memoryMB)],
+    ['硬盘', formatDisk(plan.specs.diskGB)],
+    ['月流量', formatTraffic(plan.specs.trafficTB)],
+    ['最低月价', Number.isFinite(monthly) ? formatPrice(monthly, plan.pricing.currency) : '—'],
+  ];
+}
+---
+
+{
+  plans.length > 0 && (
+    <section class="space-y-3">
+      {/* Wide screens: the real table. */}
+      <div class="hidden md:block">
+        <div class="table-scroll rounded-lg border border-line">
+          <table>
+            <caption class="sr-only">{caption}</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="sticky left-0 z-10 bg-surface-2">项目</th>
+                {plans.map((plan) => (
+                  <th scope="col" class:list={['min-w-[9rem]', plan.slug === recommended && 'text-brand']}>
+                    <a href={`/plans/${plan.slug}`} class="font-medium hover:underline">
+                      {plan.name}
+                    </a>
+                    <span class="mt-0.5 block text-[0.6875rem] font-normal text-fg-subtle">
+                      {SERIES_LABELS[plan.series] ?? plan.series}
+                    </span>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row) => (
+                <tr class:list={[!row.differs && 'text-fg-subtle']}>
+                  <th
+                    scope="row"
+                    class:list={[
+                      'sticky left-0 z-10 bg-surface font-normal',
+                      row.differs ? 'text-fg-muted' : 'text-fg-subtle',
+                    ]}
+                  >
+                    {row.label}
+                  </th>
+                  {row.values.map((value) => (
+                    <td class:list={[row.differs ? 'font-medium text-fg' : 'text-fg-subtle']}>
+                      {value}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+              <tr>
+                <th scope="row" class="sticky left-0 z-10 bg-surface font-normal text-fg-muted">
+                  购买
+                </th>
+                {plans.map((plan) => (
+                  <td>
+                    <CtaButton plan={plan} size="sm" label="查看价格" place={`${place}-desktop`} />
+                  </td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Narrow screens: one card per plan, four fields each. */}
+      <div class="grid gap-3 md:hidden">
+        {plans.map((plan) => (
+          <article
+            class:list={[
+              'card p-4',
+              plan.slug === recommended && 'border-brand/40 ring-1 ring-brand/20',
+            ]}
+          >
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0">
+                <p class="section-label">{SERIES_LABELS[plan.series] ?? plan.series}</p>
+                <h3 class="mt-1 text-[0.9375rem] font-medium">
+                  <a href={`/plans/${plan.slug}`}>{plan.name}</a>
+                </h3>
+              </div>
+              {plan.slug === recommended && <span class="chip chip-brand shrink-0">推荐</span>}
+            </div>
+
+            <dl class="mt-3 grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
+              {keyFacts(plan).map(([label, value]) => (
+                <div class="flex items-baseline justify-between gap-2 border-b border-line pb-1">
+                  <dt class="text-fg-subtle">{label}</dt>
+                  <dd class="font-medium">{value}</dd>
+                </div>
+              ))}
+            </dl>
+
+            <p class="mt-3 text-xs text-fg-muted">
+              线路：{plan.network.line} · 机房：{plan.network.datacenters.length} 个
+              {plan.network.migratable ? ' · 支持迁移' : ''}
+            </p>
+
+            <div class="mt-3">
+              <CtaButton plan={plan} size="sm" block label="查看价格" place={`${place}-mobile`} />
+            </div>
+          </article>
+        ))}
+      </div>
+
+      {
+        recommendedPlan && (
+          <p class="text-xs text-fg-subtle">
+            标记「推荐」的是本页针对当前场景给出的首选。其余套餐仍在表格中列出，便于你自行比较。
+          </p>
+        )
+      }
+    </section>
+  )
+}

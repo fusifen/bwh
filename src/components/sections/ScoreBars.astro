@@ -1,0 +1,59 @@
+---
+/**
+ * Editor scores, shown as bars.
+ *
+ * These are **never** emitted as `AggregateRating` or `Review` structured data.
+ * Google's policy forbids self-serving review snippets for your own commercial
+ * partners, and a fabricated star rating on a site whose entire pitch is honest
+ * measurement would be the most damaging possible inconsistency. The numbers
+ * exist to let a reader compare two plans side by side, and they are labelled
+ * as editorial judgement so nobody mistakes them for user reviews.
+ */
+import type { PlanScores } from '../../lib/schemas';
+
+interface Props {
+  scores: PlanScores;
+}
+
+const { scores } = Astro.props;
+
+const rows: Array<{ label: string; value: number; hint: string }> = [
+  { label: '性能', value: scores.performance, hint: 'CPU 与磁盘的实际表现' },
+  { label: '性价比', value: scores.value, hint: '同等用途下的价格合理性' },
+  { label: '稳定性', value: scores.stability, hint: '长期运行与晚高峰表现' },
+  { label: '国内延迟', value: scores.latencyCN, hint: '国内三网访问的延迟水平' },
+];
+---
+
+<section aria-labelledby="scores-heading" class="rounded-lg border border-line bg-surface p-4">
+  <h2 id="scores-heading" class="text-sm font-medium">编辑评分</h2>
+  <p class="mt-1 text-xs text-fg-subtle">
+    本站编辑按站内横向比较给出，不是用户评价，也不作为评分类结构化数据提交给搜索引擎。
+  </p>
+
+  <dl class="mt-4 space-y-3">
+    {
+      rows.map((row) => (
+        <div class="grid grid-cols-[5rem_1fr_2.5rem] items-center gap-3">
+          <dt class="text-sm text-fg-muted" title={row.hint}>
+            {row.label}
+          </dt>
+          <dd class="flex gap-1" aria-hidden="true">
+            {[1, 2, 3, 4, 5].map((step) => (
+              <span
+                class:list={[
+                  'h-1.5 flex-1 rounded-full',
+                  step <= row.value ? 'bg-brand' : 'bg-bg-muted',
+                ]}
+              />
+            ))}
+          </dd>
+          <dd class="text-right text-sm font-medium tabular">{row.value}/5</dd>
+          <dd class="sr-only">
+            {row.label}：{row.value} 分（满分 5 分）
+          </dd>
+        </div>
+      ))
+    }
+  </dl>
+</section>

@@ -1,0 +1,77 @@
+{
+  "slug": "ecommerce-1gb",
+  "name": "E-Commerce 套餐（1GB）",
+  "series": "ecommerce",
+  "tier": "pro",
+  "status": "available",
+  "tagline": "面向电商与生产业务的系列，RAID-10 磁盘 + CN2 GIA 线路",
+  "summary": "与 CN2 GIA-E 同为 CN2 GIA 线路，主要差别在磁盘：E-Commerce 使用 RAID-10 阵列，单盘故障不丢数据、服务不中断。价格高于 GIA-E 入门档。适合承载不能中断、数据不能丢的生产业务；如果只是个人项目，RAID 的溢价买不到收益。",
+  "bestFor": [
+    "承载电商、订单类不能中断的业务",
+    "数据不能丢、且无法接受磁盘故障",
+    "需要 CN2 GIA 线路的生产环境"
+  ],
+  "notFor": [
+    "个人项目、数据可随时重建",
+    "预算优先",
+    "需要大容量存储（RAID-10 可用容量约为标称值一半）"
+  ],
+  "specs": {
+    "cpu": "Intel Xeon",
+    "cores": 2,
+    "memoryMB": 1024,
+    "diskGB": 20,
+    "diskType": "RAID-10 SSD",
+    "trafficTB": 1,
+    "bandwidthMbps": 2500,
+    "ipv4": 1,
+    "ipv6": true,
+    "virtualization": "KVM",
+    "raid": "RAID-10"
+  },
+  "network": {
+    "line": "cn2-gia",
+    "datacenters": ["dc9"],
+    "migratable": false,
+    "migratableCount": 0
+  },
+  "pricing": {
+    "currency": "USD",
+    "cycles": [
+      { "cycle": "quarterly", "price": 49.99, "note": "折算约 $16.66/月" },
+      { "cycle": "annual", "price": 169.99, "note": "折算约 $14.17/月" }
+    ],
+    "paymentMethods": ["alipay", "paypal", "creditcard", "unionpay"],
+    "priceCheckedAt": "2026-09-13",
+    "refundDays": 30
+  },
+  "affiliate": {
+    "pid": "0",
+    "verified": false,
+    "note": "pid 需从搬瓦工后台 Affiliates 页面复制"
+  },
+  "scores": { "performance": 3, "value": 4, "stability": 5, "latencyCN": 4 },
+  "pros": [
+    "RAID-10 阵列，单盘故障不丢数据不中断服务",
+    "CN2 GIA 线路，晚高峰稳定",
+    "面向生产环境的定位，适合承载真实业务"
+  ],
+  "cons": [
+    "价格高于同配置的 CN2 GIA-E",
+    "可用容量约为标称值的一半",
+    "默认落在 DC9，机房选择不如 GIA-E 灵活"
+  ],
+  "content": "## 和 CN2 GIA-E 到底差在哪\n\n线路相同（都是 CN2 GIA），配置接近，价格略高。唯一实质差别是磁盘：E-Commerce 用 RAID-10，GIA-E 用单盘 SSD。\n\nRAID-10 的作用是**单块硬盘损坏时数据不丢、服务不中断**。代价是可用容量大约只有标称值的一半——两块盘做镜像，两块盘做条带，这是阵列本身的开销，不是商家缩水。\n\n## 值不值得\n\n问自己一个问题：如果这台机器明天早上磁盘坏了，会发生什么？\n\n- **数据没了要重新做，服务中断几小时也没关系** → 不需要 RAID，选 CN2 GIA-E 更划算。\n- **订单丢了、客户投诉、或者数据无法重建** → RAID-10 的溢价是保险费，值得付。\n\n## 关于快照\n\n搬瓦工提供快照功能，可以定期打快照。但快照是时间点副本，**无法覆盖两次快照之间的数据变化**，也不能避免磁盘故障导致的服务中断。它可以作为补充，不能替代 RAID。",
+  "useCases": ["cross-border", "website"],
+  "relatedPlans": ["cn2-gia-e-1gb", "cn2-gia-e-2gb"],
+  "relatedTutorials": ["kiwivm-panel"],
+  "faqs": [],
+  "seo": {
+    "title": "搬瓦工 E-Commerce 套餐（1GB）：RAID-10 磁盘值不值得付",
+    "description": "搬瓦工 E-Commerce 1GB 套餐完整参数与价格。RAID-10 与单盘 SSD 的实质差别、可用容量的计算方式，以及用一个问题判断你是否需要 RAID。",
+    "keywords": ["搬瓦工 E-Commerce", "搬瓦工 电商套餐", "搬瓦工 RAID-10"]
+  },
+  "order": 6,
+  "updatedAt": "2026-09-13",
+  "publishedAt": "2026-09-13"
+}

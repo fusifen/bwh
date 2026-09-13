@@ -1,0 +1,37 @@
+---
+/**
+ * Callout — a toned note inside body copy.
+ *
+ * Used for the things a reader must not miss: the order of operations that
+ * locks you out of your own server, the fact that a promo does not apply to
+ * renewals, the reason a plan is being discouraged. Tone is semantic, not
+ * decorative.
+ */
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  tone?: 'info' | 'warn' | 'danger' | 'success';
+  title?: string;
+}
+
+const { tone = 'info', title } = Astro.props;
+
+const CONFIG = {
+  info: { icon: 'info', cls: 'border-brand/25 bg-brand-soft/50 text-fg', icon_cls: 'text-brand' },
+  warn: { icon: 'alert', cls: 'border-signal/30 bg-signal-soft text-fg', icon_cls: 'text-signal' },
+  danger: { icon: 'alert', cls: 'border-danger/30 bg-danger-soft text-fg', icon_cls: 'text-danger' },
+  success: { icon: 'check', cls: 'border-success/30 bg-success-soft text-fg', icon_cls: 'text-success' },
+}[tone];
+---
+
+<div class:list={['rounded-lg border px-4 py-3 text-sm', CONFIG.cls]} role={tone === 'danger' ? 'alert' : undefined}>
+  <div class="flex gap-2.5">
+    <Icon name={CONFIG.icon} size={16} class:list={['mt-0.5 shrink-0', CONFIG.icon_cls]} />
+    <div class="min-w-0 flex-1">
+      {title && <p class="font-medium">{title}</p>}
+      <div class:list={['prose-cx text-sm [&>*+*]:mt-2', title && 'mt-1']}>
+        <slot />
+      </div>
+    </div>
+  </div>
+</div>

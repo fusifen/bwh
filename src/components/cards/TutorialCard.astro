@@ -1,0 +1,46 @@
+---
+/**
+ * Tutorial card.
+ *
+ * Carries the two facts that decide whether a tutorial gets opened: how long it
+ * takes and how hard it is. A tutorial list that shows only titles forces the
+ * reader to open every one to find the five-minute fix.
+ */
+import type { Tutorial } from '../../lib/schemas';
+import { DIFFICULTY_LABELS, formatDuration, TUTORIAL_CATEGORY_LABELS } from '../../lib/format';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  tutorial: Tutorial;
+  /** Show the summary paragraph. Off in dense sidebars. */
+  showSummary?: boolean;
+}
+
+const { tutorial, showSummary = true } = Astro.props;
+---
+
+<a href={`/learn/${tutorial.slug}`} class="card card-hover flex flex-col gap-2 p-4">
+  <div class="flex items-start justify-between gap-2">
+    <p class="section-label">{TUTORIAL_CATEGORY_LABELS[tutorial.category] ?? tutorial.category}</p>
+    <span class="chip chip-mono shrink-0">{DIFFICULTY_LABELS[tutorial.difficulty] ?? tutorial.difficulty}</span>
+  </div>
+
+  <h3 class="text-[0.9375rem] font-medium leading-snug">{tutorial.title}</h3>
+
+  {showSummary && <p class="line-clamp-3 text-sm leading-relaxed text-fg-muted">{tutorial.summary}</p>}
+
+  <p class="mt-auto flex items-center gap-3 pt-1 text-xs text-fg-subtle">
+    <span class="inline-flex items-center gap-1">
+      <Icon name="clock" size={12} />
+      {formatDuration(tutorial.timeMinutes)}
+    </span>
+    {
+      tutorial.steps.length > 0 && (
+        <span class="inline-flex items-center gap-1">
+          <Icon name="layers" size={12} />
+          {tutorial.steps.length} 个步骤
+        </span>
+      )
+    }
+  </p>
+</a>

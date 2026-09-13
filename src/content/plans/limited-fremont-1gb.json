@@ -1,0 +1,67 @@
+{
+  "slug": "limited-fremont-1gb",
+  "name": "弗里蒙特限量版（1GB）",
+  "series": "limited",
+  "tier": "entry",
+  "status": "limited",
+  "tagline": "全站最低价的一档，国际 BGP 普通线路，售完不补",
+  "summary": "搬瓦工价格最低的套餐，年付不到 20 美元。走国际 BGP 普通线路，国内访问晚高峰表现不稳定，且不支持迁移机房——买定离手。适合想用最低成本摸一遍 VPS 的人，或者目标本来就在欧美的用途。限量套餐售完不补，缺货是常态。",
+  "bestFor": ["想用最低成本试一遍 VPS", "学习 Linux 基本操作", "目标用户在欧美、不在意国内速度"],
+  "notFor": [
+    "需要迁移机房的灵活性",
+    "对国内访问速度有要求",
+    "长期承载对外服务",
+    "无法接受缺货导致买不到"
+  ],
+  "specs": {
+    "cpu": "Intel Xeon",
+    "cores": 1,
+    "memoryMB": 1024,
+    "diskGB": 20,
+    "diskType": "SSD",
+    "trafficTB": 1,
+    "bandwidthMbps": 2500,
+    "ipv4": 1,
+    "ipv6": true,
+    "virtualization": "KVM"
+  },
+  "network": {
+    "line": "bgp",
+    "datacenters": ["fremont"],
+    "migratable": false,
+    "migratableCount": 0
+  },
+  "pricing": {
+    "currency": "USD",
+    "cycles": [{ "cycle": "annual", "price": 19.0, "note": "折算约 $1.58/月" }],
+    "paymentMethods": ["alipay", "paypal", "creditcard", "unionpay"],
+    "priceCheckedAt": "2026-09-13",
+    "refundDays": 30
+  },
+  "affiliate": {
+    "pid": "0",
+    "verified": false,
+    "note": "pid 需从搬瓦工后台 Affiliates 页面复制"
+  },
+  "scores": { "performance": 2, "value": 5, "stability": 2, "latencyCN": 1 },
+  "pros": ["价格是全站最低的一档", "KVM 虚拟化，可自行安装任意系统", "2.5Gbps 端口，突发带宽充足"],
+  "cons": [
+    "不支持迁移机房，买错了只能退款重买",
+    "国际 BGP 线路，国内晚高峰表现不稳定",
+    "1 核共享 CPU，性能上限低",
+    "限量套餐售完不补，缺货是常态而非异常"
+  ],
+  "content": "## 买之前必须知道的两件事\n\n**第一，这个机房不支持迁移。** 搬瓦工大部分机房可以免费一键切换，弗里蒙特不在可迁移列表里。也就是说，如果你买完之后发现线路在你的宽带下表现不好，唯一的处理方式是走 30 天退款流程重新购买。\n\n**第二，限量套餐售完不补。** 缺货是常态，不是异常。看到有货的时候别犹豫太久，但也别因为「再不买就没了」而冲动——这个价格买错也不会损失太多，但换机房的麻烦是真的。\n\n## 适合做什么\n\n- 第一次接触 VPS，想用最低成本把开机器、连 SSH、装系统、部署服务的流程走一遍\n- 学习 Linux 命令行\n- 跑几个轻量定时脚本\n- 目标用户在欧美的轻量用途\n\n## 不适合做什么\n\n- 面向国内用户的任何服务\n- 需要长期稳定运行的生产用途\n- 对性能有要求的场景（1 核共享，持续高负载会被限制）\n\n## 一个务实的建议\n\n如果你的预算能到 50 美元，基础 VPS 套餐只贵 30 美元，但换来了「可迁移机房」这个能力。对一个还不确定该选哪个机房的人来说，这个能力的价值通常超过 30 美元。",
+  "useCases": ["beginner"],
+  "relatedPlans": ["basic-vps-1gb", "cn2-gt-1gb"],
+  "relatedTutorials": ["kiwivm-panel", "reinstall-os", "ssh-connect"],
+  "faqs": [],
+  "seo": {
+    "title": "搬瓦工弗里蒙特限量版套餐：价格、限制与适合人群",
+    "description": "搬瓦工弗里蒙特限量版 1GB 套餐完整参数与价格。为什么不支持迁移机房、限量套餐的库存规律，以及它适合与不适合的用途。",
+    "keywords": ["搬瓦工 限量版", "搬瓦工 特价套餐", "搬瓦工 $19", "搬瓦工 弗里蒙特"]
+  },
+  "order": 10,
+  "updatedAt": "2026-09-13",
+  "publishedAt": "2026-09-13"
+}

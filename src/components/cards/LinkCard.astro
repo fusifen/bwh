@@ -1,0 +1,62 @@
+---
+/**
+ * Generic card for everything that is not a plan or a tutorial.
+ *
+ * Datacenters, lines, guides, comparisons, deals, glossary terms and posts all
+ * render through this one component. The fields differ but the shape does not:
+ * an eyebrow, a title, one sentence of summary, and a row of small facts. Using
+ * one card keeps list pages visually consistent and means a change to hover
+ * behaviour or link markup happens once.
+ */
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  href: string;
+  title: string;
+  summary?: string;
+  /** Small label above the title — a category, a code, a status. */
+  eyebrow?: string;
+  /** Short facts rendered as chips. */
+  meta?: string[];
+  /** Rendered in a mono chip — datacenter codes, coupon codes, abbreviations. */
+  mono?: string;
+  accent?: 'none' | 'brand' | 'signal' | 'success' | 'danger';
+}
+
+const { href, title, summary, eyebrow, meta = [], mono, accent = 'none' } = Astro.props;
+
+const accentClass = {
+  none: '',
+  brand: 'text-brand',
+  signal: 'text-signal',
+  success: 'text-success',
+  danger: 'text-danger',
+}[accent];
+---
+
+<a href={href} class="card card-hover flex flex-col gap-2 p-4">
+  <div class="flex items-start justify-between gap-2">
+    <div class="min-w-0">
+      {eyebrow && <p class:list={['section-label', accentClass]}>{eyebrow}</p>}
+      <h3 class:list={['text-[0.9375rem] font-medium leading-snug', eyebrow && 'mt-1']}>{title}</h3>
+    </div>
+    {mono && <span class="chip chip-mono shrink-0">{mono}</span>}
+  </div>
+
+  {summary && <p class="line-clamp-3 text-sm leading-relaxed text-fg-muted">{summary}</p>}
+
+  {
+    meta.length > 0 && (
+      <ul class="mt-auto flex flex-wrap gap-1.5 pt-1">
+        {meta.map((item) => (
+          <li class="chip">{item}</li>
+        ))}
+      </ul>
+    )
+  }
+
+  <span class="mt-1 inline-flex items-center gap-1 text-xs font-medium text-brand">
+    查看详情
+    <Icon name="arrow" size={12} />
+  </span>
+</a>

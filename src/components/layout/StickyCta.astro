@@ -1,0 +1,46 @@
+---
+/**
+ * Mobile sticky purchase bar.
+ *
+ * Appears once the reader has scrolled past the first screen, so it never
+ * covers the headline or the verdict block — the two things they need to read
+ * before a CTA is useful. Hidden on wide screens, where the in-page CTA is
+ * already visible.
+ *
+ * Visibility is toggled by the inline script in BaseLayout; without JavaScript
+ * it stays hidden, which is the safe failure mode (no permanently-parked bar).
+ */
+import type { Plan } from '../../lib/schemas';
+import { formatPrice } from '../../lib/format';
+import { planMonthlyFrom } from '../../lib/cms';
+import CtaButton from '../ui/CtaButton.astro';
+
+interface Props {
+  plan: Plan;
+}
+
+const { plan } = Astro.props;
+const monthly = planMonthlyFrom(plan);
+---
+
+<div
+  data-sticky-cta
+  hidden
+  class="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-bg/95 px-4 py-2.5 backdrop-blur lg:hidden"
+>
+  <div class="flex items-center justify-between gap-3">
+    <div class="min-w-0">
+      <p class="truncate text-xs font-medium">{plan.name}</p>
+      {
+        Number.isFinite(monthly) ? (
+          <p class="text-xs text-fg-subtle">
+            最低折算 {formatPrice(monthly, plan.pricing.currency)}/月 · 含联盟链接
+          </p>
+        ) : (
+          <p class="text-xs text-fg-subtle">含联盟链接，价格不变</p>
+        )
+      }
+    </div>
+    <CtaButton plan={plan} size="sm" label="查看价格" place="sticky" />
+  </div>
+</div>

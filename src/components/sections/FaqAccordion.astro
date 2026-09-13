@@ -1,0 +1,54 @@
+---
+/**
+ * FAQ accordion.
+ *
+ * Built on `<details>`/`<summary>` so it works with zero JavaScript and is
+ * keyboard-accessible for free. Answers are rendered through the same Markdown
+ * renderer as body copy, which means a FAQ that links to a tutorial renders as
+ * a link — and the same answer string can be reused verbatim in `FAQPage`
+ * structured data without drifting.
+ *
+ * `id` is passed through so `/faq/#slug` deep links land on the right question.
+ */
+import { renderMarkdown } from '../../lib/markdown';
+
+interface Item {
+  slug?: string;
+  question: string;
+  answer: string;
+}
+
+interface Props {
+  items: Item[];
+  /** Renders `<h2>` instead of `<h3>` when the accordion is top-level. */
+  headingLevel?: 'h2' | 'h3';
+  /** Open the first item — useful on a hub page, noisy on an entity page. */
+  openFirst?: boolean;
+}
+
+const { items, headingLevel = 'h3', openFirst = false } = Astro.props;
+const Heading = headingLevel;
+---
+
+{
+  items.length > 0 && (
+    <div class="divide-y divide-line overflow-hidden rounded-lg border border-line bg-surface">
+      {items.map((item, index) => {
+        const rendered = renderMarkdown(item.answer);
+        return (
+          <details id={item.slug} open={openFirst && index === 0} class="group scroll-mt-24">
+            <summary class="flex cursor-pointer list-none items-start gap-3 px-4 py-3 text-sm font-medium transition-colors hover:bg-surface-2 [&::-webkit-details-marker]:hidden">
+              <span class="mt-0.5 shrink-0 text-fg-subtle transition-transform group-open:rotate-90">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="m9 6 6 6-6 6" />
+                </svg>
+              </span>
+              <Heading class="text-sm font-medium">{item.question}</Heading>
+            </summary>
+            <div class="prose-cx px-4 pb-4 pl-11 text-sm" set:html={rendered.html} />
+          </details>
+        );
+      })}
+    </div>
+  )
+}

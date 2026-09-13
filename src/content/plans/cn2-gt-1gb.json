@@ -1,0 +1,61 @@
+{
+  "slug": "cn2-gt-1gb",
+  "name": "CN2 GT 套餐（1GB）",
+  "series": "cn2-gt",
+  "tier": "entry",
+  "status": "available",
+  "tagline": "CN2 GT 线路的入门档，闲时接近 GIA，晚高峰稍逊",
+  "summary": "价格与基础套餐接近，但线路换成了 CN2 GT。闲时表现与 CN2 GIA 接近，晚高峰因为优先级低于 GIA，延迟抖动会更明显。如果你白天用得多、晚上很少访问，这是性价比不错的一档；如果晚高峰是主要使用时段，加钱上 GIA 更值。",
+  "bestFor": [
+    "使用时段集中在白天",
+    "预算比 CN2 GIA 紧，但想要比普通线路更好的闲时体验",
+    "轻度建站或开发环境"
+  ],
+  "notFor": ["晚高峰是主要使用时段", "需要晚高峰稳定的对外服务"],
+  "specs": {
+    "cpu": "Intel Xeon",
+    "cores": 2,
+    "memoryMB": 1024,
+    "diskGB": 20,
+    "diskType": "SSD",
+    "trafficTB": 1,
+    "bandwidthMbps": 1000,
+    "ipv4": 1,
+    "ipv6": true,
+    "virtualization": "KVM"
+  },
+  "network": {
+    "line": "cn2-gt",
+    "datacenters": ["dc2"],
+    "migratable": true,
+    "migratableCount": 8
+  },
+  "pricing": {
+    "currency": "USD",
+    "cycles": [{ "cycle": "annual", "price": 49.99, "note": "折算约 $4.17/月" }],
+    "paymentMethods": ["alipay", "paypal", "creditcard", "unionpay"],
+    "priceCheckedAt": "2026-09-13",
+    "refundDays": 30
+  },
+  "affiliate": {
+    "pid": "0",
+    "verified": false,
+    "note": "pid 需从搬瓦工后台 Affiliates 页面复制"
+  },
+  "scores": { "performance": 3, "value": 4, "stability": 3, "latencyCN": 3 },
+  "pros": ["价格与基础套餐接近，但线路等级更高", "闲时体验接近 CN2 GIA", "支持迁移机房"],
+  "cons": ["晚高峰优先级低于 GIA，抖动更明显", "同价位与 CN2 GIA 的价差不大时需要仔细算账"],
+  "content": "## 它处在什么位置\n\nCN2 GT 是「中间档」：比基础套餐的普通线路好，比 CN2 GIA 便宜。\n\n这个位置是否划算，完全取决于一个变量——**你的使用时段**。GT 与 GIA 的差距只在网络拥塞时体现，也就是国内晚高峰（大约 20:00 到 23:00）。如果你的服务在这个时段基本没有访问，GT 的实际体验与 GIA 差别很小。\n\n## 决策方法\n\n问自己：晚上九点之后，有人会访问这台服务器吗？\n\n- **会** → 加钱上 CN2 GIA。省下的这笔钱会在每个晚高峰被反复消耗。\n- **不会** → GT 够用，把差价省下来。\n\n## 和基础套餐怎么比\n\n两者价格接近，配置也接近，差别主要在线路。如果国内访问对你有一点点意义，GT 都优于基础套餐的普通线路。",
+  "useCases": ["beginner", "website"],
+  "relatedPlans": ["basic-vps-1gb", "cn2-gia-e-1gb", "cn2-gia-e-2gb"],
+  "relatedTutorials": ["kiwivm-panel", "migrate-datacenter"],
+  "faqs": [],
+  "seo": {
+    "title": "搬瓦工 CN2 GT 套餐（1GB）：价格、线路表现与选购建议",
+    "description": "搬瓦工 CN2 GT 入门套餐的完整参数与价格。GT 与 CN2 GIA 的实际差距在哪个时段体现，以及如何用一个问题判断该选 GT 还是 GIA。",
+    "keywords": ["搬瓦工 CN2 GT", "搬瓦工 CN2 GT 套餐", "CN2 GT 价格"]
+  },
+  "order": 3,
+  "updatedAt": "2026-09-13",
+  "publishedAt": "2026-09-13"
+}

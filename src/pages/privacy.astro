@@ -1,0 +1,94 @@
+---
+/**
+ * Privacy policy.
+ *
+ * Written to match what the site actually does rather than copied from a
+ * template. The public pages ship no third-party JavaScript and set no cookies
+ * of their own, which makes this page unusually short — and the one thing it
+ * must do is stay true if analytics is ever switched on. The `analytics` block
+ * in the `site` singleton is read here so the page cannot silently go stale.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/ui/PageHero.astro';
+import Breadcrumbs from '../components/layout/Breadcrumbs.astro';
+import Prose from '../components/ui/Prose.astro';
+import { SITE } from '../lib/cms';
+import { renderMarkdown } from '../lib/markdown';
+import { breadcrumbSchema } from '../lib/seo';
+
+const crumbs = [
+  { label: '首页', href: '/' },
+  { label: '隐私政策', href: '/privacy' },
+];
+
+const hasAnalytics = Boolean(SITE.analytics.gaId || SITE.analytics.baidu);
+
+const body = `
+## 本站收集什么
+
+**本站不要求注册，也没有登录功能。** 你浏览页面时不需要提供任何个人信息。
+
+### 站内存储
+
+本站只在你的浏览器里存一个值：
+
+| 名称 | 用途 | 有效期 |
+| :--- | :--- | :--- |
+| \`cx-theme\` | 记住你选择的浅色/深色模式 | 直到你清除浏览器数据 |
+
+这个值不会发送到服务器，也无法用来识别你。
+
+### 点击记录
+
+页面上的购买链接会先经过本站的 \`/go/\` 路径再跳转到商家。
+这一步会记录**哪个套餐被点击**，用于统计哪些内容有用。
+
+${
+  hasAnalytics
+    ? '### 访问统计\n\n本站使用第三方访问统计服务。它会记录页面访问量、来源和大致地区，用于判断哪些内容值得继续投入。具体收集范围以该服务商的隐私政策为准。'
+    : '### 访问统计\n\n**本站当前没有启用任何第三方访问统计。** 公开页面不加载外部脚本，也不写入统计用的 Cookie。如果将来启用，本页会同步更新，说明使用的是哪家服务及其数据范围。'
+}
+
+## 第三方
+
+本站页面上的购买链接指向搬瓦工（BandwagonHost）官方网站。
+一旦你点击跳转，你对商家网站的使用适用**商家自己的**隐私政策与条款，本站无法控制也无法查看商家收集的数据。
+
+## 本站不做什么
+
+- 不出售、不出租、不交换任何访客数据；
+- 不建立用户画像，不做个性化推荐（套餐选择器的结果在你的浏览器里计算，不上传）；
+- 不在公开页面加载广告脚本或社交平台的追踪组件。
+
+## 联系
+
+如果你对本页有疑问，或者认为本站的处理方式有问题，请通过[联系页面](/contact)告知我们。
+`;
+
+const rendered = renderMarkdown(body);
+
+const schema = [breadcrumbSchema(crumbs, '/privacy')];
+---
+
+<BaseLayout
+  title="隐私政策"
+  description="本站的隐私说明：不要求注册、不在公开页面加载第三方脚本，只在本机存一个主题偏好。说明点击记录与访问统计的范围。"
+  schema={schema}
+>
+  <PageHero
+    eyebrow="合规"
+    title="隐私政策"
+    lede="本站不要求注册、不在公开页面加载第三方脚本，也不建立用户画像。这一页说明具体收集了什么。"
+  >
+    <Breadcrumbs slot="breadcrumbs" crumbs={crumbs} />
+    <Fragment slot="chips">
+      <span class="chip">无需注册</span>
+      <span class="chip">无第三方脚本</span>
+      <span class="chip">{hasAnalytics ? '已启用访问统计' : '未启用访问统计'}</span>
+    </Fragment>
+  </PageHero>
+
+  <div class="container-page py-10">
+    <Prose html={rendered.html} />
+  </div>
+</BaseLayout>

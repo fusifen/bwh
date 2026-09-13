@@ -1,0 +1,153 @@
+---
+/**
+ * Changelog.
+ *
+ * Derived entirely from the `updatedAt` fields already present on every content
+ * item, rather than maintained by hand. A hand-written changelog on a site with
+ * this many entities is a changelog that is wrong within a week, and a wrong
+ * changelog is worse than none — it makes every other date on the site
+ * suspect.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/ui/PageHero.astro';
+import Breadcrumbs from '../components/layout/Breadcrumbs.astro';
+import AffiliateDisclosure from '../components/sections/AffiliateDisclosure.astro';
+import EmptyState from '../components/ui/EmptyState.astro';
+import {
+  getBenchmarks,
+  getCompares,
+  getDatacenters,
+  getDeals,
+  getGlossary,
+  getGuides,
+  getLines,
+  getPlans,
+  getPosts,
+  getTutorials,
+} from '../lib/cms';
+import { formatDate, formatYearMonthCn } from '../lib/format';
+import { breadcrumbSchema } from '../lib/seo';
+
+const crumbs = [
+  { label: '首页', href: '/' },
+  { label: '更新日志', href: '/changelog' },
+];
+
+interface Entry {
+  title: string;
+  href: string;
+  kind: string;
+  date: string;
+}
+
+const entries: Entry[] = [
+  ...getPlans().map((item) => ({ title: item.name, href: `/plans/${item.slug}`, kind: '套餐', date: item.updatedAt })),
+  ...getDatacenters().map((item) => ({ title: item.name, href: `/datacenters/${item.slug}`, kind: '机房', date: item.updatedAt })),
+  ...getLines().map((item) => ({ title: item.name, href: `/lines/${item.slug}`, kind: '线路', date: item.updatedAt })),
+  ...getGuides().map((item) => ({ title: item.title, href: `/guides/${item.slug}`, kind: '指南', date: item.updatedAt })),
+  ...getCompares().map((item) => ({ title: item.title, href: `/compare/${item.slug}`, kind: '对比', date: item.updatedAt })),
+  ...getTutorials().map((item) => ({ title: item.title, href: `/learn/${item.slug}`, kind: '教程', date: item.updatedAt })),
+  ...getBenchmarks().map((item) => ({ title: item.title, href: `/benchmarks/${item.slug}`, kind: '实测', date: item.updatedAt })),
+  ...getGlossary().map((item) => ({ title: item.term, href: `/glossary/${item.slug}`, kind: '术语', date: item.updatedAt })),
+  ...getDeals().map((item) => ({ title: item.title, href: `/deals/${item.slug}`, kind: '优惠', date: item.updatedAt })),
+  ...getPosts().map((item) => ({ title: item.title, href: `/blog/${item.slug}`, kind: '资讯', date: item.updatedAt })),
+];
+
+/** Newest first; ties broken by kind then title so the order is stable. */
+entries.sort((a, b) => {
+  const byDate = b.date.localeCompare(a.date);
+  if (byDate !== 0) return byDate;
+  const byKind = a.kind.localeCompare(b.kind, 'zh-Hans-CN');
+  if (byKind !== 0) return byKind;
+  return a.title.localeCompare(b.title, 'zh-Hans-CN');
+});
+
+/** Group by month — a flat list of 60 dated rows is unreadable. */
+const byMonth = new Map<string, Entry[]>();
+for (const entry of entries) {
+  const key = formatYearMonthCn(entry.date) || '未标注日期';
+  const bucket = byMonth.get(key) ?? [];
+  bucket.push(entry);
+  byMonth.set(key, bucket);
+}
+
+const schema = [breadcrumbSchema(crumbs, '/changelog')];
+---
+
+<BaseLayout
+  title="更新日志"
+  description="本站内容的更新记录，由每个页面的最后更新日期自动汇总。可以查看最近哪些套餐价格、机房数据和教程被复核或修改。"
+  schema={schema}
+>
+  <PageHero
+    eyebrow="站务"
+    title="更新日志"
+    lede={`共 ${entries.length} 个页面记录在案，按最后更新时间倒序排列。这一页不是手写的——它由每个内容条目的更新日期自动汇总，所以不会与实际内容脱节。`}
+  >
+    <Breadcrumbs slot="breadcrumbs" crumbs={crumbs} />
+    <Fragment slot="chips">
+      <span class="chip chip-mono">{entries.length} 个页面</span>
+      <span class="chip">{byMonth.size} 个月份</span>
+      <span class="chip">自动汇总</span>
+    </Fragment>
+  </PageHero>
+
+  <div class="container-page space-y-10 py-10">
+    <AffiliateDisclosure />
+
+    {
+      entries.length > 0 ? (
+        <div class="space-y-8">
+          {[...byMonth.entries()].map(([month, items]) => (
+            <section aria-labelledby={`month-${month}`} class="space-y-3">
+              <div class="flex flex-wrap items-baseline justify-between gap-2 border-b border-line pb-2">
+                <h2 id={`month-${month}`} class="text-base font-medium">
+                  {month}
+                </h2>
+                <p class="text-xs text-fg-subtle">{items.length} 项</p>
+              </div>
+              <ul class="divide-y divide-line overflow-hidden rounded-lg border border-line bg-surface">
+                {items.map((entry) => (
+                  <li class="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2.5 text-sm">
+                    <span class="chip chip-mono shrink-0">{entry.kind}</span>
+                    <a href={entry.href} class="min-w-0 flex-1 truncate hover:text-brand">
+                      {entry.title}
+                    </a>
+                    <time datetime={entry.date} class="shrink-0 text-xs text-fg-subtle tabular">
+                      {formatDate(entry.date)}
+                    </time>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))}
+        </div>
+      ) : (
+        <EmptyState
+          title="还没有可汇总的更新"
+          body="内容条目一旦带上更新日期，就会自动出现在这一页。"
+          actionLabel="回到首页"
+          actionHref="/"
+        />
+      )
+    }
+
+    <section class="rounded-xl border border-line bg-surface-2 p-5">
+      <h2 class="text-base font-medium">更新节奏</h2>
+      <ul class="mt-3 grid gap-2 text-sm text-fg-muted">
+        <li>
+          <strong class="font-medium text-fg">价格与优惠</strong>
+          每 30 天复核一次。超过 30 天未核对的价格会在页面顶部自动提示，超过 60 天构建流程会告警。
+        </li>
+        <li>
+          <strong class="font-medium text-fg">机房延迟数据</strong>
+          每 90 天重测一次，并更新采集日期。
+        </li>
+        <li>
+          <strong class="font-medium text-fg">套餐配置</strong>
+          在官网调整后同步更新，不做预告，改完即生效。
+        </li>
+      </ul>
+    </section>
+  </div>
+</BaseLayout>

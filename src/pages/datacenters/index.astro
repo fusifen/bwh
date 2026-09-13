@@ -1,0 +1,162 @@
+---
+/**
+ * Datacenter index.
+ *
+ * The table leads because the question this page answers is comparative —
+ * "which of these should I pick" — and a grid of cards makes that comparison
+ * manual. Cards follow for the reader who wants the narrative version.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/ui/PageHero.astro';
+import Breadcrumbs from '../../components/layout/Breadcrumbs.astro';
+import LinkCard from '../../components/cards/LinkCard.astro';
+import AffiliateDisclosure from '../../components/sections/AffiliateDisclosure.astro';
+import EmptyState from '../../components/ui/EmptyState.astro';
+import { getDatacenters, getLines, getPlansForDatacenter } from '../../lib/cms';
+import { DATACENTER_REGION_ORDER } from '../../config/site';
+import { breadcrumbSchema, itemListSchema } from '../../lib/seo';
+
+const crumbs = [
+  { label: '首页', href: '/' },
+  { label: '机房', href: '/datacenters' },
+];
+
+const datacenters = getDatacenters();
+const lineNames = new Map(getLines().map((line) => [line.slug, line.abbr]));
+
+/** Region order is editorial, not alphabetical — 美国 first, then 日本, etc. */
+const ordered = [...datacenters].sort((a, b) => {
+  const ai = DATACENTER_REGION_ORDER.indexOf(a.country as (typeof DATACENTER_REGION_ORDER)[number]);
+  const bi = DATACENTER_REGION_ORDER.indexOf(b.country as (typeof DATACENTER_REGION_ORDER)[number]);
+  const aKey = ai === -1 ? 99 : ai;
+  const bKey = bi === -1 ? 99 : bi;
+  if (aKey !== bKey) return aKey - bKey;
+  return a.code.localeCompare(b.code);
+});
+
+const schema = [
+  breadcrumbSchema(crumbs, '/datacenters'),
+  itemListSchema(
+    datacenters.map((dc) => ({ name: dc.name, url: `/datacenters/${dc.slug}` })),
+    '搬瓦工机房',
+  ),
+];
+---
+
+<BaseLayout
+  title="搬瓦工机房总览：线路构成与适用场景"
+  description="搬瓦工各机房的线路构成、三网走向与适用场景对比。标注是否支持免费迁移、可迁移到哪些机房，并提供测试 IP 供自行验证延迟。"
+  keywords={['搬瓦工机房', '搬瓦工 DC6', '搬瓦工 DC9', '搬瓦工机房迁移']}
+  schema={schema}
+>
+  <PageHero
+    eyebrow="机房"
+    title="搬瓦工机房总览"
+    lede={`共收录 ${datacenters.length} 个机房。选机房比选配置重要——同一个套餐换一个机房，访问体验可能差出几倍。每个机房页面都标注了线路构成与测试 IP，你可以自己验证。`}
+  >
+    <Breadcrumbs slot="breadcrumbs" crumbs={crumbs} />
+    <Fragment slot="chips">
+      <span class="chip chip-mono">{datacenters.length} 个机房</span>
+      <span class="chip">提供测试 IP</span>
+      <span class="chip">标注迁移目标</span>
+    </Fragment>
+  </PageHero>
+
+  <div class="container-page space-y-12 py-10">
+    <AffiliateDisclosure />
+
+    {
+      ordered.length > 0 ? (
+        <>
+          <section aria-labelledby="table-heading" class="space-y-3">
+            <h2 id="table-heading" class="text-lg font-medium">
+              机房对照表
+            </h2>
+            <div class="table-scroll rounded-lg border border-line">
+              <table>
+                <caption class="sr-only">搬瓦工各机房的位置、线路与迁移支持情况</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">机房</th>
+                    <th scope="col">位置</th>
+                    <th scope="col">线路</th>
+                    <th scope="col">可用套餐</th>
+                    <th scope="col">可迁移到</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ordered.map((dc) => (
+                    <tr>
+                      <th scope="row" class="font-medium">
+                        <a href={`/datacenters/${dc.slug}`} class="hover:text-brand">
+                          {dc.name}
+                        </a>
+                        <span class="chip chip-mono ml-2">{dc.code}</span>
+                      </th>
+                      <td class="text-fg-muted">
+                        {dc.country} · {dc.city}
+                      </td>
+                      <td class="text-fg-muted">{lineNames.get(dc.line) ?? dc.line}</td>
+                      <td class="tabular">{getPlansForDatacenter(dc.slug).length} 个</td>
+                      <td class="tabular">{dc.migratableTargets.length} 个</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section aria-labelledby="cards-heading" class="space-y-3">
+            <h2 id="cards-heading" class="text-lg font-medium">
+              逐个说明
+            </h2>
+            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {ordered.map((dc) => (
+                <LinkCard
+                  href={`/datacenters/${dc.slug}`}
+                  title={dc.name}
+                  summary={dc.summary}
+                  eyebrow={`${dc.country} · ${dc.city}`}
+                  mono={dc.code}
+                  meta={[
+                    lineNames.get(dc.line) ?? dc.line,
+                    `${getPlansForDatacenter(dc.slug).length} 个套餐可选`,
+                  ]}
+                />
+              ))}
+            </div>
+          </section>
+        </>
+      ) : (
+        <EmptyState
+          title="还没有机房内容"
+          body="在后台的「机房」集合里添加第一个机房，页面会自动生成。"
+          actionLabel="了解内容结构"
+          actionHref="/about"
+        />
+      )
+    }
+
+    <section class="rounded-xl border border-line bg-surface-2 p-5">
+      <h2 class="text-base font-medium">选机房的三个判断点</h2>
+      <ol class="mt-3 grid gap-2 text-sm text-fg-muted">
+        <li>
+          <strong class="font-medium text-fg">1. 访问来源在哪。</strong>
+          目标用户在国内，就优先看回程线路；目标在欧美，选西海岸机房即可，线路溢价买不到收益。
+        </li>
+        <li>
+          <strong class="font-medium text-fg">2. 哪个运营商为主。</strong>
+          电信、联通、移动的优化线路并不相同，先确认自己或用户主要用哪一家。
+        </li>
+        <li>
+          <strong class="font-medium text-fg">3. 要不要保留换机房的余地。</strong>
+          不确定时优先选支持免费迁移的套餐，等于买了一份选择权。
+        </li>
+      </ol>
+      <div class="mt-4 flex flex-wrap gap-2.5">
+        <a href="/lines" class="btn btn-secondary btn-sm">先看线路的区别</a>
+        <a href="/plans" class="btn btn-secondary btn-sm">看套餐与线路的搭配</a>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

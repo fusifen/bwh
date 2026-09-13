@@ -1,0 +1,62 @@
+{
+  "slug": "cn2-gia-e-vs-ecommerce",
+  "title": "CN2 GIA-E 与 E-Commerce 怎么选",
+  "summary": "两者线路相同（都是 CN2 GIA），配置接近，价格相近。唯一实质差别是磁盘：E-Commerce 用 RAID-10 阵列，GIA-E 用单盘 SSD。判断标准是「磁盘坏了会怎样」。",
+  "verdict": "数据可以重建、服务中断几小时能接受 → 选 CN2 GIA-E，还能多拿十几个机房的迁移灵活性。数据不能丢、或者中断会造成实际损失 → 选 E-Commerce，RAID-10 的溢价是保险费。",
+  "left": { "type": "plan", "slug": "cn2-gia-e-1gb", "label": "CN2 GIA-E（1GB）" },
+  "right": { "type": "plan", "slug": "ecommerce-1gb", "label": "E-Commerce（1GB）" },
+  "dimensions": [
+    {
+      "label": "线路",
+      "left": "CN2 GIA",
+      "right": "CN2 GIA",
+      "winner": "tie",
+      "note": "完全相同的线路等级，日常体验无差别"
+    },
+    {
+      "label": "磁盘",
+      "left": "单盘 SSD",
+      "right": "RAID-10 阵列",
+      "winner": "right",
+      "note": "RAID-10 的价值是单盘故障时不丢数据、不中断服务"
+    },
+    {
+      "label": "可用容量",
+      "left": "20 GB 全部可用",
+      "right": "20 GB 标称，实际可用约一半",
+      "winner": "left",
+      "note": "这是 RAID-10 的固有开销，不是商家缩水"
+    },
+    {
+      "label": "机房迁移",
+      "left": "支持，十几个机房免费一键切换",
+      "right": "不支持",
+      "winner": "left",
+      "note": "对还没确定机房的用户，这项价值很高"
+    },
+    {
+      "label": "内存与 CPU",
+      "left": "1GB / 2 核",
+      "right": "1GB / 2 核",
+      "winner": "tie"
+    },
+    {
+      "label": "价格",
+      "left": "季付 49.99 美元起",
+      "right": "季付 49.99 美元起",
+      "winner": "tie",
+      "note": "入门档价格接近，差别主要体现在磁盘冗余上"
+    }
+  ],
+  "whenChooseLeft": "个人项目、测试环境、数据可以从零重建的用途。或者你还在犹豫该选哪个机房——GIA-E 的迁移能力可以让你随时换，E-Commerce 不行。",
+  "whenChooseRight": "有订单数据、用户数据或任何无法重建的内容。判断方法很简单：如果这台机器明天早上磁盘坏了，你需要多久恢复？超过你能接受的中断时长，就该选 RAID。",
+  "relatedPlans": ["cn2-gia-e-1gb", "cn2-gia-e-2gb", "ecommerce-1gb"],
+  "faqs": [],
+  "seo": {
+    "title": "CN2 GIA-E 和 E-Commerce 怎么选？只差在磁盘",
+    "description": "搬瓦工 CN2 GIA-E 与 E-Commerce 套餐的六个维度对比。RAID-10 与单盘 SSD 的实质差别、可用容量的计算方式，以及用一个问题判断该选哪个。",
+    "keywords": ["搬瓦工 GIA-E E-Commerce 区别", "搬瓦工 RAID-10", "搬瓦工 套餐对比"]
+  },
+  "order": 2,
+  "updatedAt": "2026-09-13"
+}

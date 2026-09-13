@@ -1,0 +1,210 @@
+---
+/**
+ * Deal detail.
+ *
+ * The status is recomputed from the dates at build time, not trusted from the
+ * stored field — an expired promotion that still claims to be live is the kind
+ * of error that costs a reader money and the site its credibility. `getDealStatus`
+ * does that reconciliation; this page just renders the result honestly.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/ui/PageHero.astro';
+import Breadcrumbs from '../../components/layout/Breadcrumbs.astro';
+import Prose from '../../components/ui/Prose.astro';
+import PlanCard from '../../components/cards/PlanCard.astro';
+import LinkCard from '../../components/cards/LinkCard.astro';
+import FaqAccordion from '../../components/sections/FaqAccordion.astro';
+import AffiliateDisclosure from '../../components/sections/AffiliateDisclosure.astro';
+import CtaBand from '../../components/sections/CtaBand.astro';
+import CopyButton from '../../components/ui/CopyButton.astro';
+import Callout from '../../components/ui/Callout.astro';
+import Icon from '../../components/ui/Icon.astro';
+import { getActiveDeals, getDealStatus, getDeals, plansBySlugs } from '../../lib/cms';
+import { renderMarkdown } from '../../lib/markdown';
+import { DEAL_KIND_LABELS, DEAL_STATUS_LABELS, formatDate } from '../../lib/format';
+import { breadcrumbSchema, dealSchema } from '../../lib/seo';
+
+export function getStaticPaths() {
+  return getDeals().map((deal) => ({ params: { slug: deal.slug }, props: { deal } }));
+}
+
+const { deal } = Astro.props;
+
+const path = `/deals/${deal.slug}`;
+const crumbs = [
+  { label: '首页', href: '/' },
+  { label: '优惠', href: '/deals' },
+  { label: deal.title, href: path },
+];
+
+// Recomputed from dates so an expired promotion cannot keep advertising itself.
+const status = getDealStatus(deal);
+const isLive = status === 'active';
+
+const body = renderMarkdown(deal.content);
+const plans = plansBySlugs(deal.appliesToPlans);
+const alternatives = isLive ? [] : getActiveDeals().slice(0, 3);
+
+const schema = [breadcrumbSchema(crumbs, path), dealSchema(deal, path)];
+
+const facts: Array<[string, string]> = [
+  ['类型', DEAL_KIND_LABELS[deal.kind] ?? deal.kind],
+  ['状态', DEAL_STATUS_LABELS[status] ?? status],
+  ['适用范围', deal.scope || '未标注'],
+  ['是否适用于续费', deal.appliesToRenewal ? '是，续费同样享受' : '否，仅限首次购买'],
+  ['核实日期', formatDate(deal.verifiedAt)],
+  ...(deal.startsAt ? ([['开始时间', formatDate(deal.startsAt)]] as Array<[string, string]>) : []),
+  ...(deal.expiresAt ? ([['结束时间', formatDate(deal.expiresAt)]] as Array<[string, string]>) : []),
+  ...(deal.source ? ([['信息来源', deal.source]] as Array<[string, string]>) : []),
+];
+---
+
+<BaseLayout
+  title={deal.seo?.title ?? deal.title}
+  description={deal.seo?.description ?? deal.summary}
+  keywords={deal.seo?.keywords}
+  schema={schema}
+  type="article"
+  publishedAt={deal.publishedAt}
+  updatedAt={deal.updatedAt}
+>
+  <PageHero
+    eyebrow={DEAL_KIND_LABELS[deal.kind] ?? deal.kind}
+    title={deal.title}
+    lede={deal.summary}
+  >
+    <Breadcrumbs slot="breadcrumbs" crumbs={crumbs} />
+    <Fragment slot="chips">
+      <span class:list={['chip', isLive ? 'chip-brand' : 'chip-signal']}>
+        {DEAL_STATUS_LABELS[status] ?? status}
+      </span>
+      <span class="chip chip-mono">{deal.discount}</span>
+      <span class="chip">核实于 {formatDate(deal.verifiedAt)}</span>
+      {deal.expiresAt && <span class="chip">至 {formatDate(deal.expiresAt)}</span>}
+    </Fragment>
+
+    <Fragment slot="actions">
+      {deal.code && <CopyButton value={deal.code} label="复制优惠码" />}
+      <a href="/plans" class="btn btn-primary">查看套餐价格</a>
+    </Fragment>
+  </PageHero>
+
+  <div class="container-page space-y-10 py-10">
+    {
+      !isLive && (
+        <Callout tone="warn" title="这条优惠已经结束">
+          页面保留仅作记录，请勿再按此条信息下单。
+          {alternatives.length > 0 && '当前有效的条目见下方推荐。'}
+        </Callout>
+      )
+    }
+
+    <AffiliateDisclosure />
+
+    <section aria-labelledby="facts-heading" class="space-y-3">
+      <h2 id="facts-heading" class="text-base font-medium">
+        条目详情
+      </h2>
+      <dl class="spec-grid rounded-lg border border-line bg-surface-2 p-4">
+        {
+          facts.map(([label, value]) => (
+            <Fragment>
+              <dt>{label}</dt>
+              <dd>{value}</dd>
+            </Fragment>
+          ))
+        }
+      </dl>
+      {
+        deal.code && (
+          <div class="flex flex-wrap items-center gap-3 rounded-lg border border-line bg-surface p-4">
+            <div>
+              <p class="section-label">优惠码</p>
+              <p class="mt-1 font-mono text-lg font-medium tracking-wider">{deal.code}</p>
+            </div>
+            <div class="ml-auto">
+              <CopyButton value={deal.code} />
+            </div>
+          </div>
+        )
+      }
+    </section>
+
+    {
+      body.html && (
+        <section aria-labelledby="detail-heading" class="space-y-3">
+          <h2 id="detail-heading" class="text-base font-medium">
+            说明
+          </h2>
+          <Prose html={body.html} />
+        </section>
+      )
+    }
+
+    {
+      plans.length > 0 && (
+        <section aria-labelledby="plans-heading" class="space-y-3">
+          <h2 id="plans-heading" class="text-base font-medium">
+            适用于这些套餐
+          </h2>
+          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {plans.map((plan) => (
+              <PlanCard plan={plan} compact place="deal-plans" />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    {
+      alternatives.length > 0 && (
+        <section aria-labelledby="alt-heading" class="space-y-3">
+          <h2 id="alt-heading" class="text-base font-medium">
+            当前有效的条目
+          </h2>
+          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {alternatives.map((item) => (
+              <LinkCard
+                href={`/deals/${item.slug}`}
+                title={item.title}
+                summary={item.summary}
+                eyebrow={DEAL_KIND_LABELS[item.kind] ?? item.kind}
+                mono={item.code ?? item.discount}
+                meta={[`核实于 ${formatDate(item.verifiedAt)}`]}
+              />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    {
+      deal.faqs.length > 0 && (
+        <section aria-labelledby="faq-heading" class="space-y-3">
+          <h2 id="faq-heading" class="text-base font-medium">
+            常见问题
+          </h2>
+          <FaqAccordion items={deal.faqs} />
+        </section>
+      )
+    }
+
+    <section class="rounded-xl border border-line bg-surface-2 p-5">
+      <h2 class="flex items-center gap-2 text-base font-medium">
+        <Icon name="info" size={16} class="text-brand" />
+        价格与优惠的核对方式
+      </h2>
+      <p class="mt-2 text-sm leading-relaxed text-fg-muted">
+        本页所有信息都标注了最后核实日期。搬瓦工的价格与库存可能随时变动，
+        最终以官方结账页显示的金额为准。如果你发现某条信息已失效，
+        欢迎通过<a href="/contact" class="text-brand underline">联系页面</a>告知，我们会核对并更正。
+      </p>
+    </section>
+
+    <CtaBand
+      plan={plans[0]}
+      title={isLive ? '用这个优惠下单' : '看看当前可购买的套餐'}
+      links={[{ href: '/deals', label: '全部优惠' }]}
+    />
+  </div>
+</BaseLayout>

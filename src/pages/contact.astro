@@ -1,0 +1,116 @@
+---
+/**
+ * Contact page.
+ *
+ * Deliberately specific about what is worth writing in about. The most common
+ * inbound message on a site like this is "this price is wrong", and the page
+ * asks for exactly the information that makes such a report actionable.
+ *
+ * No form: a form needs a server endpoint, an anti-spam story and a privacy
+ * note, and the only channel that needs any of that is one the author would
+ * rather not babysit. An email address is honest and works.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/ui/PageHero.astro';
+import Breadcrumbs from '../components/layout/Breadcrumbs.astro';
+import Callout from '../components/ui/Callout.astro';
+import { SITE } from '../lib/cms';
+import { breadcrumbSchema } from '../lib/seo';
+
+const crumbs = [
+  { label: '首页', href: '/' },
+  { label: '联系我们', href: '/contact' },
+];
+
+const email = SITE.contact.email;
+
+const schema = [breadcrumbSchema(crumbs, '/contact')];
+---
+
+<BaseLayout
+  title="联系我们"
+  description="报告数据错误、内容建议或合作咨询的联系方式。说明提交数据错误时请附上哪些信息。"
+  schema={schema}
+>
+  <PageHero
+    eyebrow="联系"
+    title="联系我们"
+    lede="最欢迎的一类邮件是「你这里写错了」。价格、库存和线路信息都可能变动，靠一个人核对不可能没有遗漏。"
+  >
+    <Breadcrumbs slot="breadcrumbs" crumbs={crumbs} />
+  </PageHero>
+
+  <div class="container-page py-10">
+    <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+      <div class="space-y-6">
+        <section aria-labelledby="report-heading" class="space-y-3">
+          <h2 id="report-heading" class="text-lg font-medium">
+            报告数据错误
+          </h2>
+          <p class="text-sm leading-relaxed text-fg-muted">
+            为了让核对更快，请在邮件里尽量附上这几项：
+          </p>
+          <ul class="space-y-2 text-sm text-fg-muted">
+            <li>出错的页面地址（直接粘贴 URL 即可）</li>
+            <li>页面上写的是什么，实际情况是什么</li>
+            <li>你看到的实际情况来自哪里（官方页面截图、自己的测试结果等）</li>
+          </ul>
+          <Callout tone="info" title="核对之后会怎么处理">
+            确认有误的内容会直接更正，并更新页面上的最后更新日期。
+            如果涉及价格，我们会重新记录价格核对时间，避免其他读者按旧价格做决定。
+          </Callout>
+        </section>
+
+        <section aria-labelledby="other-heading" class="space-y-3">
+          <h2 id="other-heading" class="text-lg font-medium">
+            其他联系事项
+          </h2>
+          <ul class="space-y-2 text-sm text-fg-muted">
+            <li>
+              <strong class="font-medium text-fg">内容建议。</strong>
+              想看但站上没有的内容，欢迎提。选题基本由实际需求决定。
+            </li>
+            <li>
+              <strong class="font-medium text-fg">事实性争议。</strong>
+              如果你认为某段判断有偏差，请指出依据。本站不回避更正。
+            </li>
+            <li>
+              <strong class="font-medium text-fg">商家合作。</strong>
+              本站只做搬瓦工的联盟推广，不接其他主机商的软文与测评代写。
+            </li>
+          </ul>
+        </section>
+      </div>
+
+      <aside class="space-y-4">
+        <div class="card p-5">
+          <h2 class="section-label">邮件</h2>
+          {
+            email ? (
+              <p class="mt-2">
+                <a href={`mailto:${email}`} class="break-all font-mono text-sm text-brand underline">
+                  {email}
+                </a>
+              </p>
+            ) : (
+              <p class="mt-2 text-sm text-fg-muted">联系方式尚未填写。</p>
+            )
+          }
+          <p class="mt-3 text-xs text-fg-subtle">
+            通常会在几个工作日内回复。数据错误会优先处理。
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="section-label">先看看这些</h2>
+          <ul class="mt-2 space-y-1.5 text-sm">
+            <li><a href="/faq" class="text-fg-muted hover:text-brand">常见问题</a></li>
+            <li><a href="/disclosure" class="text-fg-muted hover:text-brand">联盟披露</a></li>
+            <li><a href="/about" class="text-fg-muted hover:text-brand">关于本站与测评方法</a></li>
+            <li><a href="/changelog" class="text-fg-muted hover:text-brand">更新日志</a></li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+</BaseLayout>

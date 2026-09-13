@@ -1,0 +1,46 @@
+---
+/**
+ * The top of every non-homepage page.
+ *
+ * Deliberately flat: an eyebrow, an h1, a lede, optional chips and actions.
+ * No background images, no gradient, no oversized display type. On a site whose
+ * value is density and verifiability, a hero that consumes a third of the first
+ * screen is a liability — the reader came for the table.
+ */
+interface Props {
+  eyebrow?: string;
+  title: string;
+  lede?: string;
+  /** Breadcrumb trail, rendered above the eyebrow. */
+  class?: string;
+}
+
+const { eyebrow, title, lede, class: className = '' } = Astro.props;
+const hasChips = Astro.slots.has('chips');
+const hasActions = Astro.slots.has('actions');
+const hasAside = Astro.slots.has('aside');
+---
+
+<header class:list={['border-b border-line bg-bg-subtle', className]}>
+  <div class="container-page py-8 sm:py-10">
+    <div class:list={['grid gap-8', hasAside && 'lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start']}>
+      <div class="min-w-0">
+        <slot name="breadcrumbs" />
+
+        {eyebrow && <p class="section-label mt-3">{eyebrow}</p>}
+
+        <h1 class:list={['text-2xl font-medium leading-snug sm:text-3xl', !eyebrow && 'mt-0', eyebrow && 'mt-2']}>
+          {title}
+        </h1>
+
+        {lede && <p class="mt-3 max-w-3xl text-[0.9375rem] leading-relaxed text-fg-muted">{lede}</p>}
+
+        {hasChips && <div class="mt-4 flex flex-wrap items-center gap-2"><slot name="chips" /></div>}
+
+        {hasActions && <div class="mt-5 flex flex-wrap items-center gap-2.5"><slot name="actions" /></div>}
+      </div>
+
+      {hasAside && <div class="min-w-0"><slot name="aside" /></div>}
+    </div>
+  </div>
+</header>

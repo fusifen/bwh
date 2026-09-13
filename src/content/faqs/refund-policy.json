@@ -1,0 +1,9 @@
+{
+  "slug": "refund-policy",
+  "question": "搬瓦工能退款吗？流程复杂吗？",
+  "answer": "新账号在 30 天内可以申请全额退款，在后台自助提交，不需要联系客服。适用范围是新账号的首次购买，老账号追加购买不适用。退款到账时间取决于付款方式。另外提醒一点：频繁退款可能影响后续购买资格，所以建议在买之前把需求想清楚，而不是依赖退款兜底。",
+  "category": "billing",
+  "related": { "plans": [], "datacenters": [], "lines": [], "tutorials": [], "glossary": [], "deals": ["first-purchase"] },
+  "order": 3,
+  "updatedAt": "2026-09-13"
+}

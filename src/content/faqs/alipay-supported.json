@@ -1,0 +1,9 @@
+{
+  "slug": "alipay-supported",
+  "question": "搬瓦工支持支付宝付款吗？",
+  "answer": "支持。搬瓦工结账页提供支付宝选项，会按当日汇率折算成人民币结算，国内用户不需要办双币信用卡。同时也支持 PayPal、信用卡和银联。需要提醒的是，支付宝付款的退款到账时间与信用卡不同，通常较快，具体以实际处理为准。",
+  "category": "billing",
+  "related": { "plans": ["basic-vps-1gb", "cn2-gia-e-1gb"], "datacenters": [], "lines": [], "tutorials": [], "glossary": [], "deals": ["first-purchase"] },
+  "order": 2,
+  "updatedAt": "2026-09-13"
+}

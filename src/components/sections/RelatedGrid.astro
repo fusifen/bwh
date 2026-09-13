@@ -1,0 +1,59 @@
+---
+/**
+ * Cross-link block.
+ *
+ * Every entity page ends with two or three of these, and the budget is fixed on
+ * purpose: 2 datacenters, 1 line, 2 tutorials, 1 comparison, 2 related plans.
+ * A closed link graph — glossary ↔ line ↔ plan ↔ datacenter — is what turns a
+ * set of pages into a site that can be crawled, ranked and cited. An open one
+ * leaves most pages orphaned, reachable only from a sitemap.
+ */
+import LinkCard from '../cards/LinkCard.astro';
+
+export interface RelatedItem {
+  href: string;
+  title: string;
+  summary?: string;
+  eyebrow?: string;
+  meta?: string[];
+  mono?: string;
+}
+
+interface Props {
+  title: string;
+  description?: string;
+  items: RelatedItem[];
+  columns?: 2 | 3 | 4;
+}
+
+const { title, description, items, columns = 3 } = Astro.props;
+
+const gridClass = {
+  2: 'sm:grid-cols-2',
+  3: 'sm:grid-cols-2 lg:grid-cols-3',
+  4: 'sm:grid-cols-2 lg:grid-cols-4',
+}[columns];
+---
+
+{
+  items.length > 0 && (
+    <section aria-label={title} class="space-y-3">
+      <div>
+        <h2 class="text-base font-medium">{title}</h2>
+        {description && <p class="mt-1 text-sm text-fg-muted">{description}</p>}
+      </div>
+      <div class:list={['grid gap-3', gridClass]}>
+        {items.map((item) => (
+          <LinkCard
+            href={item.href}
+            title={item.title}
+            summary={item.summary}
+            eyebrow={item.eyebrow}
+            meta={item.meta}
+            mono={item.mono}
+          />
+        ))}
+      </div>
+    </section>
+  )
+}

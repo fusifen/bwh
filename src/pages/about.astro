@@ -1,0 +1,145 @@
+---
+/**
+ * About page.
+ *
+ * This is the E-E-A-T page. Its job is to make the site's method auditable:
+ * who writes it, how numbers are obtained, what is deliberately not published,
+ * and how the money works. `methodology` and the "how this site makes money"
+ * section are content-managed rather than hardcoded, because they are claims
+ * that need to stay true.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/ui/PageHero.astro';
+import Breadcrumbs from '../components/layout/Breadcrumbs.astro';
+import Prose from '../components/ui/Prose.astro';
+import AffiliateDisclosure from '../components/sections/AffiliateDisclosure.astro';
+import { ABOUT, CONTENT_COUNTS, SITE } from '../lib/cms';
+import { renderMarkdown } from '../lib/markdown';
+import { formatDate } from '../lib/format';
+import { breadcrumbSchema, organizationSchema } from '../lib/seo';
+
+const crumbs = [
+  { label: '首页', href: '/' },
+  { label: '关于本站', href: '/about' },
+];
+
+const sections = ABOUT.sections.map((section) => ({
+  heading: section.heading,
+  html: renderMarkdown(section.body).html,
+}));
+
+const schema = [breadcrumbSchema(crumbs, '/about'), organizationSchema()];
+
+const counts: Array<[string, number, string]> = [
+  ['套餐', CONTENT_COUNTS.plans, '/plans'],
+  ['机房', CONTENT_COUNTS.datacenters, '/datacenters'],
+  ['线路', CONTENT_COUNTS.lines, '/lines'],
+  ['选购指南', CONTENT_COUNTS.guides, '/guides'],
+  ['对比', CONTENT_COUNTS.compare, '/compare'],
+  ['教程', CONTENT_COUNTS.tutorials, '/learn'],
+  ['实测记录', CONTENT_COUNTS.benchmarks, '/benchmarks'],
+  ['术语', CONTENT_COUNTS.glossary, '/glossary'],
+  ['优惠条目', CONTENT_COUNTS.deals, '/deals'],
+  ['问答', CONTENT_COUNTS.faqs, '/faq'],
+];
+---
+
+<BaseLayout
+  title="关于本站与测评方法"
+  description={`${SITE.siteName}的编辑说明：作者背景、数据来源、测评方法、内容边界，以及这个站怎么赚钱。`}
+  keywords={['关于本站', '测评方法', '搬瓦工评测']}
+  schema={schema}
+  type="article"
+  updatedAt={ABOUT.updatedAt}
+>
+  <PageHero eyebrow="关于" title={ABOUT.title} lede={ABOUT.intro}>
+    <Breadcrumbs slot="breadcrumbs" crumbs={crumbs} />
+    <Fragment slot="chips">
+      <span class="chip">{ABOUT.author.name}</span>
+      <span class="chip">{ABOUT.author.role}</span>
+      <span class="chip">更新于 {formatDate(ABOUT.updatedAt)}</span>
+    </Fragment>
+  </PageHero>
+
+  <div class="container-page space-y-10 py-10">
+    <AffiliateDisclosure />
+
+    <section aria-labelledby="author-heading" class="rounded-xl border border-line bg-surface-2 p-5">
+      <h2 id="author-heading" class="text-base font-medium">
+        谁在写这个站
+      </h2>
+      <p class="mt-2 text-sm font-medium">{ABOUT.author.name}</p>
+      <p class="mt-1 max-w-3xl text-sm leading-relaxed text-fg-muted">{ABOUT.author.bio}</p>
+    </section>
+
+    <section aria-labelledby="method-heading" class="space-y-3">
+      <h2 id="method-heading" class="text-lg font-medium">
+        测评方法
+      </h2>
+      <ol class="grid gap-3 sm:grid-cols-2">
+        {ABOUT.methodology.map((item, index) => (
+          <li class="card p-4">
+            <p class="flex items-start gap-2 text-sm font-medium">
+              <span
+                aria-hidden="true"
+                class="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-brand-soft text-[0.6875rem] text-brand"
+              >
+                {index + 1}
+              </span>
+              {item.title}
+            </p>
+            <p class="mt-2 text-sm leading-relaxed text-fg-muted">{item.body}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    {
+      sections.map((section) => (
+        <section aria-labelledby={section.heading} class="space-y-3">
+          <h2 id={section.heading} class="text-lg font-medium">
+            {section.heading}
+          </h2>
+          <Prose html={section.html} />
+        </section>
+      ))
+    }
+
+    <section aria-labelledby="coverage-heading" class="space-y-3">
+      <h2 id="coverage-heading" class="text-lg font-medium">
+        目前收录的内容
+      </h2>
+      <dl class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        {
+          counts.map(([label, count, href]) => (
+            <div class="card p-4">
+              <dt class="text-xs text-fg-subtle">{label}</dt>
+              <dd class="mt-1 text-xl font-medium tabular">
+                <a href={href} class="hover:text-brand">
+                  {count}
+                </a>
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+      <p class="text-xs text-fg-subtle">
+        数量会随内容更新变化。空集合不会用占位内容填充——宁缺毋滥。
+      </p>
+    </section>
+
+    <section class="rounded-xl border border-line bg-surface-2 p-5">
+      <h2 class="text-base font-medium">发现错误怎么办</h2>
+      <p class="mt-2 text-sm leading-relaxed text-fg-muted">
+        价格、库存和线路信息都可能变动。如果你发现某处数据与实际不符，
+        欢迎通过<a href="/contact" class="text-brand underline">联系页面</a>告知，
+        我们会核对并在确认后更正，同时更新页面上的最后更新日期。
+      </p>
+      <div class="mt-4 flex flex-wrap gap-2.5">
+        <a href="/disclosure" class="btn btn-secondary btn-sm">完整联盟披露</a>
+        <a href="/contact" class="btn btn-secondary btn-sm">联系我们</a>
+        <a href="/changelog" class="btn btn-secondary btn-sm">更新日志</a>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

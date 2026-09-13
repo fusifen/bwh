@@ -1,0 +1,72 @@
+---
+/**
+ * The affiliate call-to-action.
+ *
+ * Every outbound link on this site goes through this component, and it is the
+ * only place a purchase link is rendered. That concentration is deliberate: the
+ * `rel="sponsored nofollow"` attribute is a Google requirement for affiliate
+ * links, and a single new component that forgot it would be invisible in review
+ * while costing the site its link equity.
+ *
+ * Copy avoids "立即购买". The promise is information ("查看该套餐当前价格"),
+ * not a transaction — it reads as help rather than a pitch, which converts
+ * better with a technical audience and does not trigger the reflex to leave.
+ */
+import { affHrefFor, affRel, affUrlGeneric, affUrlFor } from '../../lib/cms';
+import type { Plan } from '../../lib/schemas';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  /** A specific plan. Omit for the generic vendor landing page. */
+  plan?: Plan;
+  /** Overrides the computed affiliate URL — used for non-purchase links. */
+  href?: string;
+  label?: string;
+  variant?: 'primary' | 'secondary' | 'ghost';
+  size?: 'sm' | 'md' | 'lg';
+  block?: boolean;
+  /** Where the click happened, for analytics. */
+  place?: string;
+}
+
+const {
+  plan,
+  href,
+  label,
+  variant = 'primary',
+  size = 'md',
+  block = false,
+  place = 'inline',
+} = Astro.props;
+
+// A plan link is routed through /go/[plan] when tracking is on, so the click is
+// recorded server-side where ad blockers cannot drop it.
+const target = href ?? (plan ? affHrefFor(plan) : affUrlGeneric());
+const text = label ?? (plan ? `查看 ${plan.name} 当前价格` : '查看搬瓦工当前价格');
+const isAffiliate = !href;
+
+const variantClass = {
+  primary: 'btn-primary',
+  secondary: 'btn-secondary',
+  ghost: 'btn-ghost',
+}[variant];
+
+const sizeClass = { sm: 'btn-sm', md: '', lg: 'btn-lg' }[size];
+
+// Exposed for the test suite and for manual verification of a plan's pid.
+const directUrl = plan ? affUrlFor(plan) : affUrlGeneric();
+---
+
+<a
+  href={target}
+  class:list={['btn', variantClass, sizeClass, block && 'w-full']}
+  rel={isAffiliate ? affRel() : undefined}
+  target={isAffiliate ? '_blank' : undefined}
+  data-aff-link={isAffiliate ? 'true' : undefined}
+  data-aff-plan={plan?.slug}
+  data-aff-place={place}
+  data-aff-direct={isAffiliate ? directUrl : undefined}
+>
+  {text}
+  {isAffiliate && <Icon name="external" size={14} class="opacity-70" />}
+</a>

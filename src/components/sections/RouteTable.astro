@@ -1,0 +1,52 @@
+---
+/**
+ * Traceroute hop table.
+ *
+ * Included because a route is the evidence behind a line claim. "走 CN2 GIA"
+ * is a marketing statement; a hop list showing the traffic entering AS4809
+ * before it reaches the destination is a fact the reader can check against
+ * their own `mtr` output.
+ */
+import type { RouteHop } from '../../lib/schemas';
+
+interface Props {
+  hops: RouteHop[];
+  title?: string;
+}
+
+const { hops, title = '去程路由' } = Astro.props;
+---
+
+{
+  hops.length > 0 && (
+    <section aria-labelledby="route-heading" class="space-y-3">
+      <h2 id="route-heading" class="text-base font-medium">
+        {title}
+      </h2>
+
+      <div class="table-scroll rounded-lg border border-line">
+        <table>
+          <caption class="sr-only">逐跳路由记录（AS 号、位置与延迟）</caption>
+          <thead>
+            <tr>
+              <th scope="col" class="w-14">跳数</th>
+              <th scope="col" class="w-24">AS 号</th>
+              <th scope="col">位置</th>
+              <th scope="col" class="w-24">延迟</th>
+            </tr>
+          </thead>
+          <tbody>
+            {hops.map((hop) => (
+              <tr>
+                <th scope="row" class="font-normal tabular text-fg-subtle">{hop.hop}</th>
+                <td class="font-mono text-xs">{hop.asn || '—'}</td>
+                <td class="text-fg-muted">{hop.location}</td>
+                <td class="tabular">{hop.latency} ms</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  )
+}

@@ -1,0 +1,9 @@
+{
+  "slug": "what-is-bandwagonhost",
+  "question": "搬瓦工（BandwagonHost）是什么公司？",
+  "answer": "搬瓦工（BandwagonHost）是加拿大 IT7 Networks 旗下的 VPS 服务品牌，主要面向中文用户市场，销售非托管 KVM 虚拟服务器。它的特点是支持支付宝付款、机房可迁移、以及 CN2 GIA 等面向中国方向的优质线路。需要注意的是，搬瓦工卖的是裸机加 root 权限，不提供建站面板或代管服务。",
+  "category": "general",
+  "related": { "plans": ["basic-vps-1gb"], "datacenters": [], "lines": [], "tutorials": [], "glossary": [], "deals": [] },
+  "order": 1,
+  "updatedAt": "2026-09-13"
+}

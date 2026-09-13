@@ -1,0 +1,79 @@
+{
+  "slug": "cn2-gia-e-1gb",
+  "name": "CN2 GIA-E 套餐（1GB）",
+  "series": "cn2-gia-e",
+  "tier": "mainstream",
+  "status": "available",
+  "tagline": "搬瓦工最值得推荐的一档：CN2 GIA 线路 + 十几个机房免费切换",
+  "summary": "线路质量与价格的平衡点。CN2 GIA 保证晚高峰稳定，同时支持在十几个机房之间免费一键切换——某个机房某段时间表现差，直接换过去，数据保留、不用重装。对于选不定机房的人，这个能力本身就值这笔差价。价格按季付计算，折算月成本高于入门套餐。",
+  "bestFor": [
+    "要对国内用户提供稳定服务",
+    "还没想好选哪个机房，希望保留调整空间",
+    "建站、跑 API、做远程开发环境",
+    "移动或联通宽带用户（可切换到对应优化线路的机房）"
+  ],
+  "notFor": [
+    "预算优先、用途对延迟不敏感",
+    "目标用户全在欧美",
+    "需要香港级别的极低延迟（GIA-E 的延迟仍高于香港）"
+  ],
+  "specs": {
+    "cpu": "Intel Xeon",
+    "cores": 2,
+    "memoryMB": 1024,
+    "diskGB": 20,
+    "diskType": "SSD",
+    "trafficTB": 1,
+    "bandwidthMbps": 2500,
+    "ipv4": 1,
+    "ipv6": true,
+    "virtualization": "KVM"
+  },
+  "network": {
+    "line": "cn2-gia",
+    "datacenters": ["dc6", "dc9"],
+    "migratable": true,
+    "migratableCount": 12
+  },
+  "pricing": {
+    "currency": "USD",
+    "cycles": [
+      { "cycle": "quarterly", "price": 49.99, "note": "折算约 $16.66/月" },
+      { "cycle": "annual", "price": 169.99, "note": "折算约 $14.17/月，比季付省约 15%" }
+    ],
+    "paymentMethods": ["alipay", "paypal", "creditcard", "unionpay"],
+    "priceCheckedAt": "2026-09-13",
+    "refundDays": 30
+  },
+  "affiliate": {
+    "pid": "0",
+    "verified": false,
+    "note": "pid 需从搬瓦工后台 Affiliates 页面复制"
+  },
+  "scores": { "performance": 3, "value": 5, "stability": 5, "latencyCN": 4 },
+  "pros": [
+    "CN2 GIA 线路，晚高峰稳定性明显优于普通线路",
+    "支持十几个机房免费一键切换，买错机房不用重买",
+    "2.5Gbps 端口，短时突发带宽充足",
+    "支持支付宝付款，新账号 30 天可全额退款"
+  ],
+  "cons": [
+    "折算月成本是入门套餐的数倍",
+    "1GB 内存跑重型应用会吃紧",
+    "年付一次支出接近 170 美元，需要确认能长期用"
+  ],
+  "content": "## 多花的钱买到了什么\n\n和入门套餐相比，这个套餐贵出来的部分几乎全在线路和迁移能力上，配置本身没有变化。\n\n**第一，晚高峰的稳定性。** CN2 GIA 走的是中国电信面向企业客户的承载网，拥塞时优先级高于普通线路。差距只在晚高峰体现——也正是大多数人实际使用的时间段。\n\n**第二，十几个机房免费切换。** 这是被低估最多的一项。机房的表现会随时间变化：某段时间 DC6 更好，过一阵 DC9 更稳，某个新机房上线初期资源宽松。有迁移能力意味着你可以在后台点一下就换过去，数据保留、不用重装系统。对还在犹豫选哪个机房的人来说，这相当于买了一份「选择权」。\n\n**第三，2.5Gbps 端口。** 短时突发带宽比 1Gbps 端口宽松，对偶尔的流量尖峰有帮助。\n\n## 买之前先确认\n\n1. **月流量够不够。** 1TB 月流量是常见瓶颈，先按实际用量估算。\n2. **1GB 内存够不够。** 跑静态站、反向代理、轻量 API 没问题；跑数据库、Java 应用、多个 Docker 容器会吃紧，考虑 2GB 档。\n3. **能不能接受季付。** 季付单价折算高于年付，但试错成本低——先用一季确认线路在你的宽带下确实更好，再转年付。\n\n## 关于机房选择\n\n默认落在 DC6 或 DC9，两者同属洛杉矶、同为 CN2 GIA，日常体验接近。DC9 的磁盘是 RAID-10 阵列，可用容量约为标称值的一半，但单盘故障不丢数据。\n\n买了之后如果觉得某个机房在你的宽带下表现一般，随时可以迁移，不用重新购买。",
+  "useCases": ["website", "developer", "cross-border"],
+  "relatedPlans": ["cn2-gia-e-2gb", "cn2-gt-1gb", "ecommerce-1gb", "hongkong-2gb"],
+  "relatedTutorials": ["kiwivm-panel", "migrate-datacenter", "reinstall-os"],
+  "faqs": [],
+  "seo": {
+    "title": "搬瓦工 CN2 GIA-E 套餐（1GB）：价格、机房切换与选购建议",
+    "description": "搬瓦工 CN2 GIA-E 1GB 套餐完整参数与价格。CN2 GIA 线路的晚高峰优势、十几个机房免费切换的实际价值，以及购买前的三项确认。",
+    "keywords": ["搬瓦工 CN2 GIA-E", "搬瓦工 GIA-E 套餐", "搬瓦工 推荐套餐", "搬瓦工 CN2 GIA 价格"]
+  },
+  "featured": true,
+  "order": 4,
+  "updatedAt": "2026-09-13",
+  "publishedAt": "2026-09-13"
+}

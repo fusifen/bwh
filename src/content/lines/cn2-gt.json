@@ -1,0 +1,29 @@
+{
+  "slug": "cn2-gt",
+  "name": "CN2 GT",
+  "abbr": "CN2 GT",
+  "summary": "中国电信 CN2 网络的中端等级线路，闲时表现接近 GIA，晚高峰受拥塞影响更明显。价格介于普通 CN2 与 GIA 之间。",
+  "definition": "CN2 GT 是指中国电信下一代承载网（CN2）中的 Global Transit 等级线路，定位介于普通 CN2 与 CN2 GIA 之间，闲时延迟与 GIA 接近，但在网络拥塞时优先级低于 GIA。",
+  "typicalLatency": "闲时与 CN2 GIA 接近",
+  "typicalLoss": "晚高峰丢包高于 GIA",
+  "peakBehavior": "晚高峰时因优先级低于 GIA，延迟抖动与丢包都会上升，但通常仍好于普通 CN2。",
+  "pros": ["价格低于 CN2 GIA", "闲时表现与 GIA 接近", "对轻度使用场景足够"],
+  "cons": ["晚高峰稳定性不如 GIA", "与 GIA 的价差不大时性价比反而变差"],
+  "availableDatacenters": ["dc2"],
+  "comparedWith": [
+    {
+      "slug": "cn2-gia",
+      "difference": "GIA 面向企业客户、拥塞时优先级更高；GT 面向普通用户。价差换来的是晚高峰的稳定性，不是闲时速度。"
+    }
+  ],
+  "verdict": "看价差。如果 GT 比 GIA 便宜得不多，直接上 GIA；价差明显且你的使用时段集中在白天，GT 够用。",
+  "content": "## 它存在的意义\n\nCN2 GT 是搬瓦工产品线里承上启下的一档：比普通 CN2 好，比 GIA 便宜。\n\n问题在于这个「中间位置」并不总是划算。GT 与 GIA 的价差如果只有一两成，多付这点钱换晚高峰的稳定性几乎肯定值。价差大、且你的使用时段集中在白天，GT 才有意义。\n\n## 怎么判断\n\n问自己一个问题：你的服务有没有可能在晚上九点之后被访问？\n\n如果有，GIA 更稳。如果没有——比如你只是白天用它做同步任务、备份数据——GT 完全够用。",
+  "faqs": [],
+  "seo": {
+    "title": "CN2 GT 是什么？和 CN2 GIA 差在哪、值不值得省这笔钱",
+    "description": "CN2 GT 线路的定义与定位，它与 CN2 GIA 在晚高峰表现上的实际差距，以及价差多大时才值得选择 GT 而不是 GIA。",
+    "keywords": ["CN2 GT", "CN2 GT 是什么", "CN2 GT GIA 区别"]
+  },
+  "order": 2,
+  "updatedAt": "2026-09-13"
+}

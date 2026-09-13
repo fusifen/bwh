@@ -1,0 +1,88 @@
+---
+/**
+ * Comparison dimensions.
+ *
+ * The winner column is what separates this from a spec dump. A comparison page
+ * that lists six differences and refuses to say which one matters has pushed
+ * the work back onto the reader — and, more practically, answer engines do not
+ * derive conclusions from a table, they quote one that has already been
+ * written. Hence the `verdict` field on the collection and the explicit
+ * per-row call here.
+ */
+import type { CompareDimension } from '../../lib/schemas';
+
+interface Props {
+  dimensions: CompareDimension[];
+  leftLabel: string;
+  rightLabel: string;
+  /** Optional hrefs so the column headers link to the compared entities. */
+  leftHref?: string;
+  rightHref?: string;
+}
+
+const { dimensions, leftLabel, rightLabel, leftHref, rightHref } = Astro.props;
+
+const WINNER = {
+  left: { label: '左侧更优', cls: 'chip-brand' },
+  right: { label: '右侧更优', cls: 'chip-signal' },
+  tie: { label: '各有取舍', cls: '' },
+} as const;
+---
+
+{
+  dimensions.length > 0 && (
+    <div class="table-scroll rounded-lg border border-line">
+      <table>
+        <caption class="sr-only">{leftLabel} 与 {rightLabel} 的逐项对比</caption>
+        <thead>
+          <tr>
+            <th scope="col" class="min-w-[7rem]">对比维度</th>
+            <th scope="col" class="min-w-[12rem]">
+              {leftHref ? (
+                <a href={leftHref} class="font-medium hover:underline">
+                  {leftLabel}
+                </a>
+              ) : (
+                leftLabel
+              )}
+            </th>
+            <th scope="col" class="min-w-[12rem]">
+              {rightHref ? (
+                <a href={rightHref} class="font-medium hover:underline">
+                  {rightLabel}
+                </a>
+              ) : (
+                rightLabel
+              )}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {dimensions.map((dim) => {
+            const winner = WINNER[dim.winner] ?? WINNER.tie;
+            return (
+              <tr>
+                <th scope="row" class="font-normal text-fg-muted">
+                  {dim.label}
+                  <span class:list={['chip mt-1 block w-fit', winner.cls]}>{winner.label}</span>
+                </th>
+                <td class:list={[dim.winner === 'left' && 'font-medium text-fg']}>
+                  {dim.left}
+                  {dim.winner === 'left' && dim.note && (
+                    <span class="mt-1 block text-xs text-fg-subtle">{dim.note}</span>
+                  )}
+                </td>
+                <td class:list={[dim.winner === 'right' && 'font-medium text-fg']}>
+                  {dim.right}
+                  {dim.winner === 'right' && dim.note && (
+                    <span class="mt-1 block text-xs text-fg-subtle">{dim.note}</span>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  )
+}

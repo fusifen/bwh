@@ -1,0 +1,65 @@
+---
+/**
+ * Closing call-to-action band.
+ *
+ * Sits at the end of a page, after the reader has had the argument and the
+ * caveats. It is a repeat of the primary CTA, not a second chance to pitch: the
+ * copy is the same, and it is placed where a convinced reader looks for the
+ * next step rather than where an unconvinced one is interrupted.
+ *
+ * The cookie window on the affiliate programme is not publicly documented, so
+ * the design assumption is a short one — the CTA stays close to the decision,
+ * on the page where the decision is made.
+ */
+import type { Plan } from '../../lib/schemas';
+import { formatPrice } from '../../lib/format';
+import { planMonthlyFrom } from '../../lib/cms';
+import CtaButton from '../ui/CtaButton.astro';
+import AffiliateDisclosure from './AffiliateDisclosure.astro';
+
+interface Props {
+  plan?: Plan;
+  title?: string;
+  body?: string;
+  label?: string;
+  /** Secondary links rendered beside the button. */
+  links?: Array<{ href: string; label: string }>;
+}
+
+const {
+  plan,
+  title = plan ? `准备购买 ${plan.name}？` : '准备开始？',
+  body,
+  label,
+  links = [],
+} = Astro.props;
+
+const monthly = plan ? planMonthlyFrom(plan) : Number.NaN;
+
+const defaultBody = plan
+  ? `当前最低折算 ${formatPrice(monthly, plan.pricing.currency)}/月。价格与库存以官方结账页为准，新账号 30 天内可全额退款。`
+  : '全部套餐参数、机房实测与线路说明都已整理好，可以从套餐总览开始。';
+---
+
+<section class="rounded-xl border border-line bg-surface-2 p-5 sm:p-6">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div class="min-w-0">
+      <h2 class="text-base font-medium">{title}</h2>
+      <p class="mt-1.5 text-sm leading-relaxed text-fg-muted">{body ?? defaultBody}</p>
+    </div>
+    <div class="flex shrink-0 flex-wrap items-center gap-2.5">
+      <CtaButton plan={plan} label={label} size="lg" place="cta-band" />
+      {
+        links.map((link) => (
+          <a href={link.href} class="btn btn-secondary btn-lg">
+            {link.label}
+          </a>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="mt-4 border-t border-line pt-3">
+    <AffiliateDisclosure compact />
+  </div>
+</section>

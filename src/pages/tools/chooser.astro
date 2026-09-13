@@ -1,0 +1,84 @@
+---
+/**
+ * Plan chooser page.
+ *
+ * A thin wrapper around `ScenarioChooser`. It exists as its own route because
+ * the chooser is a destination — people link to it, and a `/tools/chooser` URL
+ * is easier to cite than `/guides#chooser`.
+ *
+ * `noindex` is deliberately **not** set: this is a useful landing page and the
+ * content behind it is real, unlike `/search`, which is a query-dependent view
+ * of pages that already exist.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/ui/PageHero.astro';
+import Breadcrumbs from '../../components/layout/Breadcrumbs.astro';
+import ScenarioChooser from '../../components/sections/ScenarioChooser.astro';
+import PlanCompareTable from '../../components/sections/PlanCompareTable.astro';
+import { getPurchasablePlans } from '../../lib/cms';
+import { breadcrumbSchema } from '../../lib/seo';
+
+const crumbs = [
+  { label: '首页', href: '/' },
+  { label: '套餐选择器', href: '/tools/chooser' },
+];
+
+const plans = getPurchasablePlans().slice(0, 4);
+const schema = [breadcrumbSchema(crumbs, '/tools/chooser')];
+---
+
+<BaseLayout
+  title="搬瓦工套餐选择器：三步选出适合你的方案"
+  description="回答三个问题——用途、预算、经验——直接得到两个搬瓦工套餐建议和推荐理由。不用读完所有参数表。"
+  keywords={['搬瓦工选择器', '搬瓦工哪个套餐好', 'VPS 选择器']}
+  schema={schema}
+>
+  <PageHero
+    eyebrow="工具"
+    title="三步选出适合你的套餐"
+    lede="如果你已经知道自己要什么，直接看套餐总览更快。如果你不确定，回答三个问题，这里会给出两个建议并说明理由。"
+  >
+    <Breadcrumbs slot="breadcrumbs" crumbs={crumbs} />
+  </PageHero>
+
+  <div class="container-page space-y-10 py-10">
+    <ScenarioChooser />
+
+    {
+      plans.length > 1 && (
+        <section aria-labelledby="all-heading" class="space-y-3">
+          <div>
+            <h2 id="all-heading" class="text-lg font-medium">
+              不想做选择题？直接看对比
+            </h2>
+            <p class="mt-1 text-sm text-fg-muted">
+              下面是当前可购买的几个主力套餐，差异项会被标出。
+            </p>
+          </div>
+          <PlanCompareTable plans={plans} caption="当前可购买的搬瓦工套餐对比" place="chooser" />
+        </section>
+      )
+    }
+
+    <section class="rounded-xl border border-line bg-surface-2 p-5">
+      <h2 class="text-base font-medium">选择器是怎么算的</h2>
+      <ul class="mt-3 grid gap-2 text-sm text-fg-muted">
+        <li>
+          <strong class="font-medium text-fg">用途</strong>
+          决定候选范围。每个场景对应一组编辑挑选过的套餐，顺序代表推荐优先级。
+        </li>
+        <li>
+          <strong class="font-medium text-fg">预算</strong>
+          按折算月成本分成三个区间，落在区间内的候选会被优先考虑。
+        </li>
+        <li>
+          <strong class="font-medium text-fg">经验</strong>
+          影响权重：没有用过服务器的用户会被优先推荐支持免费迁移机房的套餐，因为选错机房可以改。
+        </li>
+      </ul>
+      <p class="mt-3 text-xs text-fg-subtle">
+        结果由本站的编辑判断给出，不是个性化推荐系统，也不会记录你的选择。
+      </p>
+    </section>
+  </div>
+</BaseLayout>

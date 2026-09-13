@@ -1,0 +1,72 @@
+{
+  "slug": "ssh-connect",
+  "title": "SSH 连接与基础加固",
+  "category": "security",
+  "difficulty": "medium",
+  "timeMinutes": 20,
+  "summary": "拿到新机器后的第一件事不是装软件，而是把 SSH 配好：密钥登录、关闭密码认证、限制来源。做完这三步，机器被暴力破解的风险会下降几个数量级。",
+  "prerequisites": ["机器已开机", "知道服务器 IP 和 root 密码", "本机有终端（Windows 用 PowerShell 或 WSL）"],
+  "steps": [
+    {
+      "title": "首次登录",
+      "body": "```bash\nssh root@你的服务器IP\n```\n\n首次连接会提示确认主机指纹，输入 `yes`。然后输入 root 密码（输入时不会显示字符，这是正常的）。\n\n登录后先更新系统：\n\n```bash\napt update && apt upgrade -y\n```"
+    },
+    {
+      "title": "生成本机密钥对",
+      "body": "在你自己的电脑上执行（不是服务器上）：\n\n```bash\nssh-keygen -t ed25519 -C \"your-name\"\n```\n\n一路回车即可。默认会生成 `~/.ssh/id_ed25519`（私钥）和 `~/.ssh/id_ed25519.pub`（公钥）。\n\n**私钥永远不要传给任何人，也不要复制到服务器上。**"
+    },
+    {
+      "title": "把公钥放到服务器",
+      "body": "```bash\nssh-copy-id root@你的服务器IP\n```\n\n如果没有 `ssh-copy-id`（Windows 常见），手动复制公钥内容，在服务器上执行：\n\n```bash\nmkdir -p ~/.ssh && chmod 700 ~/.ssh\necho \"你的公钥内容\" >> ~/.ssh/authorized_keys\nchmod 600 ~/.ssh/authorized_keys\n```"
+    },
+    {
+      "title": "验证密钥登录可用",
+      "body": "**在关闭密码登录之前**，先另开一个终端窗口，确认密钥登录确实能进：\n\n```bash\nssh root@你的服务器IP\n```\n\n这一步不能跳。如果先关掉密码登录才发现密钥配错了，你就把自己锁在门外了（只能靠面板的 VNC 救回来）。"
+    },
+    {
+      "title": "关闭密码登录",
+      "body": "确认密钥登录可用后，编辑 `/etc/ssh/sshd_config`：\n\n```\nPasswordAuthentication no\nPermitRootLogin prohibit-password\n```\n\n然后重启服务：\n\n```bash\nsystemctl restart ssh\n```\n\n改完之后密码就没法登录了，暴力破解脚本会直接失效。"
+    },
+    {
+      "title": "配置防火墙",
+      "body": "```bash\napt install ufw -y\nufw default deny incoming\nufw default allow outgoing\nufw allow 22/tcp\nufw allow 80/tcp\nufw allow 443/tcp\nufw enable\n```\n\n**在开启防火墙之前，务必先放行 SSH 端口（22）。** 顺序反了会把自己挡在外面。\n\n如果之后要跑其他服务，记得同步放行对应端口。"
+    },
+    {
+      "title": "可选：改 SSH 端口",
+      "body": "把 SSH 端口从 22 改到其他端口，能减少日志里的扫描噪音，但**不构成实质安全提升**——扫描器会扫全端口。\n\n真正的防护是密钥登录。改端口只是让日志干净一点，属于可选项。"
+    }
+  ],
+  "troubleshooting": [
+    {
+      "symptom": "ssh-copy-id 命令不存在",
+      "cause": "Windows 的 OpenSSH 客户端默认不带这个工具",
+      "fix": "手动把公钥内容追加到服务器的 ~/.ssh/authorized_keys，并确认权限是 600"
+    },
+    {
+      "symptom": "关闭密码登录后连不上了",
+      "cause": "密钥未正确配置，或者 authorized_keys 权限不对",
+      "fix": "用 KiwiVM 面板的 VNC 控制台进去，把 sshd_config 里的 PasswordAuthentication 改回 yes 临时恢复"
+    },
+    {
+      "symptom": "开启防火墙后立刻断连",
+      "cause": "没有先放行 SSH 端口就执行了 ufw enable",
+      "fix": "通过 VNC 控制台进去执行 ufw allow 22/tcp。这是顺序错误，不是配置错误"
+    },
+    {
+      "symptom": "authorized_keys 权限正确但仍然要求输密码",
+      "cause": "SELinux 或 home 目录权限问题（较少见于 Debian/Ubuntu）",
+      "fix": "检查 /root 或用户 home 目录权限，确保没有 group 或 other 写权限"
+    }
+  ],
+  "relatedTutorials": ["reinstall-os", "kiwivm-panel"],
+  "relatedPlans": ["basic-vps-1gb", "cn2-gia-e-1gb"],
+  "faqs": [],
+  "seo": {
+    "title": "搬瓦工 SSH 连接教程与基础安全加固",
+    "description": "搬瓦工 VPS 的 SSH 连接与加固完整步骤。密钥登录配置、关闭密码认证的正确顺序、防火墙配置，以及把自己锁在门外后的救援方法。",
+    "keywords": ["搬瓦工 SSH", "VPS SSH 密钥登录", "服务器 安全加固", "ufw 配置"]
+  },
+  "order": 4,
+  "updatedAt": "2026-09-13",
+  "publishedAt": "2026-09-13"
+}

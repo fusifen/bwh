@@ -1,0 +1,78 @@
+{
+  "slug": "hongkong-2gb",
+  "name": "香港 CN2 GIA 套餐（2GB）",
+  "series": "hongkong",
+  "tier": "pro",
+  "status": "available",
+  "tagline": "全站延迟最低的一档，三网全程 CN2 GIA，价格也是最高的一档",
+  "summary": "物理距离带来的延迟优势是任何美国机房都做不到的，广东方向可以低到个位数毫秒。代价是价格全站最高、流量额度最少、且锁定香港不能迁移机房。只在「延迟是硬性要求」时才值得，否则同样的钱投在洛杉矶 CN2 GIA 上收益更大。",
+  "bestFor": [
+    "对延迟有硬性要求的实时交互场景",
+    "需要物理距离最近的节点",
+    "预算充足、由公司采购报销"
+  ],
+  "notFor": [
+    "预算有限",
+    "需要迁移机房的灵活性",
+    "月流量需求大（同等价位流量额度明显更少）",
+    "只是建站或跑应用（洛杉矶 CN2 GIA 性价比高得多）"
+  ],
+  "specs": {
+    "cpu": "Intel Xeon",
+    "cores": 2,
+    "memoryMB": 2048,
+    "diskGB": 40,
+    "diskType": "SSD",
+    "trafficTB": 0.5,
+    "bandwidthMbps": 1000,
+    "ipv4": 1,
+    "ipv6": true,
+    "virtualization": "KVM"
+  },
+  "network": {
+    "line": "cn2-gia",
+    "datacenters": ["hongkong"],
+    "migratable": false,
+    "migratableCount": 0
+  },
+  "pricing": {
+    "currency": "USD",
+    "cycles": [
+      { "cycle": "monthly", "price": 89.99 },
+      { "cycle": "annual", "price": 899.99, "note": "折算约 $75.00/月" }
+    ],
+    "paymentMethods": ["alipay", "paypal", "creditcard", "unionpay"],
+    "priceCheckedAt": "2026-09-13",
+    "refundDays": 30
+  },
+  "affiliate": {
+    "pid": "0",
+    "verified": false,
+    "note": "pid 需从搬瓦工后台 Affiliates 页面复制"
+  },
+  "scores": { "performance": 4, "value": 2, "stability": 5, "latencyCN": 5 },
+  "pros": [
+    "延迟全站最低，广东方向可低至个位数毫秒",
+    "三网全程 CN2 GIA，不区分运营商",
+    "不受国际链路波动影响"
+  ],
+  "cons": [
+    "价格是美国 CN2 GIA 机房的数倍",
+    "锁定香港，不能迁移机房",
+    "500GB 月流量是同价位美国机房的零头"
+  ],
+  "content": "## 贵在哪\n\n香港机房的价格不是线路溢价，而是成本本身。香港本地的带宽和机柜成本远高于美国，可分配的资源也有限。\n\n换来的是物理距离决定的延迟优势：从广东方向访问，延迟可以低到个位数毫秒。这是任何跨太平洋的机房都做不到的。\n\n## 两个必须提前知道的限制\n\n**第一，不能迁移机房。** 搬瓦工的 CN2 GIA-E 套餐可以在十几个机房之间免费一键切换，香港套餐锁定在香港，没有这个选项。\n\n**第二，流量额度很少。** 500GB 月流量，大约是同等价位美国机房的三分之一到四分之一。如果你的用途涉及大流量，先算一遍够不够——这是最容易在买完之后才发现的问题。\n\n## 什么时候值得\n\n延迟是硬性指标的场景：实时交互、远程桌面、低延迟接口、对时延敏感的测试环境。\n\n**只是建站、跑应用、做开发环境的话，洛杉矶的 CN2 GIA 机房性价比高得多。** 这句话值得重复一遍，因为香港套餐是本页佣金最高的选项，而它并不适合大多数人。",
+  "useCases": ["cross-border", "developer"],
+  "relatedPlans": ["cn2-gia-e-1gb", "tokyo-2gb"],
+  "relatedTutorials": ["kiwivm-panel"],
+  "faqs": [],
+  "seo": {
+    "title": "搬瓦工香港 CN2 GIA 套餐（2GB）：延迟、价格与两个硬限制",
+    "description": "搬瓦工香港机房套餐完整参数与价格。三网 CN2 GIA 的延迟优势、不能迁移机房与流量额度偏少的实际影响，以及什么情况下才真的需要香港节点。",
+    "keywords": ["搬瓦工 香港套餐", "搬瓦工 香港 CN2 GIA", "搬瓦工 香港 价格"]
+  },
+  "featured": true,
+  "order": 7,
+  "updatedAt": "2026-09-13",
+  "publishedAt": "2026-09-13"
+}

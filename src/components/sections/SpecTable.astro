@@ -1,0 +1,55 @@
+---
+/**
+ * Full hardware specification table.
+ *
+ * A real `<table>` with a `<caption>` and `scope`d headers, not a grid of
+ * divs. That is partly accessibility and partly the point of the site: answer
+ * engines and search crawlers parse a table as structured facts, and the same
+ * numbers laid out in divs are just text.
+ */
+import type { Plan } from '../../lib/schemas';
+import { formatBandwidth, formatDisk, formatMemory, formatTraffic } from '../../lib/format';
+
+interface Props {
+  plan: Plan;
+}
+
+const { plan } = Astro.props;
+const { specs, network } = plan;
+
+const rows: Array<[string, string]> = [
+  ['CPU', specs.cpu],
+  ['CPU 核心', `${specs.cores} 核`],
+  ['内存', formatMemory(specs.memoryMB)],
+  ['硬盘', `${formatDisk(specs.diskGB)} ${specs.diskType}`],
+  ...(specs.raid ? ([['磁盘阵列', specs.raid]] as Array<[string, string]>) : []),
+  ['月流量', formatTraffic(specs.trafficTB)],
+  ['端口带宽', formatBandwidth(specs.bandwidthMbps)],
+  ['独立 IPv4', `${specs.ipv4} 个`],
+  ['IPv6', specs.ipv6 ? '支持' : '不支持'],
+  ['虚拟化', specs.virtualization],
+  ['机房迁移', network.migratable ? `支持（${network.migratableCount} 个机房可选）` : '不支持'],
+];
+---
+
+<div class="table-scroll rounded-lg border border-line">
+  <table>
+    <caption class="sr-only">{plan.name} 的硬件参数</caption>
+    <thead>
+      <tr>
+        <th scope="col" class="w-40">项目</th>
+        <th scope="col">参数</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        rows.map(([label, value]) => (
+          <tr>
+            <th scope="row" class="font-normal text-fg-muted">{label}</th>
+            <td class="font-medium">{value}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>

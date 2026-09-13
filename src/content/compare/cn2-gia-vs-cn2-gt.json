@@ -1,0 +1,61 @@
+{
+  "slug": "cn2-gia-vs-cn2-gt",
+  "title": "CN2 GIA 与 CN2 GT 怎么选",
+  "summary": "两条线路都接入中国电信 CN2 网络，闲时表现接近，差距只在网络拥塞时体现——也就是国内晚高峰。价差不大时选 GIA，价差明显且使用时段集中在白天时 GT 够用。",
+  "verdict": "如果你的服务在晚上九点之后会被访问，选 CN2 GIA。如果使用时段集中在白天，CN2 GT 能省下这笔钱。判断标准只有一个：晚高峰有没有人在用。",
+  "left": { "type": "line", "slug": "cn2-gia", "label": "CN2 GIA" },
+  "right": { "type": "line", "slug": "cn2-gt", "label": "CN2 GT" },
+  "dimensions": [
+    {
+      "label": "网络定位",
+      "left": "面向企业客户的高端接入等级",
+      "right": "面向普通用户的中间等级",
+      "winner": "left",
+      "note": "定位差异决定了拥塞时的优先级，这是两者所有差距的根源"
+    },
+    {
+      "label": "闲时延迟",
+      "left": "低",
+      "right": "与 GIA 接近",
+      "winner": "tie",
+      "note": "闲时两者几乎无法区分，测速截图在这时拍的没有参考价值"
+    },
+    {
+      "label": "晚高峰稳定性",
+      "left": "明显更稳，延迟抖动小",
+      "right": "抖动和丢包上升",
+      "winner": "left",
+      "note": "这是唯一实质性的差距，也是价差的全部理由"
+    },
+    {
+      "label": "价格",
+      "left": "高",
+      "right": "低",
+      "winner": "right"
+    },
+    {
+      "label": "适合的使用时段",
+      "left": "全天，尤其是晚高峰",
+      "right": "白天为主",
+      "winner": "tie"
+    },
+    {
+      "label": "对欧美访问的影响",
+      "left": "无差别",
+      "right": "无差别",
+      "winner": "tie",
+      "note": "两者都只优化中国方向，目标在欧美的话这笔溢价买不到东西"
+    }
+  ],
+  "whenChooseLeft": "服务需要对国内用户提供稳定访问，尤其是晚间时段；或者你不想在半年后因为卡顿而重新选机房——重新迁移的时间成本通常高于价差。",
+  "whenChooseRight": "使用时段集中在白天；预算敏感且用途对延迟不敏感；或者只是练手和测试用途，随时可以换。",
+  "relatedPlans": ["cn2-gt-1gb", "cn2-gia-e-1gb", "cn2-gia-e-2gb"],
+  "faqs": [],
+  "seo": {
+    "title": "CN2 GIA 和 CN2 GT 怎么选？一条判断标准",
+    "description": "CN2 GIA 与 CN2 GT 的六个维度对比：网络定位、闲时延迟、晚高峰稳定性、价格与适用时段。给出明确的选择建议和一个简单的判断标准。",
+    "keywords": ["CN2 GIA CN2 GT 区别", "CN2 GIA 和 GT 怎么选", "CN2 线路对比"]
+  },
+  "order": 1,
+  "updatedAt": "2026-09-13"
+}

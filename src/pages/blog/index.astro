@@ -1,0 +1,95 @@
+---
+/**
+ * Blog index.
+ *
+ * Sorted by publish date, not by `order` — a news list that does not put the
+ * newest item first is a list nobody trusts. `getPosts()` already sorts;
+ * `byOrder` is deliberately bypassed for this collection.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/ui/PageHero.astro';
+import Breadcrumbs from '../../components/layout/Breadcrumbs.astro';
+import LinkCard from '../../components/cards/LinkCard.astro';
+import AffiliateDisclosure from '../../components/sections/AffiliateDisclosure.astro';
+import EmptyState from '../../components/ui/EmptyState.astro';
+import { getPosts } from '../../lib/cms';
+import { formatDate } from '../../lib/format';
+import { breadcrumbSchema, itemListSchema } from '../../lib/seo';
+
+const crumbs = [
+  { label: '首页', href: '/' },
+  { label: '资讯', href: '/blog' },
+];
+
+const posts = getPosts();
+
+const schema = [
+  breadcrumbSchema(crumbs, '/blog'),
+  itemListSchema(
+    posts.map((post) => ({ name: post.title, url: `/blog/${post.slug}` })),
+    '站务与说明',
+  ),
+];
+---
+
+<BaseLayout
+  title="站务与说明"
+  description="本站的编辑说明、内容边界与更新记录。说明我们写什么、不写什么，以及为什么这样取舍。"
+  keywords={['站务说明', '内容边界']}
+  schema={schema}
+>
+  <PageHero
+    eyebrow="资讯"
+    title="站务与说明"
+    lede="这里放的是编辑层面的说明：内容边界划在哪、为什么这样划、最近改了什么。不影响选型，但如果你想知道这个站的立场从哪来，可以看这里。"
+  >
+    <Breadcrumbs slot="breadcrumbs" crumbs={crumbs} />
+    <Fragment slot="chips">
+      <span class="chip chip-mono">{posts.length} 篇</span>
+      <span class="chip">按发布时间排序</span>
+    </Fragment>
+  </PageHero>
+
+  <div class="container-page space-y-10 py-10">
+    <AffiliateDisclosure />
+
+    {
+      posts.length > 0 ? (
+        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {posts.map((post) => (
+            <LinkCard
+              href={`/blog/${post.slug}`}
+              title={post.title}
+              summary={post.summary}
+              eyebrow={post.category}
+              meta={[
+                formatDate(post.publishedAt ?? post.updatedAt),
+                ...post.tags.slice(0, 2),
+              ]}
+            />
+          ))}
+        </div>
+      ) : (
+        <EmptyState
+          title="还没有文章"
+          body="在后台的「文章」集合里添加第一篇，页面会自动生成。"
+          actionLabel="了解内容结构"
+          actionHref="/about"
+        />
+      )
+    }
+
+    <section class="rounded-xl border border-line bg-surface-2 p-5">
+      <h2 class="text-base font-medium">更常更新的内容</h2>
+      <p class="mt-2 text-sm leading-relaxed text-fg-muted">
+        这个板块更新频率不高。价格、机房和线路的变更会直接更新到对应的页面上，
+        不会写成文章——这样你不需要在两处之间对照。
+      </p>
+      <div class="mt-4 flex flex-wrap gap-2.5">
+        <a href="/plans" class="btn btn-secondary btn-sm">套餐价格</a>
+        <a href="/deals" class="btn btn-secondary btn-sm">优惠条目</a>
+        <a href="/changelog" class="btn btn-secondary btn-sm">更新日志</a>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

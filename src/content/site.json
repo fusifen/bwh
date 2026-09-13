@@ -1,0 +1,23 @@
+{
+  "siteName": "瓦工笔记",
+  "shortName": "瓦工笔记",
+  "tagline": "搬瓦工（BandwagonHost）套餐、机房与线路的实测与选购指南",
+  "description": "把搬瓦工的套餐参数、机房线路、实测延迟和当前价格讲清楚。每个套餐都写明适合谁、不适合谁，价格标注核对日期，实测数据公开测试方法。",
+  "locale": "zh-CN",
+  "htmlLang": "zh-CN",
+  "logo": "/brand/logo.svg",
+  "defaultOgImage": "/brand/og-default.svg",
+  "contact": {
+    "email": "contact@stellar-shell.pages.dev",
+    "wechat": ""
+  },
+  "social": [],
+  "analytics": {
+    "gaId": "",
+    "baidu": ""
+  },
+  "publisher": {
+    "name": "瓦工笔记",
+    "url": ""
+  }
+}

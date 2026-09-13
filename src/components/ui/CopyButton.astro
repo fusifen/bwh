@@ -1,0 +1,68 @@
+---
+/**
+ * Copy-to-clipboard button for coupon codes.
+ *
+ * The coupon code is rendered as selectable text first and the button is an
+ * enhancement on top, so a visitor with JavaScript disabled can still read and
+ * select the code. The `coupon_copy` event is the only analytics this fires.
+ */
+import Icon from './Icon.astro';
+
+interface Props {
+  value: string;
+  label?: string;
+}
+
+const { value, label = '复制' } = Astro.props;
+---
+
+<div class="flex items-center gap-2">
+  <code class="rounded-md border border-line bg-bg-muted px-2.5 py-1 font-mono text-sm font-medium tracking-wide">
+    {value}
+  </code>
+  <button
+    type="button"
+    class="btn btn-secondary btn-sm"
+    data-copy={value}
+    aria-label={`复制优惠码 ${value}`}
+  >
+    <Icon name="copy" size={13} />
+    <span data-copy-label>{label}</span>
+  </button>
+</div>
+
+<script is:inline>
+  // Delegated so any number of copy buttons on a page share one listener.
+  document.addEventListener('click', function (event) {
+    var btn = event.target.closest('[data-copy]');
+    if (!btn) return;
+    var value = btn.getAttribute('data-copy') || '';
+    var label = btn.querySelector('[data-copy-label]');
+
+    function done(ok) {
+      if (!label) return;
+      label.textContent = ok ? '已复制' : '请手动选择';
+      window.setTimeout(function () {
+        label.textContent = '复制';
+      }, 1800);
+    }
+
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(value).then(
+        function () {
+          done(true);
+        },
+        function () {
+          done(false);
+        },
+      );
+    } else {
+      done(false);
+    }
+
+    // Coupon copies are a proxy for purchase intent on the deals pages.
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'coupon_copy', { coupon: value });
+    }
+  });
+</script>
