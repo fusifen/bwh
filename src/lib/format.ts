@@ -156,7 +156,7 @@ export const SERIES_LABELS: Record<string, string> = {
   'cn2-gt': 'CN2 GT',
   'cn2-gia': 'CN2 GIA',
   'cn2-gia-e': 'CN2 GIA-E',
-  ecommerce: 'E-Commerce',
+  ecommerce: 'E-Commerce SLA',
   ultra: 'Ultra',
   hongkong: '香港机房',
   tokyo: '东京机房',
