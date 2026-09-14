@@ -45,9 +45,9 @@
     "refundDays": 30
   },
   "affiliate": {
-    "pid": "0",
+    "pid": "44",
     "verified": false,
-    "note": "pid 需从搬瓦工后台 Affiliates 页面复制该套餐的推广链接后填入"
+    "note": "pid=44，对应官网「20G KVM - PROMO」；推荐链接 aff.php?aff=29044&pid=44"
   },
   "scores": { "performance": 3, "value": 4, "stability": 3, "latencyCN": 2 },
   "pros": [

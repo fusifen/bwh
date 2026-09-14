@@ -1,6 +1,6 @@
 {
   "enabled": true,
-  "affId": "000000",
+  "affId": "29044",
   "baseUrl": "https://bandwagonhost.com/aff.php",
   "params": ["aff", "pid"],
   "rel": "sponsored nofollow noopener",

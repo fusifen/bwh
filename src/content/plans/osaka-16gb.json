@@ -1,0 +1,126 @@
+{
+  "slug": "osaka-16gb",
+  "name": "大阪 CN2 GIA 套餐（16GB）",
+  "series": "osaka",
+  "tier": "enterprise",
+  "status": "available",
+  "tagline": "大阪 CN2 GIA：日本方向里价格更低的一档，锁定单一机房",
+  "summary": "大阪机房的 CN2 GIA 套餐，16GB 内存 / 320GB 存储 / 每月 4TB 流量 / 1.5Gbps 端口。官网把它归入 Ultra 系列，定位是「面向中国大陆的最优连接、延迟尽可能低」。代价同样明确：价格高于同配置的美国机房，流量额度小得多，而且锁定在大阪，不能迁移机房。",
+  "bestFor": [
+    "需要日本节点、但对价格敏感",
+    "用户集中在华东与华北方向",
+    "需要避开跨太平洋链路波动的业务",
+    "游戏加速、语音等对抖动敏感的场景"
+  ],
+  "notFor": [
+    "只是建站、跑应用，对延迟不敏感",
+    "预算优先",
+    "需要大流量（同价位美国机房流量高数倍）",
+    "希望以后能换机房"
+  ],
+  "specs": {
+    "cpu": "Intel Xeon",
+    "cores": 8,
+    "memoryMB": 16384,
+    "diskGB": 320,
+    "diskType": "SSD",
+    "trafficTB": 4,
+    "bandwidthMbps": 1500,
+    "ipv4": 1,
+    "ipv6": true,
+    "virtualization": "KVM"
+  },
+  "network": {
+    "line": "cmin2",
+    "datacenters": [
+      "osaka"
+    ],
+    "migratable": false,
+    "migratableCount": 0
+  },
+  "pricing": {
+    "currency": "USD",
+    "cycles": [
+      {
+        "cycle": "monthly",
+        "price": 329.99
+      },
+      {
+        "cycle": "quarterly",
+        "price": 929.99,
+        "note": "折算约 $310.00/月，比月付省约 6%"
+      },
+      {
+        "cycle": "semiannual",
+        "price": 1739.99,
+        "note": "折算约 $290.00/月，比月付省约 12%"
+      },
+      {
+        "cycle": "annual",
+        "price": 3199.0,
+        "note": "折算约 $266.58/月，比月付省约 19%"
+      }
+    ],
+    "paymentMethods": [
+      "alipay",
+      "paypal",
+      "creditcard",
+      "unionpay"
+    ],
+    "priceCheckedAt": "2026-09-13",
+    "refundDays": 30
+  },
+  "affiliate": {
+    "pid": "137",
+    "verified": false,
+    "note": "pid=137，对应官网产品「大阪 CN2 GIA 套餐（16GB）」；推荐链接 aff.php?aff=29044&pid=137"
+  },
+  "scores": {
+    "performance": 4,
+    "value": 4,
+    "stability": 4,
+    "latencyCN": 3
+  },
+  "pros": [
+    "延迟是该价位段里最低的一档",
+    "CN2 GIA 线路，不受普通国际链路波动影响",
+    "机房为当地一线数据中心",
+    "支持支付宝，30 天可退款"
+  ],
+  "cons": [
+    "价格高于同配置的美国机房",
+    "锁定大阪，不能迁移机房",
+    "每月 4TB 流量，是同价位美国机房的零头",
+    "高配档总价很高，需确认真的需要这一档延迟"
+  ],
+  "content": "## 贵在哪\n\n大阪的价格不是线路溢价，而是成本本身。当地的带宽和机柜成本远高于美国，可分配的资源也有限。\n\n换来的是物理距离决定的延迟优势。这是任何跨太平洋的机房都做不到的。\n\n## 两个必须提前知道的限制\n\n**第一，不能迁移机房。** 搬瓦工的 CN2 GIA-E 套餐可以在十几个机房之间免费一键切换，这一档锁定在大阪，没有这个选项。\n\n**第二，流量额度很少。** 每月 4TB，远低于同等价位的美国机房。如果你的用途涉及大流量，先算一遍够不够——这是最容易在买完之后才发现的问题。\n\n## 什么时候值得\n\n延迟是硬性指标的场景：实时交互、远程桌面、低延迟接口、对时延敏感的测试环境。\n\n**只是建站、跑应用、做开发环境的话，洛杉矶的 CN2 GIA 机房性价比高得多。**这句话值得重复一遍，因为这一档是本页佣金最高的选项之一，而它并不适合大多数人。",
+  "useCases": [
+    "cross-border",
+    "website"
+  ],
+  "relatedPlans": [
+    "osaka-2gb",
+    "osaka-4gb",
+    "cn2-gia-e-2gb",
+    "singapore-2gb"
+  ],
+  "relatedTutorials": [
+    "kiwivm-panel",
+    "migrate-datacenter"
+  ],
+  "faqs": [],
+  "seo": {
+    "title": "搬瓦工 大阪 CN2 GIA 套餐（16GB）：价格、参数与选购建议",
+    "description": "大阪机房的 CN2 GIA 套餐，16GB 内存 / 320GB 存储 / 每月 4TB 流量 / 1.5Gbps 端口。 含全部计费周期价格、完整配置参数与不适合的场合。",
+    "keywords": [
+      "搬瓦工 大阪套餐",
+      "搬瓦工 大阪 CN2 GIA",
+      "搬瓦工 大阪 价格",
+      "搬瓦工 大阪 延迟"
+    ]
+  },
+  "featured": false,
+  "order": 154,
+  "updatedAt": "2026-09-13",
+  "publishedAt": "2026-09-13"
+}

@@ -1,0 +1,124 @@
+{
+  "slug": "ecommerce-16gb",
+  "name": "E-Commerce SLA 套餐（16GB）",
+  "series": "ecommerce",
+  "tier": "enterprise",
+  "status": "available",
+  "tagline": "洛杉矶 USCA_5 专属：99.99% SLA + AMD NVMe + 三网优质回国",
+  "summary": "E-Commerce SLA 是官网唯一带 99.99% 服务等级协议的系列，只在洛杉矶 USCA_5 机房提供：AMD 平台 + NVMe RAID-10，16GB 内存 / 320GB 存储 / 每月 8TB 流量 / 5Gbps 端口。回国走电信 CN2 GIA、联通 AS10099、移动 CMIN2 三条优质线路，并要求双路电源、双 NIC、双边缘路由器。这一档买的是「不会因为单点故障停服」，不是配置。",
+  "bestFor": [
+    "订单、支付、API 等停服即损失的业务",
+    "需要书面 SLA 作为内部合规依据",
+    "数据不能丢、不能长时间中断",
+    "面向国内用户且要求三网一致体验"
+  ],
+  "notFor": [
+    "个人项目、可以容忍偶发中断",
+    "预算优先",
+    "需要迁移到其他地区（本系列锁定 USCA_5）"
+  ],
+  "specs": {
+    "cpu": "AMD EPYC",
+    "cores": 8,
+    "memoryMB": 16512,
+    "diskGB": 320,
+    "diskType": "NVMe RAID-10",
+    "trafficTB": 8,
+    "bandwidthMbps": 5000,
+    "ipv4": 1,
+    "ipv6": true,
+    "virtualization": "KVM",
+    "raid": "RAID-10"
+  },
+  "network": {
+    "line": "cn2-gia",
+    "datacenters": [],
+    "migratable": false,
+    "migratableCount": 0
+  },
+  "pricing": {
+    "currency": "USD",
+    "cycles": [
+      {
+        "cycle": "monthly",
+        "price": 199.99
+      },
+      {
+        "cycle": "quarterly",
+        "price": 569.99,
+        "note": "折算约 $190.00/月，比月付省约 5%"
+      },
+      {
+        "cycle": "semiannual",
+        "price": 1079.99,
+        "note": "折算约 $180.00/月，比月付省约 10%"
+      },
+      {
+        "cycle": "annual",
+        "price": 1999.99,
+        "note": "折算约 $166.67/月，比月付省约 17%"
+      }
+    ],
+    "paymentMethods": [
+      "alipay",
+      "paypal",
+      "creditcard",
+      "unionpay"
+    ],
+    "priceCheckedAt": "2026-09-13",
+    "refundDays": 30
+  },
+  "affiliate": {
+    "pid": "168",
+    "verified": false,
+    "note": "pid=168，对应官网产品「E-Commerce SLA 套餐（16GB）」；推荐链接 aff.php?aff=29044&pid=168"
+  },
+  "scores": {
+    "performance": 5,
+    "value": 4,
+    "stability": 5,
+    "latencyCN": 5
+  },
+  "pros": [
+    "99.99% 服务等级协议，官网唯一",
+    "AMD 平台 + NVMe RAID-10，磁盘吞吐高于 SATA SSD 档",
+    "三网优质回国：CN2 GIA / AS10099 / CMIN2",
+    "双路电源、双 NIC、双边缘路由器，单点故障不停服"
+  ],
+  "cons": [
+    "只在洛杉矶 USCA_5，不能迁移机房",
+    "每档价格高于同配置的 CN2 GIA-E",
+    "高配档总价高，需按实际业务量评估"
+  ],
+  "content": "## 它和其他系列不是一个思路\n\n其他系列在卖「线路」和「配置」，这一档在卖「不中断」。官网为它单独写了服务等级协议，并列出支撑这份承诺的硬件条件：\n\n- 双路独立供电进入每台物理节点，配 UPS 与柴油发电机后备\n- 双 NIC、双路独立光纤进入每台物理节点\n- 双冗余边缘路由器、核心交换机、机架顶交换机\n- 7×24 监控，告警直达 7×24 值班 NOC\n\n机房资质包含 SOC 1 Type 2、SOC 2 Type 2、ISO 27001、NIST 800-53、PCI DSS、HIPAA。如果你的业务需要向客户或内部审计解释「为什么选这家」，这些是可以直接引用的材料。\n\n## 线路与网络\n\n回国方向同时具备三条优质线路：\n\n- 中国电信 CN2 GIA / CTGNet（AS4809 / AS23764）\n- 中国联通 Premium（AS10099）\n- 中国移动 CMIN2（AS58807）\n\n三网都有优质出口，意味着用户用什么宽带都能拿到接近的体验，不需要像单线优化那样「看运气」。此外还有多条 100Gbps 上联并自动故障切换。\n\n## 网络与 IP\n\n一个独立 IPv4、一段可供路由的 IPv6 /64 子网，并有第二块私有网络接口。rDNS（PTR）可在控制面板即时修改，每两周可以免费更换一次 IP。\n\n## 适合谁\n\n**值得。** 如果你的服务中断会直接造成收入损失或客户投诉，这一档的价格相对于停服成本是便宜的；需要一份书面 SLA 来满足合规要求的团队同理。\n\n**不值得。** 如果只是个人项目、测试环境，或者数据随时可以重建，CN2 GIA-E 系列能用更低的价格买到同等的线路质量，差别只在机房冗余和那纸协议——而这两样在你能容忍偶发中断时都换不来收益。\n\n## 一个必须知道的限制\n\n这个系列只在洛杉矶 USCA_5 一个机房提供，**不能迁移到其他地区**。如果你需要「先买下来、以后换机房」的灵活性，应该选 CN2 GIA-E。",
+  "useCases": [
+    "website",
+    "cross-border",
+    "developer"
+  ],
+  "relatedPlans": [
+    "ecommerce-1gb",
+    "ecommerce-2gb",
+    "ecommerce-4gb",
+    "cn2-gia-e-2gb"
+  ],
+  "relatedTutorials": [
+    "kiwivm-panel",
+    "snapshot-backup"
+  ],
+  "faqs": [],
+  "seo": {
+    "title": "搬瓦工 E-Commerce SLA 套餐（16GB）：价格、参数与选购建议",
+    "description": "E-Commerce SLA 是官网唯一带 99.99% 服务等级协议的系列，只在洛杉矶 USCA_5 机房提供：AMD 平台 + NVMe RAID-10，16GB 内存 / 320GB 存储 / 每月 8TB 流量 / 5Gbps 端口。 含全部计费周期价格、完整配置参数与不适合的场合。",
+    "keywords": [
+      "搬瓦工 E-Commerce SLA",
+      "搬瓦工 SLA 套餐",
+      "搬瓦工 USCA_5",
+      "搬瓦工 99.99% SLA"
+    ]
+  },
+  "featured": false,
+  "order": 126,
+  "updatedAt": "2026-09-13",
+  "publishedAt": "2026-09-13"
+}

@@ -41,9 +41,9 @@
     "refundDays": 30
   },
   "affiliate": {
-    "pid": "0",
+    "pid": "45",
     "verified": false,
-    "note": "pid 需从搬瓦工后台 Affiliates 页面复制"
+    "note": "pid=45，对应官网「40G KVM - PROMO」；推荐链接 aff.php?aff=29044&pid=45"
   },
   "scores": { "performance": 3, "value": 3, "stability": 3, "latencyCN": 2 },
   "pros": ["2GB 内存可跑 Docker 与多容器", "2TB 月流量对多数个人用途充足", "支持迁移机房"],

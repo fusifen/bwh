@@ -62,13 +62,26 @@
       "fix": "检查 systemctl list-timers 里有没有 certbot 任务；手动执行 certbot renew 看报错。续期同样需要 80 端口可用"
     }
   ],
-  "relatedTutorials": ["ssh-connect", "network-troubleshooting"],
-  "relatedPlans": ["cn2-gia-e-1gb", "ecommerce-1gb"],
+  "relatedTutorials": [
+    "ssh-connect",
+    "network-troubleshooting",
+    "bt-panel",
+    "docker-node-deploy"
+  ],
+  "relatedPlans": [
+    "cn2-gia-e-1gb",
+    "ecommerce-1gb"
+  ],
   "faqs": [],
   "seo": {
     "title": "搬瓦工建站：域名解析与 HTTPS 证书配置教程",
     "description": "从域名解析到 HTTPS 证书自动续期的完整流程。包含 A 记录配置、解析验证、certbot 申请证书、以及证书申请失败最常见的四种原因与处理方法。",
-    "keywords": ["搬瓦工 建站", "域名解析", "certbot 证书", "Nginx HTTPS 配置"]
+    "keywords": [
+      "搬瓦工 建站",
+      "域名解析",
+      "certbot 证书",
+      "Nginx HTTPS 配置"
+    ]
   },
   "order": 8,
   "updatedAt": "2026-09-13",

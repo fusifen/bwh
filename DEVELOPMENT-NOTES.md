@@ -436,3 +436,47 @@ Wrangler 读它做重定向。`.wrangler/` 已在 `.gitignore` 里 —— 这没
 先 `npm run build`（重新生成它）再 `wrangler deploy`。**顺序不能反。**
 
 **设计原则**：每一条检查都必须能**区分「代码有问题」和「配置还没填」**。分不清的检查会被忽略，被忽略的检查等于不存在。
+
+---
+
+## 十六、样式表全部丢失：`global.css` 从未被引入
+
+**症状**：本地跑起来整站**没有任何样式** —— 纯 HTML 裸文本，颜色、间距、字体全丢。
+页面布局、外观、响应式全部失效。
+
+**排查**：`src/styles/global.css` 文件在、内容完整（`@import 'tailwindcss'` + `@theme` 令牌 + `@layer components`），
+但全仓库搜不到任何一处引用它：
+
+```bash
+git grep -n "global.css"   # 只有文件自身的注释，零处 import
+```
+
+而全站唯一的 HTML 外壳 `src/layouts/BaseLayout.astro` 的 frontmatter 里**只有组件 import，没有 CSS import**。
+所有页面都走这个布局，所以一处缺失 = 全站无样式。
+
+**根因**：Tailwind 4 是 Vite 插件，入口文件必须被某个模块 **import** 才会进入构建图。
+`@tailwindcss/vite` 插件本身不等于「自动注入样式」——它只是把 `@import 'tailwindcss'` 编译成真正的 CSS。
+没有任何模块 import 这个入口，Vite 就不知道它存在，产物里一个 `.css` 都不会有。
+
+**修法**（一行）：
+
+```astro
+// src/layouts/BaseLayout.astro 的 frontmatter
+import '../styles/global.css';
+```
+
+**验证的两个坑**：
+
+1. **dev 下不要找 `<link rel="stylesheet">`。** 开发模式由 Vite 注入
+   **内联 `<style>` + `<script type="module" src="/src/styles/global.css">`** 做 HMR，
+   不会产生 `<link>` 标签。用 `<link>` 数量判断会**一直得到 0**，看起来像没修好。
+   正确的判据是 `<head>` 里出现了 `@layer theme` / `@theme` 生成的 CSS 变量。
+
+2. **构建产物才好判断。** `dist/client` 下应当出现 `_assets/*.css`；
+   为空即是没引入。修复前实测：`dist/client` 里 **0 个 `.css`**，
+   `index.html` 里 **0 个 `<link rel="stylesheet">`**。
+
+**教训**：这类「文件在、内容对、就是没人用」的缺失，**类型检查、构建、审计全都抓不到** ——
+`astro check` 只查类型，`audit-build.mjs` 只查元信息和 sitemap。样式属于「渲染正确性」，
+而现有的 8 个阶段里没有任何一个在验证「页面真的长对了」。
+如果要补，方向是构建后断言 `dist/client/**/*.css` 非空，而不是继续加元信息检查。

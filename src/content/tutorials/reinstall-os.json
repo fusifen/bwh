@@ -5,7 +5,10 @@
   "difficulty": "easy",
   "timeMinutes": 10,
   "summary": "重装系统是搬瓦工最常用的操作之一，通常几分钟完成。关键是选对系统模板、确认数据可以丢弃，以及重装后重新配置 SSH。",
-  "prerequisites": ["KiwiVM 面板可访问", "确认机器上没有需要保留的数据"],
+  "prerequisites": [
+    "KiwiVM 面板可访问",
+    "确认机器上没有需要保留的数据"
+  ],
   "steps": [
     {
       "title": "重装前先确认三件事",
@@ -45,13 +48,26 @@
       "fix": "如果之前打过快照，可以在面板里回滚。没有快照则无法恢复——这是为什么重装前要先打快照"
     }
   ],
-  "relatedTutorials": ["kiwivm-panel", "snapshot-backup", "ssh-connect", "domain-ssl-setup"],
-  "relatedPlans": ["basic-vps-1gb", "cn2-gia-e-1gb"],
+  "relatedTutorials": [
+    "kiwivm-panel",
+    "snapshot-backup",
+    "ssh-connect",
+    "domain-ssl-setup",
+    "docker-node-deploy"
+  ],
+  "relatedPlans": [
+    "basic-vps-1gb",
+    "cn2-gia-e-1gb"
+  ],
   "faqs": [],
   "seo": {
     "title": "搬瓦工重装系统教程：步骤、系统选择与常见问题",
     "description": "搬瓦工重装系统的完整步骤。重装前的三项确认、系统模板的选择建议、重装后必做的基础加固，以及连不上时的排查顺序。",
-    "keywords": ["搬瓦工 重装系统", "搬瓦工 换系统", "KiwiVM 重装"]
+    "keywords": [
+      "搬瓦工 重装系统",
+      "搬瓦工 换系统",
+      "KiwiVM 重装"
+    ]
   },
   "order": 2,
   "updatedAt": "2026-09-13",

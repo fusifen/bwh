@@ -67,13 +67,27 @@
       "fix": "先在 KiwiVM 面板看流量曲线，确认不是自己跑满了带宽；如果是线路问题，考虑迁移到优化线路的机房"
     }
   ],
-  "relatedTutorials": ["ssh-connect", "kiwivm-panel", "migrate-datacenter"],
-  "relatedPlans": ["basic-vps-1gb", "cn2-gia-e-1gb"],
+  "relatedTutorials": [
+    "ssh-connect",
+    "kiwivm-panel",
+    "migrate-datacenter",
+    "docker-node-deploy",
+    "change-ip"
+  ],
+  "relatedPlans": [
+    "basic-vps-1gb",
+    "cn2-gia-e-1gb"
+  ],
   "faqs": [],
   "seo": {
     "title": "搬瓦工网络不通怎么排查：分层定位完整流程",
     "description": "搬瓦工 VPS 连不上或变慢时的分层排查方法。从确认机器状态、用 VNC 绕开网络、交叉验证到分层测连通性，按顺序定位问题出在哪一层，避免盲目重装系统。",
-    "keywords": ["搬瓦工 连不上", "VPS 网络排查", "服务器 ping 不通", "VPS 延迟高"]
+    "keywords": [
+      "搬瓦工 连不上",
+      "VPS 网络排查",
+      "服务器 ping 不通",
+      "VPS 延迟高"
+    ]
   },
   "order": 6,
   "updatedAt": "2026-09-13",

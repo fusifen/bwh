@@ -5,7 +5,10 @@
   "difficulty": "easy",
   "timeMinutes": 15,
   "summary": "搬瓦工支持在十几个机房之间免费切换，数据保留、不用重装。这是被低估最多的一项能力：某个机房某段时间表现不好，直接换过去就行。但并非所有套餐都支持。",
-  "prerequisites": ["KiwiVM 面板可访问", "套餐所在机房支持迁移"],
+  "prerequisites": [
+    "KiwiVM 面板可访问",
+    "套餐所在机房支持迁移"
+  ],
   "steps": [
     {
       "title": "先确认你的套餐能不能迁移",
@@ -45,13 +48,26 @@
       "fix": "这是套餐本身的限制。如果需要更灵活的机房选择，需要升级到 CN2 GIA-E 系列"
     }
   ],
-  "relatedTutorials": ["kiwivm-panel", "snapshot-backup", "reinstall-os"],
-  "relatedPlans": ["cn2-gia-e-1gb", "cn2-gia-e-2gb", "basic-vps-1gb"],
+  "relatedTutorials": [
+    "kiwivm-panel",
+    "snapshot-backup",
+    "reinstall-os",
+    "change-ip"
+  ],
+  "relatedPlans": [
+    "cn2-gia-e-1gb",
+    "cn2-gia-e-2gb",
+    "basic-vps-1gb"
+  ],
   "faqs": [],
   "seo": {
     "title": "搬瓦工迁移机房教程：哪些套餐支持、怎么选目标机房",
     "description": "搬瓦工迁移机房的完整步骤。哪些套餐支持迁移、迁移前为什么应该打快照、如何选择目标机房，以及迁移失败时的处理方法。",
-    "keywords": ["搬瓦工 迁移机房", "搬瓦工 换机房", "搬瓦工 机房切换"]
+    "keywords": [
+      "搬瓦工 迁移机房",
+      "搬瓦工 换机房",
+      "搬瓦工 机房切换"
+    ]
   },
   "order": 3,
   "updatedAt": "2026-09-13",

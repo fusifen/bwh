@@ -5,7 +5,11 @@
   "difficulty": "medium",
   "timeMinutes": 20,
   "summary": "拿到新机器后的第一件事不是装软件，而是把 SSH 配好：密钥登录、关闭密码认证、限制来源。做完这三步，机器被暴力破解的风险会下降几个数量级。",
-  "prerequisites": ["机器已开机", "知道服务器 IP 和 root 密码", "本机有终端（Windows 用 PowerShell 或 WSL）"],
+  "prerequisites": [
+    "机器已开机",
+    "知道服务器 IP 和 root 密码",
+    "本机有终端（Windows 用 PowerShell 或 WSL）"
+  ],
   "steps": [
     {
       "title": "首次登录",
@@ -58,13 +62,27 @@
       "fix": "检查 /root 或用户 home 目录权限，确保没有 group 或 other 写权限"
     }
   ],
-  "relatedTutorials": ["reinstall-os", "kiwivm-panel", "network-troubleshooting"],
-  "relatedPlans": ["basic-vps-1gb", "cn2-gia-e-1gb"],
+  "relatedTutorials": [
+    "reinstall-os",
+    "kiwivm-panel",
+    "network-troubleshooting",
+    "bt-panel",
+    "docker-node-deploy"
+  ],
+  "relatedPlans": [
+    "basic-vps-1gb",
+    "cn2-gia-e-1gb"
+  ],
   "faqs": [],
   "seo": {
     "title": "搬瓦工 SSH 连接教程与基础安全加固",
     "description": "搬瓦工 VPS 的 SSH 连接与加固完整步骤。密钥登录配置、关闭密码认证的正确顺序、防火墙配置，以及把自己锁在门外后的救援方法。",
-    "keywords": ["搬瓦工 SSH", "VPS SSH 密钥登录", "服务器 安全加固", "ufw 配置"]
+    "keywords": [
+      "搬瓦工 SSH",
+      "VPS SSH 密钥登录",
+      "服务器 安全加固",
+      "ufw 配置"
+    ]
   },
   "order": 4,
   "updatedAt": "2026-09-13",

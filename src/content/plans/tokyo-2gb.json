@@ -34,9 +34,9 @@
     "refundDays": 30
   },
   "affiliate": {
-    "pid": "0",
+    "pid": "108",
     "verified": false,
-    "note": "pid 需从搬瓦工后台 Affiliates 页面复制"
+    "note": "pid=108，对应官网「SPECIAL 40G KVM PROMO V5 - TOKYO CN2 GIA」；推荐链接 aff.php?aff=29044&pid=108"
   },
   "scores": { "performance": 4, "value": 3, "stability": 4, "latencyCN": 4 },
   "pros": ["移动方向 CMI 直连，移动用户体验好", "物理距离近，延迟低于美国机房", "日本本地到东亚其他地区延迟也低"],

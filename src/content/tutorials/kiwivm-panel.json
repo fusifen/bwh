@@ -5,7 +5,10 @@
   "difficulty": "easy",
   "timeMinutes": 10,
   "summary": "KiwiVM 是搬瓦工自研的机器管理面板，不是常见的 SolusVM。它集中了开关机、重装系统、迁移机房、快照、流量统计等操作。这篇把每个功能区的作用和注意事项讲一遍。",
-  "prerequisites": ["一个搬瓦工账号", "至少一台已开通的 VPS"],
+  "prerequisites": [
+    "一个搬瓦工账号",
+    "至少一台已开通的 VPS"
+  ],
   "steps": [
     {
       "title": "进入 KiwiVM",
@@ -44,13 +47,26 @@
       "fix": "香港、弗里蒙特等机房锁定不可迁移。如果必须换机房，只能走退款流程重新购买"
     }
   ],
-  "relatedTutorials": ["reinstall-os", "migrate-datacenter", "snapshot-backup", "network-troubleshooting"],
-  "relatedPlans": ["cn2-gia-e-1gb", "basic-vps-1gb"],
+  "relatedTutorials": [
+    "reinstall-os",
+    "migrate-datacenter",
+    "snapshot-backup",
+    "network-troubleshooting",
+    "change-ip"
+  ],
+  "relatedPlans": [
+    "cn2-gia-e-1gb",
+    "basic-vps-1gb"
+  ],
   "faqs": [],
   "seo": {
     "title": "搬瓦工 KiwiVM 面板功能全说明",
     "description": "搬瓦工 KiwiVM 面板的完整功能说明：如何进入、各功能区的作用、流量统计的读取方式、重装与迁移的注意事项，以及快照不等于备份的原因。",
-    "keywords": ["KiwiVM", "搬瓦工 面板", "搬瓦工 KiwiVM 教程"]
+    "keywords": [
+      "KiwiVM",
+      "搬瓦工 面板",
+      "搬瓦工 KiwiVM 教程"
+    ]
   },
   "order": 1,
   "updatedAt": "2026-09-13",

@@ -49,13 +49,26 @@
       "fix": "这是双栈环境的典型现象。可以暂时停用 IPv6，或在应用层调整地址族优先级，不必强行保留"
     }
   ],
-  "relatedTutorials": ["ssh-connect", "kiwivm-panel", "network-troubleshooting"],
-  "relatedPlans": ["cn2-gia-e-1gb", "basic-vps-1gb"],
+  "relatedTutorials": [
+    "ssh-connect",
+    "kiwivm-panel",
+    "network-troubleshooting",
+    "change-ip"
+  ],
+  "relatedPlans": [
+    "cn2-gia-e-1gb",
+    "basic-vps-1gb"
+  ],
   "faqs": [],
   "seo": {
     "title": "搬瓦工开启 IPv6 教程：分配、验证与排错",
     "description": "搬瓦工 VPS 开启 IPv6 的完整流程。确认机房支持、面板分配地址、系统内验证是否生效、测试 IPv6 出口，以及「开了但用不了」的三种常见原因。",
-    "keywords": ["搬瓦工 IPv6", "VPS 开启 IPv6", "IPv6 不生效", "服务器 IPv6 配置"]
+    "keywords": [
+      "搬瓦工 IPv6",
+      "VPS 开启 IPv6",
+      "IPv6 不生效",
+      "服务器 IPv6 配置"
+    ]
   },
   "order": 7,
   "updatedAt": "2026-09-13",

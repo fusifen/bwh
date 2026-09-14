@@ -1,0 +1,125 @@
+{
+  "slug": "hongkong-32gb",
+  "name": "香港 CN2 GIA 套餐（32GB）",
+  "series": "hongkong",
+  "tier": "enterprise",
+  "status": "available",
+  "tagline": "香港 CN2 GIA：全站延迟最低的一档，锁定单一机房",
+  "summary": "香港机房的 CN2 GIA 套餐，32GB 内存 / 640GB 存储 / 每月 6TB 流量 / 1Gbps 端口。官网把它归入 Ultra 系列，定位是「面向中国大陆的最优连接、延迟尽可能低」。代价同样明确：价格是同配置美国机房的数倍，流量额度小得多，而且锁定在香港，不能迁移机房。",
+  "bestFor": [
+    "实时交互、远程桌面、低延迟接口",
+    "对时延敏感、且用户集中在华南与华东",
+    "需要避开跨太平洋链路波动的业务",
+    "游戏加速、语音等对抖动敏感的场景"
+  ],
+  "notFor": [
+    "只是建站、跑应用，对延迟不敏感",
+    "预算优先",
+    "需要大流量（同价位美国机房流量高数倍）",
+    "希望以后能换机房"
+  ],
+  "specs": {
+    "cpu": "Intel Xeon",
+    "cores": 10,
+    "memoryMB": 32768,
+    "diskGB": 640,
+    "diskType": "SSD",
+    "trafficTB": 6,
+    "bandwidthMbps": 1000,
+    "ipv4": 1,
+    "ipv6": true,
+    "virtualization": "KVM"
+  },
+  "network": {
+    "line": "cn2-gia",
+    "datacenters": [
+      "hongkong"
+    ],
+    "migratable": false,
+    "migratableCount": 0
+  },
+  "pricing": {
+    "currency": "USD",
+    "cycles": [
+      {
+        "cycle": "monthly",
+        "price": 989.99
+      },
+      {
+        "cycle": "quarterly",
+        "price": 2819.99,
+        "note": "折算约 $940.00/月，比月付省约 5%"
+      },
+      {
+        "cycle": "semiannual",
+        "price": 5289.99,
+        "note": "折算约 $881.66/月，比月付省约 11%"
+      },
+      {
+        "cycle": "annual",
+        "price": 9989.99,
+        "note": "折算约 $832.50/月，比月付省约 16%"
+      }
+    ],
+    "paymentMethods": [
+      "alipay",
+      "paypal",
+      "creditcard",
+      "unionpay"
+    ],
+    "priceCheckedAt": "2026-09-13",
+    "refundDays": 30
+  },
+  "affiliate": {
+    "pid": "122",
+    "verified": false,
+    "note": "pid=122，对应官网产品「香港 CN2 GIA 套餐（32GB）」；推荐链接 aff.php?aff=29044&pid=122"
+  },
+  "scores": {
+    "performance": 4,
+    "value": 2,
+    "stability": 5,
+    "latencyCN": 5
+  },
+  "pros": [
+    "延迟是该价位段里最低的一档",
+    "CN2 GIA 线路，不受普通国际链路波动影响",
+    "机房为当地一线数据中心",
+    "支持支付宝，30 天可退款"
+  ],
+  "cons": [
+    "价格是同配置美国机房的数倍",
+    "锁定香港，不能迁移机房",
+    "每月 6TB 流量，是同价位美国机房的零头",
+    "高配档总价很高，需确认真的需要这一档延迟"
+  ],
+  "content": "## 贵在哪\n\n香港的价格不是线路溢价，而是成本本身。当地的带宽和机柜成本远高于美国，可分配的资源也有限。\n\n换来的是物理距离决定的延迟优势。这是任何跨太平洋的机房都做不到的。\n\n## 两个必须提前知道的限制\n\n**第一，不能迁移机房。** 搬瓦工的 CN2 GIA-E 套餐可以在十几个机房之间免费一键切换，这一档锁定在香港，没有这个选项。\n\n**第二，流量额度很少。** 每月 6TB，远低于同等价位的美国机房。如果你的用途涉及大流量，先算一遍够不够——这是最容易在买完之后才发现的问题。\n\n## 什么时候值得\n\n延迟是硬性指标的场景：实时交互、远程桌面、低延迟接口、对时延敏感的测试环境。\n\n**只是建站、跑应用、做开发环境的话，洛杉矶的 CN2 GIA 机房性价比高得多。**这句话值得重复一遍，因为这一档是本页佣金最高的选项之一，而它并不适合大多数人。",
+  "useCases": [
+    "cross-border",
+    "developer"
+  ],
+  "relatedPlans": [
+    "hongkong-2gb",
+    "hongkong-4gb",
+    "cn2-gia-e-2gb",
+    "tokyo-2gb"
+  ],
+  "relatedTutorials": [
+    "kiwivm-panel"
+  ],
+  "faqs": [],
+  "seo": {
+    "title": "搬瓦工 香港 CN2 GIA 套餐（32GB）：价格、参数与选购建议",
+    "description": "香港机房的 CN2 GIA 套餐，32GB 内存 / 640GB 存储 / 每月 6TB 流量 / 1Gbps 端口。 含全部计费周期价格、完整配置参数与不适合的场合。",
+    "keywords": [
+      "搬瓦工 香港套餐",
+      "搬瓦工 香港 CN2 GIA",
+      "搬瓦工 香港 价格",
+      "搬瓦工 香港 延迟"
+    ]
+  },
+  "featured": false,
+  "order": 135,
+  "updatedAt": "2026-09-13",
+  "publishedAt": "2026-09-13"
+}

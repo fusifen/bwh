@@ -1,0 +1,126 @@
+{
+  "slug": "basic-vps-16gb",
+  "name": "基础 VPS（16GB）",
+  "series": "basic",
+  "tier": "entry",
+  "status": "available",
+  "tagline": "最便宜的一档：1Gbps 端口、5 个地区可免费切换，适合练手与小流量用途",
+  "summary": "官网 Basic VPS 系列里 16GB 内存 / 320GB SSD / 每月 5TB 流量的配置，端口 1Gbps，可在洛杉矶、弗里蒙特、阿姆斯特丹、温哥华、纽约 5 个地区之间免费迁移，数据不丢。线路是各地本地互联 + 部分机房的国内直连，不保证晚高峰的国内质量。便宜是它唯一的卖点，也是足够的理由——预算优先、用途对延迟不敏感的场合，这一档没有必要往上加钱。",
+  "bestFor": [
+    "预算优先，先跑起来再说",
+    "个人练手、学习 Linux 与部署",
+    "海外业务、用户不在国内",
+    "对国内延迟不敏感的中转或存储用途"
+  ],
+  "notFor": [
+    "国内用户为主、需要晚高峰稳定",
+    "对延迟敏感的实时交互",
+    "需要 CN2 GIA 线路保障"
+  ],
+  "specs": {
+    "cpu": "Intel Xeon",
+    "cores": 6,
+    "memoryMB": 16384,
+    "diskGB": 320,
+    "diskType": "RAID-10 SSD",
+    "trafficTB": 5,
+    "bandwidthMbps": 1000,
+    "ipv4": 1,
+    "ipv6": true,
+    "virtualization": "KVM",
+    "raid": "RAID-10"
+  },
+  "network": {
+    "line": "bgp",
+    "datacenters": [
+      "dc2",
+      "fremont"
+    ],
+    "migratable": true,
+    "migratableCount": 5
+  },
+  "pricing": {
+    "currency": "USD",
+    "cycles": [
+      {
+        "cycle": "monthly",
+        "price": 79.99
+      },
+      {
+        "cycle": "quarterly",
+        "price": 227.99,
+        "note": "折算约 $76.00/月，比月付省约 5%"
+      },
+      {
+        "cycle": "semiannual",
+        "price": 432.99,
+        "note": "折算约 $72.17/月，比月付省约 10%"
+      },
+      {
+        "cycle": "annual",
+        "price": 799.99,
+        "note": "折算约 $66.67/月，比月付省约 17%"
+      }
+    ],
+    "paymentMethods": [
+      "alipay",
+      "paypal",
+      "creditcard",
+      "unionpay"
+    ],
+    "priceCheckedAt": "2026-09-13",
+    "refundDays": 30
+  },
+  "affiliate": {
+    "pid": "48",
+    "verified": false,
+    "note": "pid=48，对应官网产品「基础 VPS（16GB）」；推荐链接 aff.php?aff=29044&pid=48"
+  },
+  "scores": {
+    "performance": 3,
+    "value": 5,
+    "stability": 4,
+    "latencyCN": 2
+  },
+  "pros": [
+    "同配置里价格最低",
+    "1Gbps 端口，突发带宽不弱",
+    "5 个地区免费迁移，买错地区可换",
+    "支持支付宝，30 天可退款"
+  ],
+  "cons": [
+    "不保证国内线路质量，晚高峰可能明显变差",
+    "月流量按档位封顶，超出会被限速",
+    "不适合面向国内用户的生产业务"
+  ],
+  "content": "## 这一档解决什么问题\n\nBasic VPS 是搬瓦工的产品线里唯一一个不把「中国线路」计入成本的系列。它把机器放在各地机房，走本地互联和部分直连，因此价格能压到 CN2 GIA 系列的几分之一。\n\n配置是 16GB 内存、320GB SSD、6 核、每月 5TB 流量、1Gbps 端口。这个组合能跑轻量服务：静态站、反向代理、脚本任务、测试环境、容器编排的入门节点。\n\n## 需要提前接受的三件事\n\n**第一，国内线路不保证。** Basic 系列走的是各地本地互联加部分直连，和 CN2 GIA 那种为国内晚高峰预留优先级的承载网不是一回事。如果你打算面向国内用户提供服务，这一档大概率会让你在晚上八点之后失望。\n\n**第二，月流量是硬上限。** 每月 5TB，超出后被限速而不是按量计费。先按实际用量估一遍：一个日均 5000 访问量的静态站，一个月通常在 30～80GB 量级，5TB 是宽裕的；但只要有视频、大文件下载或图片站，很快就会见底。\n\n**第三，内存决定了它能干什么。** 16GB 内存跑数据库、Java 应用或同时开多个容器会吃紧。如果有这类需求，宁可买同系列的更大内存档，也不要指望靠 swap 撑住——SSD 上的 swap 会让性能掉得很难看。\n\n## 什么时候该往上加钱\n\n判断标准只有一条：**你的访问者是否主要在国内，且是否在意晚高峰体验**。是，就去看 CN2 GIA-E 系列；否，Basic 系列就是最划算的选择，多花的钱买不到你能感知的收益。",
+  "useCases": [
+    "beginner",
+    "developer"
+  ],
+  "relatedPlans": [
+    "basic-vps-1gb",
+    "basic-vps-2gb",
+    "basic-vps-4gb",
+    "cn2-gia-e-1gb"
+  ],
+  "relatedTutorials": [
+    "kiwivm-panel",
+    "reinstall-os"
+  ],
+  "faqs": [],
+  "seo": {
+    "title": "搬瓦工 基础 VPS（16GB）：价格、参数与选购建议",
+    "description": "官网 Basic VPS 系列里 16GB 内存 / 320GB SSD / 每月 5TB 流量的配置，端口 1Gbps，可在洛杉矶、弗里蒙特、阿姆斯特丹、温哥华、纽约 5 个地区之间免费迁移，数据不丢。 含全部计费周期价格、完整配置参数与不适合的场合。",
+    "keywords": [
+      "搬瓦工 基础套餐",
+      "搬瓦工 Basic VPS",
+      "搬瓦工 便宜套餐",
+      "搬瓦工 16GB"
+    ]
+  },
+  "featured": false,
+  "order": 104,
+  "updatedAt": "2026-09-13",
+  "publishedAt": "2026-09-13"
+}

@@ -3,7 +3,7 @@
   "name": "CN2 GT 套餐（1GB）",
   "series": "cn2-gt",
   "tier": "entry",
-  "status": "available",
+  "status": "discontinued",
   "tagline": "CN2 GT 线路的入门档，闲时接近 GIA，晚高峰稍逊",
   "summary": "价格与基础套餐接近，但线路换成了 CN2 GT。闲时表现与 CN2 GIA 接近，晚高峰因为优先级低于 GIA，延迟抖动会更明显。如果你白天用得多、晚上很少访问，这是性价比不错的一档；如果晚高峰是主要使用时段，加钱上 GIA 更值。",
   "bestFor": [
@@ -38,9 +38,9 @@
     "refundDays": 30
   },
   "affiliate": {
-    "pid": "0",
+    "pid": "",
     "verified": false,
-    "note": "pid 需从搬瓦工后台 Affiliates 页面复制"
+    "note": "CN2 GT 系列已下线：官网当前在售的 48 个产品中没有这一系列，故不写 pid。"
   },
   "scores": { "performance": 3, "value": 4, "stability": 3, "latencyCN": 3 },
   "pros": ["价格与基础套餐接近，但线路等级更高", "闲时体验接近 CN2 GIA", "支持迁移机房"],

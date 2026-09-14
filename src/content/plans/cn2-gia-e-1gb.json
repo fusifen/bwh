@@ -46,9 +46,9 @@
     "refundDays": 30
   },
   "affiliate": {
-    "pid": "0",
+    "pid": "87",
     "verified": false,
-    "note": "pid 需从搬瓦工后台 Affiliates 页面复制"
+    "note": "pid=87，对应官网「SPECIAL 20G KVM PROMO V5 - CN2 GIA ECOMMERCE」；推荐链接 aff.php?aff=29044&pid=87"
   },
   "scores": { "performance": 3, "value": 5, "stability": 5, "latencyCN": 4 },
   "pros": [

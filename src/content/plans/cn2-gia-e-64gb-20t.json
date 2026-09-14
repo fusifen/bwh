@@ -1,0 +1,132 @@
+{
+  "slug": "cn2-gia-e-64gb-20t",
+  "name": "CN2 GIA-E 套餐（64GB · 20T 流量）",
+  "series": "cn2-gia-e",
+  "tier": "mainstream",
+  "status": "available",
+  "tagline": "主力推荐档：CN2 GIA 线路，可在 15 个机房之间免费一键切换；大流量版：每月 20TB",
+  "summary": "CN2 GIA-E（官方名 CN2 GIA ECOMMERCE）是线路质量与价格的平衡点：64GB 内存 / 1280GB SSD / 每月 20TB 流量 / 10Gbps 端口，走 CN2 GIA 回国，并且可以在 15 个机房之间免费迁移，数据保留、不用重装。月流量 20TB。这一档适合大多数「要面向国内用户、但不想为此付出香港级价格」的场景。",
+  "bestFor": [
+    "国内用户为主的站点与接口服务",
+    "还没定好机房，希望保留调整空间",
+    "建站、跑 API、远程开发环境",
+    "移动或联通宽带用户（可切到对应优化线路的机房）"
+  ],
+  "notFor": [
+    "需要香港级别的极低延迟",
+    "纯海外业务、国内访问无关",
+    "只需要一台最便宜的机器跑脚本"
+  ],
+  "specs": {
+    "cpu": "Intel Xeon",
+    "cores": 12,
+    "memoryMB": 65536,
+    "diskGB": 1280,
+    "diskType": "RAID-10 SSD",
+    "trafficTB": 20,
+    "bandwidthMbps": 10000,
+    "ipv4": 1,
+    "ipv6": true,
+    "virtualization": "KVM",
+    "raid": "RAID-10"
+  },
+  "network": {
+    "line": "cn2-gia",
+    "datacenters": [
+      "dc2",
+      "dc6",
+      "dc9",
+      "fremont",
+      "osaka",
+      "tokyo"
+    ],
+    "migratable": true,
+    "migratableCount": 15
+  },
+  "pricing": {
+    "currency": "USD",
+    "cycles": [
+      {
+        "cycle": "monthly",
+        "price": 899.0
+      },
+      {
+        "cycle": "quarterly",
+        "price": 2562.0,
+        "note": "折算约 $854.00/月，比月付省约 5%"
+      },
+      {
+        "cycle": "semiannual",
+        "price": 4860.0,
+        "note": "折算约 $810.00/月，比月付省约 10%"
+      },
+      {
+        "cycle": "annual",
+        "price": 8999.0,
+        "note": "折算约 $749.92/月，比月付省约 17%"
+      }
+    ],
+    "paymentMethods": [
+      "alipay",
+      "paypal",
+      "creditcard",
+      "unionpay"
+    ],
+    "priceCheckedAt": "2026-09-13",
+    "refundDays": 30
+  },
+  "affiliate": {
+    "pid": "161",
+    "verified": false,
+    "note": "pid=161，对应官网产品「CN2 GIA-E 套餐（64GB · 20T 流量）」；推荐链接 aff.php?aff=29044&pid=161"
+  },
+  "scores": {
+    "performance": 4,
+    "value": 5,
+    "stability": 5,
+    "latencyCN": 4
+  },
+  "pros": [
+    "CN2 GIA 线路，晚高峰稳定性明显优于普通线路",
+    "15 个机房免费一键切换，买错机房不用重买",
+    "10Gbps 端口，短时突发带宽充足",
+    "支持支付宝，新账号 30 天可全额退款"
+  ],
+  "cons": [
+    "折算月成本是 Basic 系列的数倍",
+    "价格随配置线性上涨，上到高配后与其他系列重叠",
+    "年付一次支出较高，需要确认能长期用"
+  ],
+  "content": "## 多花的钱买到了什么\n\n和 Basic 系列相比，这一档贵出来的部分几乎全在线路和迁移能力上，配置本身并不特殊。\n\n**第一，晚高峰的稳定性。** CN2 GIA 走的是中国电信面向企业客户的承载网，拥塞时优先级高于普通线路。差距只在晚高峰体现——也正是大多数人实际使用的时间段。\n\n**第二，15 个机房免费切换。** 这是被低估最多的一项。机房表现会随时间变化：某段时间某个机房更好，过一阵另一个更稳。有迁移能力意味着你可以在后台点一下就换过去，数据保留、不用重装系统。对还在犹豫选哪个机房的人来说，这相当于买了一份「选择权」。\n\n**第三，端口速率。** 这一档是 10Gbps 端口，短时突发带宽比 1Gbps 宽松，对偶发的流量尖峰有帮助。\n\n## 买之前先确认\n\n1. **月流量够不够。** 每月 20TB 是常见瓶颈，先按实际用量估算。\n2. **内存够不够。** 静态站、反向代理、轻量 API 都没问题；跑数据库、Java 应用或多个 Docker 容器会吃紧，考虑更大内存的档位。\n3. **计费周期怎么选。** 季付单价折算高于年付，但试错成本低——先用一季确认线路在你的宽带下确实更好，再转年付。本页列出的所有周期价格都来自官网，可按需选择。\n\n## 关于机房选择\n\n这一档可选的机房覆盖洛杉矶多个数据中心、弗里蒙特、大阪、东京，以及阿姆斯特丹、迪拜、温哥华、纽约、圣何塞等地。买完之后如果觉得某个机房在你的宽带下表现一般，随时可以迁移，不用重新购买。",
+  "useCases": [
+    "website",
+    "developer",
+    "cross-border"
+  ],
+  "relatedPlans": [
+    "cn2-gia-e-1gb",
+    "cn2-gia-e-2gb",
+    "cn2-gia-e-4gb",
+    "cn2-gia-e-8gb"
+  ],
+  "relatedTutorials": [
+    "kiwivm-panel",
+    "migrate-datacenter",
+    "reinstall-os"
+  ],
+  "faqs": [],
+  "seo": {
+    "title": "搬瓦工 CN2 GIA-E 套餐（64GB · 20T 流量）：价格、参数与选购建议",
+    "description": "CN2 GIA-E（官方名 CN2 GIA ECOMMERCE）是线路质量与价格的平衡点：64GB 内存 / 1280GB SSD / 每月 20TB 流量 / 10Gbps 端口，走 CN2 GIA 回国，并且可以在 15 个机房之间免费迁移，数据保留、不用重装。 含全部计费周期价格、完整配置参数与不适合的场合。",
+    "keywords": [
+      "搬瓦工 CN2 GIA-E",
+      "搬瓦工 GIA-E 套餐",
+      "搬瓦工 推荐套餐",
+      "搬瓦工 64GB"
+    ]
+  },
+  "featured": false,
+  "order": 118,
+  "updatedAt": "2026-09-13",
+  "publishedAt": "2026-09-13"
+}

@@ -39,9 +39,9 @@
     "refundDays": 30
   },
   "affiliate": {
-    "pid": "0",
+    "pid": "",
     "verified": false,
-    "note": "pid 需从搬瓦工后台 Affiliates 页面复制"
+    "note": "官网当前没有弗里蒙特限量版在售产品，故不写 pid；购买链接会回落到通用落地页。"
   },
   "scores": { "performance": 2, "value": 5, "stability": 2, "latencyCN": 1 },
   "pros": ["价格是全站最低的一档", "KVM 虚拟化，可自行安装任意系统", "2.5Gbps 端口，突发带宽充足"],

@@ -37,9 +37,9 @@
     "refundDays": 30
   },
   "affiliate": {
-    "pid": "0",
+    "pid": "134",
     "verified": false,
-    "note": "pid 需从搬瓦工后台 Affiliates 页面复制"
+    "note": "pid=134，对应官网「SPECIAL 40G KVM PROMO V5 - OSAKA CN2 GIA」；推荐链接 aff.php?aff=29044&pid=134"
   },
   "scores": { "performance": 4, "value": 4, "stability": 4, "latencyCN": 3 },
   "pros": ["价格明显低于东京和香港", "亚洲优化线路，延迟优于美国机房", "1.5Gbps 端口带宽较宽松"],
