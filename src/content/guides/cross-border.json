@@ -26,7 +26,11 @@
       "body": "当业务量增长到单机扛不住的时候，正确的做法通常不是继续升级单机配置，而是拆分：把数据库、缓存、应用分开部署，或者引入 CDN 分流静态资源。\n\n搬瓦工的套餐最大到 64GB 内存，单机纵向扩展的空间是有的，但横向拆分的收益通常更大，成本也更低。"
     }
   ],
-  "recommendedPlans": ["ecommerce-1gb", "cn2-gia-e-2gb", "cn2-gia-e-1gb"],
+  "recommendedPlans": [
+    "ecommerce-1gb",
+    "cn2-gia-e-2gb",
+    "cn2-gia-e-1gb"
+  ],
   "checklist": [
     "确认客户主要所在地（决定机房位置）",
     "确认是否需要 RAID 磁盘冗余（决定系列）",
@@ -35,13 +39,24 @@
     "核对服务条款，确认用途不被禁止",
     "规划备份策略（快照不等于异地备份）"
   ],
-  "relatedGuides": ["website", "beginner"],
-  "relatedCompare": ["cn2-gia-e-vs-ecommerce"],
+  "relatedGuides": [
+    "website",
+    "beginner",
+    "team"
+  ],
+  "relatedCompare": [
+    "cn2-gia-e-vs-ecommerce"
+  ],
   "faqs": [],
   "seo": {
     "title": "跨境业务与外贸选服务器（2026）：优先考虑冗余而不是价格",
     "description": "跨境电商与外贸业务选择海外服务器的判断标准。停机损失与机器费用的成本对比、机房位置的选择依据、必须避开的用途限制，以及规模增长后的拆分思路。",
-    "keywords": ["跨境电商 服务器", "外贸 独立站 服务器", "海外服务器 选型", "搬瓦工 企业"]
+    "keywords": [
+      "跨境电商 服务器",
+      "外贸 独立站 服务器",
+      "海外服务器 选型",
+      "搬瓦工 企业"
+    ]
   },
   "order": 3,
   "updatedAt": "2026-09-13",

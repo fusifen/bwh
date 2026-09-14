@@ -26,7 +26,10 @@
       "body": "限量版套餐可以满足「走一遍流程」的需求，但它不支持迁移机房，且缺货是常态。\n\n如果你的目的只是学 Linux、跑几个脚本，限量版完全够用。如果你希望这台机器以后还能派上用场，建议直接上常规入门套餐。"
     }
   ],
-  "recommendedPlans": ["basic-vps-1gb", "cn2-gt-1gb"],
+  "recommendedPlans": [
+    "basic-vps-1gb",
+    "cn2-gt-1gb"
+  ],
   "checklist": [
     "确认自己需要的是 VPS 而不是虚拟主机（有没有控制面板需求）",
     "确认预算（建议 50 美元以内）",
@@ -34,13 +37,22 @@
     "确认是否需要迁移机房的能力",
     "读一遍服务条款，确认自己的用途不被禁止"
   ],
-  "relatedGuides": ["website", "developer"],
+  "relatedGuides": [
+    "website",
+    "developer",
+    "budget"
+  ],
   "relatedCompare": [],
   "faqs": [],
   "seo": {
     "title": "新手第一台 VPS 怎么选（2026）：预算、路径与三个坑",
     "description": "第一次购买 VPS 的完整指南。预算怎么定、走通哪五步算入门、以及新手最容易踩的三个坑。含具体套餐推荐与购买前检查清单。",
-    "keywords": ["VPS 新手", "VPS 怎么选", "搬瓦工 新手", "第一台 VPS"]
+    "keywords": [
+      "VPS 新手",
+      "VPS 怎么选",
+      "搬瓦工 新手",
+      "第一台 VPS"
+    ]
   },
   "order": 1,
   "updatedAt": "2026-09-13",

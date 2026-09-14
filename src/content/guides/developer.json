@@ -26,7 +26,10 @@
       "body": "如果你是从零开始，建议这样走：\n\n1. 买一台 1GB 入门套餐，选离你近的机房\n2. 装 Debian 12 或 Ubuntu 22.04，配好 SSH 密钥登录\n3. 先打一个快照，这是你的第一个还原点\n4. 装 Docker，跑一个你熟悉的容器验证环境\n5. 确认内存不够时，再决定是升配还是换 2GB 套餐\n\n第 3 步最容易被跳过，但它能省掉你后面大量的重装时间。"
     }
   ],
-  "recommendedPlans": ["basic-vps-2gb", "cn2-gia-e-2gb"],
+  "recommendedPlans": [
+    "basic-vps-2gb",
+    "cn2-gia-e-2gb"
+  ],
   "checklist": [
     "确认用途：只跑运行时，还是包含 Docker 与数据库",
     "确认是否会在这台机器上做编译构建（决定 CPU 核心数优先级）",
@@ -34,13 +37,24 @@
     "确认自己的定时任务不会长时间占满 CPU",
     "确认是否需要浏览器访问已部署服务（决定是否为线路付溢价）"
   ],
-  "relatedGuides": ["beginner", "website"],
-  "relatedCompare": ["cn2-gia-vs-cn2-gt"],
+  "relatedGuides": [
+    "beginner",
+    "website",
+    "budget"
+  ],
+  "relatedCompare": [
+    "cn2-gia-vs-cn2-gt"
+  ],
   "faqs": [],
   "seo": {
     "title": "开发测试环境选 VPS：配置怎么估、线路要不要加钱",
     "description": "把 VPS 当开发测试环境的完整选型思路。为什么线路在这一档不重要、内存按用途怎么估、快照与重装能力为什么比配置关键，以及定时任务的合规边界。",
-    "keywords": ["VPS 开发环境", "开发测试 服务器", "搬瓦工 开发", "Docker VPS 内存"]
+    "keywords": [
+      "VPS 开发环境",
+      "开发测试 服务器",
+      "搬瓦工 开发",
+      "Docker VPS 内存"
+    ]
   },
   "order": 4,
   "updatedAt": "2026-09-13",
