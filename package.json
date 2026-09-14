@@ -10,6 +10,7 @@
     "prebuild": "node scripts/generate-llms-txt.mjs",
     "build": "node scripts/build.mjs",
     "build:node": "astro build",
+    "build:pages": "npm run build && node scripts/gen-go-redirects.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "check": "astro check",
