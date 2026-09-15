@@ -36,6 +36,45 @@ import { withProject, ROOT, heading, ok, warn, fail, detail } from './lib/projec
 
 const OUT = path.join(ROOT, 'dist', 'client', '_redirects');
 
+/** Escape for HTML text and attribute contexts. */
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/**
+ * A static redirect page — the fallback that needs no platform support.
+ *
+ * Three independent mechanisms, so nothing has to work for the visitor to get
+ * through: an HTTP-level refresh header, a scripted replace, and a plain link.
+ * `noindex` keeps these out of search results; they are plumbing, not content.
+ */
+function redirectPage(url, name) {
+  const safe = escapeHtml(url);
+  const label = name ? `（${escapeHtml(name)}）` : '';
+
+  return `<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>正在前往 BandwagonHost…</title>
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="refresh" content="0; url=${safe}">
+<link rel="canonical" href="${safe}">
+</head>
+<body>
+<p>正在跳转到 BandwagonHost${label}…</p>
+<p><a href="${safe}">如果没有自动跳转，请点这里</a></p>
+<script>location.replace(${JSON.stringify(url)})</script>
+</body>
+</html>
+`;
+}
+
 await withProject(async ({ cms, affiliate }) => {
   heading('生成 /go/ 静态跳转规则（Cloudflare Pages）');
 
@@ -57,6 +96,13 @@ await withProject(async ({ cms, affiliate }) => {
   let directed = 0;
   let generic = 0;
 
+  // Fallback files, written alongside the `_redirects` rules. A static page
+  // needs no platform support: if `_redirects` is ignored for any reason —
+  // wrong build command, a host that does not implement it, a rule that gets
+  // dropped — the HTML still lands the visitor on the vendor. Belt and braces,
+  // because a dead affiliate link is invisible until the commission is missing.
+  const goDir = path.join(path.dirname(OUT), 'go');
+
   for (const plan of plans) {
     const url = affiliate.buildAffUrl(cms.AFF, plan.affiliate?.pid);
     if (affiliate.hasUsablePid(plan)) directed += 1;
@@ -64,6 +110,10 @@ await withProject(async ({ cms, affiliate }) => {
 
     // 302, not 301: a corrected pid must not be pinned by a cached redirect.
     lines.push(`/go/${plan.slug}  ${url}  302`);
+
+    const dir = path.join(goDir, plan.slug);
+    await fs.mkdir(dir, { recursive: true });
+    await fs.writeFile(path.join(dir, 'index.html'), redirectPage(url, plan.name), 'utf8');
   }
 
   const block = [
@@ -100,8 +150,10 @@ await withProject(async ({ cms, affiliate }) => {
   await fs.writeFile(OUT, existing.replace(/\s*$/, '\n') + block, 'utf8');
 
   ok(`写入 ${plans.length} 条规则到 dist/client/_redirects`);
+  ok(`生成 ${plans.length} 个兜底跳转页到 dist/client/go/*/index.html`);
   detail(`定向链接 ${directed} 条，通用落地页 ${generic} 条（该套餐未填有效 pid）`);
   detail(`affId ${cms.AFF.affId} 已包含在全部链接中`);
+  detail('两种机制并存：_redirects 生效时走边缘 302，不生效时由静态页兜底');
   if (generic > 0) {
     warn(`${generic} 个套餐没有有效 pid，会跳到通用页而非具体商品`);
   }
